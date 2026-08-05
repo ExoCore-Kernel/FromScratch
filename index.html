@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#111827" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>BlockOS Studio</title>
+  </head>
+  <body data-mobile-panel="blocks">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">B</div>
+        <div>
+          <h1>BlockOS Studio <span class="version-badge">v0.8 · static web</span></h1>
+          <p>Visual kernel builder · guided OS-development lessons · client-side Web VM</p>
+        </div>
+      </div>
+
+      <nav class="toolbar" aria-label="Project actions">
+        <button id="newButton" class="button button-secondary">New</button>
+        <button id="saveButton" class="button button-secondary">Save</button>
+        <button id="loadButton" class="button button-secondary">Load</button>
+        <button id="projectFileButton" class="button button-secondary">Project file</button>
+        <button id="learnButton" class="button button-learning" title="Open detailed guides for every block group">Learn</button>
+        <input id="importProjectInput" type="file" accept=".blockos,.json,.blockos-project.json,application/json" hidden />
+        <button id="customBlocksButton" class="button button-accent">New block</button>
+        <button id="assetsButton" class="button button-accent">Files</button>
+        <button id="exportIsoButton" class="button button-primary">Export build bundle</button>
+        <button id="buildRunButton" class="button button-success">▶ Run Web Demo</button>
+        <input id="bootImageInput" type="file" accept=".iso,.img,.bin,.elf,.mb,.multiboot,application/octet-stream" hidden />
+      </nav>
+    </header>
+
+    <main class="app-shell">
+      <section class="workspace-panel" aria-label="Block editor">
+        <div id="blocklyDiv"></div>
+      </section>
+
+      <aside class="code-panel" aria-label="Code and emulator output">
+        <div class="inspector-tabs" role="tablist" aria-label="Inspector">
+          <button class="inspector-tab active" data-inspector="code" role="tab">Generated C</button>
+          <button class="inspector-tab" data-inspector="run" role="tab">Run</button>
+        </div>
+
+        <section id="codeView" class="inspector-view active" aria-label="Generated C">
+          <div class="panel-heading">
+            <div>
+              <h2>Generated x86_64 C</h2>
+              <p id="statusText">Ready</p>
+            </div>
+            <div class="panel-actions">
+              <button id="copyButton" class="button button-secondary">Copy</button>
+              <button id="downloadButton" class="button button-primary">Export .c</button>
+            </div>
+          </div>
+          <div id="diagnostics" class="diagnostics" aria-live="polite"></div>
+          <pre class="code-view"><code id="codeOutput"></code></pre>
+        </section>
+
+        <section id="runView" class="inspector-view" aria-label="QEMU output">
+          <div class="panel-heading">
+            <div>
+              <h2>v86 Web VM</h2>
+              <p id="runStatus">Runs entirely in this browser with no backend</p>
+            </div>
+            <div class="panel-actions">
+              <button id="chooseBootImageButton" class="button button-secondary">Choose ISO/IMG</button>
+              <button id="stopRunButton" class="button button-secondary" disabled>Stop</button>
+              <button id="runAgainButton" class="button button-success">▶ Run again</button>
+            </div>
+          </div>
+
+          <div class="qemu-layout">
+            <div class="notice web-vm-notice">
+              <strong>Browser target:</strong> v86 currently emulates 32-bit x86, not x86_64. The online editor and emulator need no backend, but generated x86_64 C still needs the local/Pi toolchain to become a boot image. Export an ISO locally, then choose it here; 32-bit images can run directly.
+            </div>
+            <div class="display-card">
+              <div class="display-card-heading">
+                <strong>OS display</strong>
+                <span>Interactive x86 PC emulator · keyboard, mouse and serial</span>
+              </div>
+              <div id="qemuScreen" class="qemu-screen" tabindex="0">
+                <div class="screen-placeholder">Press Run Web Demo, or choose a bootable ISO/IMG from your device.</div>
+              </div>
+            </div>
+
+            <div class="input-card">
+              <label for="runInput">Serial input</label>
+              <div class="input-row">
+                <input id="runInput" type="text" placeholder="Type input for the OS" disabled />
+                <button id="sendInputButton" class="button button-primary" disabled>Send</button>
+              </div>
+              <p>Input is sent to the guest serial port. The Web VM runs fully client-side.</p>
+            </div>
+
+            <details class="serial-details">
+              <summary>Web VM and serial output</summary>
+              <pre id="runOutput" class="code-view run-output">No Web VM has run yet.</pre>
+            </details>
+          </div>
+        </section>
+      </aside>
+    </main>
+
+    <nav class="mobile-nav" aria-label="Mobile editor panels">
+      <button class="mobile-nav-button active" data-mobile-target="blocks">Blocks</button>
+      <button class="mobile-nav-button" data-mobile-target="code">C code</button>
+      <button class="mobile-nav-button" data-mobile-target="run">Run</button>
+    </nav>
+
+    <dialog id="customBlocksDialog" class="dialog custom-block-dialog">
+      <form id="customBlockForm">
+        <div class="dialog-heading">
+          <div>
+            <h2>Create a real custom block</h2>
+            <p>The new block gets its own toolbox entry, typed input sockets, definition block, and argument reporter blocks.</p>
+          </div>
+          <button type="button" id="closeCustomBlocksButton" class="icon-button" aria-label="Close">×</button>
+        </div>
+
+        <label>
+          Block name
+          <input id="customBlockName" type="text" maxlength="48" placeholder="draw warning box" required />
+        </label>
+
+        <div class="custom-arguments-heading">
+          <div>
+            <strong>Arguments</strong>
+            <span>Up to 8 typed inputs</span>
+          </div>
+          <button type="button" id="addCustomArgumentButton" class="button button-secondary">+ Add argument</button>
+        </div>
+        <div id="customArgumentRows" class="custom-argument-rows"></div>
+
+        <div class="notice">
+          Custom type names create separate Blockly socket types and compile as named 64-bit C typedefs. Use the generated “make TYPE from” block to create one.
+        </div>
+
+        <div class="dialog-actions">
+          <button type="button" id="cancelCustomBlocksButton" class="button button-secondary">Cancel</button>
+          <button type="submit" class="button button-primary">Create block</button>
+        </div>
+
+        <div class="custom-existing-heading">
+          <strong>Your custom blocks</strong>
+        </div>
+        <div id="customBlockList" class="custom-block-list"></div>
+      </form>
+    </dialog>
+
+    <dialog id="projectFileDialog" class="dialog">
+      <form method="dialog">
+        <div class="dialog-heading">
+          <div>
+            <h2>Project file</h2>
+            <p>Move a complete BlockOS workspace between browsers and computers.</p>
+          </div>
+          <button type="button" id="closeProjectFileButton" class="icon-button" aria-label="Close">×</button>
+        </div>
+
+        <div class="notice">
+          Project files include all visual blocks and typed custom-block definitions.
+          Uploaded OS dependency files remain under OS files and are managed separately.
+        </div>
+
+        <div class="dialog-actions project-file-actions">
+          <button type="button" id="loadShellExampleButton" class="button button-secondary">Load word shell</button>
+          <button type="button" id="importProjectFileButton" class="button button-secondary">Import project</button>
+          <button type="button" id="exportProjectFileButton" class="button button-primary">Export project</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="assetsDialog" class="dialog">
+      <form id="assetsForm" method="dialog">
+        <div class="dialog-heading">
+          <div>
+            <h2>OS files and dependencies</h2>
+            <p>Keep dependency files in this browser session and include them in an exported build bundle.</p>
+          </div>
+          <button type="button" id="closeAssetsButton" class="icon-button" aria-label="Close">×</button>
+        </div>
+
+        <label>
+          Upload files
+          <input id="assetFiles" type="file" name="files" multiple />
+        </label>
+
+        <div class="dialog-actions dialog-actions-split">
+          <button type="button" id="importServerAssetsButton" class="button button-secondary" disabled title="The static web edition has no server folder">No server required</button>
+          <button type="button" id="uploadAssetsButton" class="button button-primary">Upload selected</button>
+        </div>
+
+        <div id="assetStatus" class="notice">No files loaded yet.</div>
+        <div id="assetList" class="asset-list"></div>
+      </form>
+    </dialog>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
