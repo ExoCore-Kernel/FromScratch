@@ -35,3 +35,7 @@ The GitHub Pages workflow downloads the pinned v86 release assets during deploym
 ## License
 
 FromScratch is distributed under the repository `LICENSE`. v86 is separately licensed under BSD-2-Clause; see `THIRD_PARTY_NOTICES.md`.
+
+## Enabling Pages
+
+Open **Settings → Pages → Build and deployment** and choose **GitHub Actions** if Pages has not been enabled for the repository yet. Private-repository Pages availability depends on the GitHub plan; making this repository public also makes the site publicly available.
