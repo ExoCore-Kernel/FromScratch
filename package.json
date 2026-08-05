@@ -1,0 +1,22 @@
+{
+  "name": "blockos-studio",
+  "version": "0.8.0",
+  "private": true,
+  "description": "Backend-free visual OS learning studio with a client-side v86 Web VM and GitHub Pages deployment.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "check": "node --check src/main.js && node --check src/browser-vm.js && node --check src/blocks/os-blocks.js && node --check src/blocks/block-catalog.js && node --check src/generator/c-generator.js && node --check src/toolbox.js && node --check src/custom-blocks.js && node --check src/learning-content.js && node --check src/toolbox-learning.js && node --check src/learn.js"
+  },
+  "dependencies": {
+    "blockly": "13.1.1"
+  },
+  "devDependencies": {
+    "vite": "8.1.5"
+  }
+}
