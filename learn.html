@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f172a" />
+    <title>BlockOS Learning Center</title>
+  </head>
+  <body>
+    <header class="learn-topbar">
+      <a class="learn-brand" href="./">
+        <span class="learn-brand-mark" aria-hidden="true">B</span>
+        <span>
+          <strong>BlockOS Learning Center</strong>
+          <small>How the blocks work, what C they generate, and what the runtime really implements</small>
+        </span>
+      </a>
+      <div class="learn-top-actions">
+        <label class="learn-search-label" for="learnSearch">
+          <span>Search guides and blocks</span>
+          <input id="learnSearch" type="search" placeholder="threads, framebuffer, mutex…" autocomplete="off" />
+        </label>
+        <a class="learn-button" href="./">← Back to Studio</a>
+      </div>
+    </header>
+
+    <main class="learn-layout">
+      <aside class="learn-sidebar" aria-label="Learning topics">
+        <div class="learn-sidebar-heading">
+          <strong>Block groups</strong>
+          <span id="topicCount"></span>
+        </div>
+        <nav id="topicList" class="learn-topic-list"></nav>
+      </aside>
+
+      <article id="learnContent" class="learn-content" tabindex="-1">
+        <div class="learn-loading">Loading the Learning Center…</div>
+      </article>
+    </main>
+
+    <script type="module" src="/src/learn.js"></script>
+  </body>
+</html>
