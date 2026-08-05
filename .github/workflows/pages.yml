@@ -25,7 +25,7 @@ jobs:
         with:
           node-version: 22
       - name: Install native demo tools
-        run: sudo apt-get update && sudo apt-get install -y clang lld jq
+        run: sudo apt-get update && sudo apt-get install -y clang lld jq curl
       - name: Install dependencies
         run: npm install
       - name: Prepare static runtime sources and web demo
@@ -35,6 +35,10 @@ jobs:
           bash scripts/build-web-demo.sh
       - name: Download v86 browser assets
         run: bash scripts/fetch-v86.sh
+      - name: Download browser compiler assets
+        run: bash scripts/fetch-browser-toolchain.sh
+      - name: Download QEMU x86_64 browser assets
+        run: bash scripts/fetch-qemu64.sh
       - name: Check source
         run: npm run check
       - name: Build static site
