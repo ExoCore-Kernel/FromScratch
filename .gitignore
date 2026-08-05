@@ -1,0 +1,9 @@
+node_modules/
+dist/
+server.log
+*.iso
+backups/
+project-assets/*
+!project-assets/.gitkeep
+server-imports/*
+!server-imports/.gitkeep
