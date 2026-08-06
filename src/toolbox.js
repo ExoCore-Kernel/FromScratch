@@ -1,3 +1,4 @@
+import './blocks/event-blocks.js';
 import {extensionCategories} from './blocks/block-catalog.js';
 
 const extensionToolboxCategories = extensionCategories.map((category) => ({
@@ -12,10 +13,21 @@ export const toolbox = {
   contents: [
     {
       kind: 'category',
-      name: 'Kernel basics',
+      name: 'Starting events',
       colour: '275',
       contents: [
         {kind: 'block', type: 'os_start'},
+        {kind: 'block', type: 'os_when_interrupt'},
+        {kind: 'block', type: 'os_when_timer_tick'},
+        {kind: 'block', type: 'os_when_input_line'},
+        {kind: 'block', type: 'os_when_condition'},
+      ],
+    },
+    {
+      kind: 'category',
+      name: 'Kernel basics',
+      colour: '275',
+      contents: [
         {kind: 'block', type: 'os_halt'},
         {kind: 'block', type: 'os_wait_interrupt'},
       ],
@@ -41,6 +53,7 @@ export const toolbox = {
         {kind: 'block', type: 'os_while'},
         {kind: 'block', type: 'os_if'},
         {kind: 'block', type: 'os_repeat'},
+        {kind: 'block', type: 'os_wait_until'},
       ],
     },
     {
