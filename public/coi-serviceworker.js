@@ -54,9 +54,6 @@ if (typeof window === 'undefined') {
   });
 } else {
   (() => {
-    // The compact iPhone interface used to be loaded by the old, broken
-    // service-worker shim. Keep it separate from the worker logic while
-    // preserving the same UI after this fix.
     const base = document.baseURI;
     if (!document.querySelector('link[data-fromscratch-mobile]')) {
       const style = document.createElement('link');
@@ -89,6 +86,20 @@ if (typeof window === 'undefined') {
 
     const serviceWorker = navigator.serviceWorker;
     const controlling = serviceWorker?.controller;
+    let reloadScheduled = false;
+
+    function reloadForIsolation(reason) {
+      if (reloadScheduled) return;
+      reloadScheduled = true;
+      sessionStorage.setItem('coiReloadedBySelf', reason);
+      options.doReload(reason);
+    }
+
+    if (serviceWorker) {
+      serviceWorker.addEventListener('controllerchange', () => {
+        if (!window.crossOriginIsolated) reloadForIsolation('controllerchange');
+      });
+    }
 
     if (controlling && !window.crossOriginIsolated) {
       sessionStorage.setItem('coiCoepHasFailed', 'true');
@@ -105,8 +116,7 @@ if (typeof window === 'undefined') {
           : options.coepCredentialless(),
       });
       if (reloadToDegrade) {
-        sessionStorage.setItem('coiReloadedBySelf', 'coepdegrade');
-        options.doReload('coepdegrade');
+        reloadForIsolation('coepdegrade');
         return;
       }
       if (options.shouldDeregister()) controlling.postMessage({type: 'deregister'});
@@ -122,16 +132,23 @@ if (typeof window === 'undefined') {
       return;
     }
 
-    serviceWorker.register(document.currentScript.src).then(
+    const workerUrl = new URL(document.currentScript.src);
+    workerUrl.searchParams.set('fromscratch-sw', '4');
+
+    serviceWorker.register(workerUrl.href, {updateViaCache: 'none'}).then(
       (registration) => {
         if (!options.quiet) console.log('COOP/COEP service worker registered:', registration.scope);
+        registration.update().catch(() => {});
         registration.addEventListener('updatefound', () => {
-          sessionStorage.setItem('coiReloadedBySelf', 'updatefound');
-          options.doReload('updatefound');
+          const installing = registration.installing;
+          installing?.addEventListener('statechange', () => {
+            if (installing.state === 'activated' && !window.crossOriginIsolated) {
+              reloadForIsolation('updatefound');
+            }
+          });
         });
         if (registration.active && !serviceWorker.controller) {
-          sessionStorage.setItem('coiReloadedBySelf', 'notcontrolling');
-          options.doReload('notcontrolling');
+          reloadForIsolation('notcontrolling');
         }
       },
       (error) => {
