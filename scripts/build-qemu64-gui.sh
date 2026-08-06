@@ -53,7 +53,7 @@ WORKDIR /builddeps
 RUN npm install xterm-pty@0.10.1
 RUN embuilder build sdl2
 WORKDIR /build
-RUN command -v emconfigure && command -v emmake && command -v embuilder
+RUN command -v emconfigure && command -v emmake && command -v embuilder && command -v meson
 CMD ["sleep", "infinity"]
 DOCKER
 
@@ -69,39 +69,39 @@ set -Eeuo pipefail
 export EMCC_CFLAGS="-sUSE_SDL=2 --js-library=/builddeps/node_modules/xterm-pty/emscripten-pty.js"
 COMMON_FLAGS="-O3 -g0 -Wno-error=unused-command-line-argument -matomics -mbulk-memory -DNDEBUG -DG_DISABLE_ASSERT -D_GNU_SOURCE -pthread -sPROXY_TO_PTHREAD=1 -sFORCE_FILESYSTEM -sALLOW_TABLE_GROWTH -sTOTAL_MEMORY=2300MB -sWASM_BIGINT -sMALLOC=emmalloc -sUSE_SDL=2 -sEXPORT_ES6=1"
 
-# Meson refuses to use emcc as a native compiler. QEMU configure launches
-# Meson internally, so provide a wrapper that injects the Emscripten cross file
-# into only the `meson setup` invocation while passing all other commands through.
 cat > /tmp/emscripten-cross.ini <<EOF
-[binaries]
-c = 'emcc'
-cpp = 'em++'
-ar = 'emar'
-strip = 'emstrip'
-pkgconfig = ['pkg-config', '--static']
-
 [host_machine]
 system = 'emscripten'
 cpu_family = 'wasm32'
 cpu = 'wasm32'
 endian = 'little'
 
-[properties]
-needs_exe_wrapper = true
+[binaries]
+c = 'emcc'
+cpp = 'em++'
+ar = 'emar'
+ranlib = 'emranlib'
+strip = 'emstrip'
+pkg-config = 'pkg-config'
 EOF
 
-cat > /tmp/meson-cross <<'EOF'
-#!/bin/sh
-set -eu
-if [ "${1:-}" = "setup" ]; then
-  exec meson "$@" --cross-file=/tmp/emscripten-cross.ini
+MESON_REAL="$(command -v meson)"
+cat > /tmp/meson-wrapper <<EOF
+#!/usr/bin/env bash
+set -Eeuo pipefail
+if [[ "\${1:-}" == "setup" ]]; then
+  exec "$MESON_REAL" "\$@" --cross-file=/tmp/emscripten-cross.ini
 fi
-exec meson "$@"
+exec "$MESON_REAL" "\$@"
 EOF
-chmod +x /tmp/meson-cross
+chmod +x /tmp/meson-wrapper
+
+echo "Meson wrapper: /tmp/meson-wrapper"
+/tmp/meson-wrapper --version
+cat /tmp/emscripten-cross.ini
 
 emconfigure /qemu/configure \
-  --meson=/tmp/meson-cross \
+  --meson=/tmp/meson-wrapper \
   --static \
   --target-list=x86_64-softmmu \
   --without-default-features \
@@ -125,6 +125,7 @@ elif [[ -s qemu-system-x86_64 ]]; then
   cp qemu-system-x86_64 /output/out.js
 else
   echo "QEMU JavaScript launcher was not generated." >&2
+  find . -maxdepth 2 -type f -name "*qemu-system-x86_64*" -ls >&2 || true
   exit 1
 fi
 cp qemu-system-x86_64.wasm /output/
@@ -148,7 +149,7 @@ for path in sorted(root.iterdir()):
         files.append({'name': path.name, 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
 (root / 'runtime.json').write_text(json.dumps({
     'format': 'fromscratch-qemu64-runtime',
-    'version': 7,
+    'version': 8,
     'available': True,
     'gui': True,
     'displayBackend': 'sdl2-canvas',
