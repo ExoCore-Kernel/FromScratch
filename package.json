@@ -1,6 +1,6 @@
 {
   "name": "fromscratch-studio",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "private": true,
   "description": "Backend-free visual OS learning studio with browser compilation, v86 and x86_64 QEMU-Wasm runners.",
   "type": "module",
@@ -11,7 +11,7 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
-    "check": "node --check src/main.js && node --check src/browser-vm.js && node --check src/browser-compiler.js && node --check src/browser-qemu64.js && node --check src/qemu64-page.js && node --check src/blocks/os-blocks.js && node --check src/blocks/event-blocks.js && node --check src/blocks/block-catalog.js && node --check src/generator/c-generator.js && node --check src/toolbox.js && node --check src/custom-blocks.js && node --check src/learning-content.js && node --check src/toolbox-learning.js && node --check src/learn.js && node --check public/compiler-worker.js"
+    "check": "node --check src/main.js && node --check src/browser-vm.js && node --check src/browser-compiler.js && node --check src/browser-qemu64.js && node --check src/qemu64-page.js && node --check src/blocks/os-blocks.js && node --check src/blocks/event-blocks.js && node --check src/blocks/block-catalog.js && node --check src/generator/c-generator.js && node --check src/toolbox.js && node --check src/custom-blocks.js && node --check src/learning-content.js && node --check src/toolbox-learning.js && node --check src/learn.js && node --check public/compiler-worker.js && node --check public/mobile-interface.js"
   },
   "dependencies": {
     "blockly": "13.1.1",
