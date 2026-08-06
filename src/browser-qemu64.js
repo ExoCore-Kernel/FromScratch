@@ -148,7 +148,8 @@ export async function startQemu64({
   globalThis.Module = Module;
   await loadClassicScript(`${runtimePath('load-rom.js')}?run=${runId}`);
 
-  const qemuModule = await import(`${runtimePath('out.js')}?run=${runId}`);
+  const runtimeUrl = `${runtimePath('out.js')}?run=${runId}`;
+  const qemuModule = await import(/* @vite-ignore */ runtimeUrl);
   const initQemu = qemuModule.default;
   if (typeof initQemu !== 'function') throw new Error('QEMU-Wasm out.js did not export its module factory.');
 
