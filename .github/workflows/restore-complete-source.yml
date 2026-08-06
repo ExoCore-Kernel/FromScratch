@@ -45,7 +45,7 @@ jobs:
               .source-bootstrap/part03 \
             | base64 -d > /tmp/fromscratch-complete-v0.9.tar.gz
 
-          echo "c3c8839925b54434645ff397dfb9261e1646ac8197be9061f62cbeef7779be1b  /tmp/fromscratch-complete-v0.9.tar.gz" | sha256sum -c -
+          echo "6d2b709ec3a7fad9a99a073c16c7f55cfde6cb7a433a57658decc8d114e796ab  /tmp/fromscratch-complete-v0.9.tar.gz" | sha256sum -c -
 
           find . -mindepth 1 -maxdepth 1 \
             ! -name .git \
