@@ -28,6 +28,7 @@ emconfigure /qemu/configure \
   --static \
   --disable-tools \
   --disable-docs \
+  --disable-fdt \
   --target-list=x86_64-softmmu \
   --enable-sdl \
   --disable-opengl \
@@ -38,6 +39,11 @@ grep -Eq '^CONFIG_SDL=(y|yes)$' config-host.mak || {
   grep -i sdl config-host.mak meson-logs/meson-log.txt 2>/dev/null | tail -n 80 >&2 || true
   exit 1
 }
+
+if grep -Eq '^CONFIG_FDT=(y|yes)$' config-host.mak; then
+  echo "QEMU unexpectedly enabled FDT in the x86_64-only browser build." >&2
+  exit 1
+fi
 
 emmake make -j"$(nproc)" qemu-system-x86_64
 
