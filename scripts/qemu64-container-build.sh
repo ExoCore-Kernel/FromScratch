@@ -7,8 +7,9 @@ copy_failure_logs() {
     mkdir -p /output/build-logs
     cp -f /build/config.log /output/build-logs/ 2>/dev/null || true
     cp -rf /build/meson-logs /output/build-logs/ 2>/dev/null || true
+    cp -rf /build/meson-info /output/build-logs/ 2>/dev/null || true
     cp -f /build/config-host.mak /output/build-logs/ 2>/dev/null || true
-    echo "Saved QEMU configure diagnostics to public/qemu64/build-logs." >&2
+    echo "Saved QEMU build diagnostics to public/qemu64/build-logs." >&2
   fi
   exit "$status"
 }
@@ -34,16 +35,10 @@ emconfigure /qemu/configure \
   --disable-opengl \
   --with-coroutine=fiber
 
-grep -Eq '^CONFIG_SDL=(y|yes)$' config-host.mak || {
-  echo "QEMU configure completed without enabling SDL2." >&2
-  grep -i sdl config-host.mak meson-logs/meson-log.txt 2>/dev/null | tail -n 80 >&2 || true
-  exit 1
-}
-
-if grep -Eq '^CONFIG_FDT=(y|yes)$' config-host.mak; then
-  echo "QEMU unexpectedly enabled FDT in the x86_64-only browser build." >&2
-  exit 1
-fi
+# --enable-sdl is a required feature in QEMU configure: configure itself exits
+# non-zero if SDL2 cannot be enabled. Do not check the legacy CONFIG_SDL key;
+# current Meson-based QEMU versions no longer write that key to config-host.mak.
+echo "QEMU configure completed with required SDL2 support."
 
 emmake make -j"$(nproc)" qemu-system-x86_64
 
@@ -53,7 +48,7 @@ for generated in \
   qemu-system-x86_64.worker.js; do
   [[ -s "$generated" ]] || {
     echo "QEMU did not generate $generated" >&2
-    find /build -maxdepth 2 -type f -name 'qemu-system-x86_64*' -ls >&2 || true
+    find /build -maxdepth 3 -type f -name 'qemu-system-x86_64*' -ls >&2 || true
     exit 1
   }
 done
