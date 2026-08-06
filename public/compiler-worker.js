@@ -1,20 +1,25 @@
 self.importScripts('./compiler/shared.js');
 
 let apiPromise;
+let supportFilesPromise;
 let activeId = 0;
 
 function asset(name) {
   return new URL(`./compiler/${name}`, self.location.href).href;
 }
 
+function kernelAsset(name) {
+  return new URL(`./browser-kernel/${name}`, self.location.href).href;
+}
+
 async function compileStreaming(filename) {
-  const response = await fetch(filename);
+  const response = await fetch(filename, {cache: 'force-cache'});
   if (!response.ok) throw new Error(`Missing compiler asset: ${filename}`);
   return WebAssembly.compile(await response.arrayBuffer());
 }
 
 async function readBuffer(filename) {
-  const response = await fetch(filename);
+  const response = await fetch(filename, {cache: 'force-cache'});
   if (!response.ok) throw new Error(`Missing compiler asset: ${filename}`);
   return response.arrayBuffer();
 }
@@ -34,11 +39,29 @@ function getApi() {
   return apiPromise;
 }
 
-async function compileFreestandingC(api, id, source) {
-  await api.ready;
+async function addFetchedFile(api, virtualName, url) {
+  const response = await fetch(url, {cache: 'force-cache'});
+  if (!response.ok) throw new Error(`Missing browser kernel file: ${url}`);
+  api.memfs.addFile(virtualName, await response.arrayBuffer());
+}
 
+async function ensureSupportFiles(api) {
+  supportFilesPromise ??= (async () => {
+    await api.ready;
+    await Promise.all([
+      addFetchedFile(api, 'boot.o', kernelAsset('boot.o')),
+      addFetchedFile(api, 'runtime.o', kernelAsset('runtime.o')),
+      addFetchedFile(api, 'extensions_runtime.o', kernelAsset('extensions_runtime.o')),
+      addFetchedFile(api, 'linker.ld', kernelAsset('linker.ld')),
+    ]);
+  })();
+  return supportFilesPromise;
+}
+
+async function compileKernelObject(api, id, source) {
+  await api.ready;
   const input = `kernel-${id}.c`;
-  const output = `kernel-${id}.S`;
+  const output = `kernel-${id}.o`;
   api.memfs.addFile(input, String(source ?? ''));
 
   const clang = await api.getModule(api.clangFilename);
@@ -46,7 +69,7 @@ async function compileFreestandingC(api, id, source) {
     clang,
     'clang',
     '-cc1',
-    '-S',
+    '-emit-obj',
     '-disable-free',
     '-isysroot', '/',
     '-internal-isystem', '/include',
@@ -58,7 +81,7 @@ async function compileFreestandingC(api, id, source) {
     '-ffreestanding',
     '-fno-builtin',
     '-mrelocation-model', 'static',
-    '-mllvm', '--x86-asm-syntax=intel',
+    '-mno-red-zone',
     '-O2',
     '-o', output,
     '-x', 'c',
@@ -66,19 +89,45 @@ async function compileFreestandingC(api, id, source) {
   );
 
   const bytes = api.memfs.getFileContents(output);
-  if (!bytes?.byteLength) throw new Error('Clang returned no assembly output.');
-  return new TextDecoder().decode(new Uint8Array(bytes));
+  if (!bytes?.byteLength) throw new Error('Clang returned no object file.');
+  return output;
+}
+
+async function linkKernelElf(api, id, objectName) {
+  await ensureSupportFiles(api);
+  const output = `kernel-${id}.elf`;
+  const lld = await api.getModule(api.lldFilename);
+  await api.run(
+    lld,
+    'ld.lld',
+    '--no-threads',
+    '--build-id=none',
+    '-nostdlib',
+    '-static',
+    '-z', 'max-page-size=4096',
+    '-T', 'linker.ld',
+    'boot.o',
+    'runtime.o',
+    'extensions_runtime.o',
+    objectName,
+    '-o', output,
+  );
+
+  const bytes = api.memfs.getFileContents(output);
+  if (!bytes?.byteLength) throw new Error('LLD returned no kernel ELF.');
+  return new Uint8Array(bytes).slice();
 }
 
 self.onmessage = async (event) => {
   const {type, id, source} = event.data ?? {};
-  if (type !== 'compile') return;
+  if (type !== 'build-elf') return;
 
   activeId = id;
   try {
     const api = await getApi();
-    const assembly = await compileFreestandingC(api, id, source);
-    self.postMessage({type: 'done', id, assembly});
+    const objectName = await compileKernelObject(api, id, source);
+    const elf = await linkKernelElf(api, id, objectName);
+    self.postMessage({type: 'done', id, elf: elf.buffer}, [elf.buffer]);
   } catch (error) {
     self.postMessage({
       type: 'error',
