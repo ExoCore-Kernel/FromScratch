@@ -1,9 +1,10 @@
 node_modules/
 dist/
-server.log
-*.iso
-backups/
-project-assets/*
-!project-assets/.gitkeep
-server-imports/*
-!server-imports/.gitkeep
+build/
+public/v86/
+public/compiler/
+public/qemu64/
+public/source/
+public/web-demo.img
+*.log
+.DS_Store

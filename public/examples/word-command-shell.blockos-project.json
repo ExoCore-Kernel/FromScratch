@@ -1,0 +1,888 @@
+{
+  "format": "blockos-project",
+  "formatVersion": 1,
+  "name": "BlockOS Word Command Shell",
+  "description": "A line-based shell with full word commands sent through the Run panel input box.",
+  "target": "x86_64",
+  "customBlocks": [],
+  "workspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "os_start",
+          "id": "ws_103",
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "os_clear_screen",
+                "id": "ws_094",
+                "inputs": {
+                  "COLOUR": {
+                    "block": {
+                      "type": "os_colour",
+                      "id": "ws_093",
+                      "fields": {
+                        "COLOUR": "#0b1020"
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "os_print_text",
+                    "id": "ws_096",
+                    "inputs": {
+                      "TEXT": {
+                        "block": {
+                          "type": "os_text",
+                          "id": "ws_095",
+                          "fields": {
+                            "TEXT": "BlockOS Word Command Shell"
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "os_print_text",
+                        "id": "ws_098",
+                        "inputs": {
+                          "TEXT": {
+                            "block": {
+                              "type": "os_text",
+                              "id": "ws_097",
+                              "fields": {
+                                "TEXT": "Type a command in the Run input box and press Send or Enter."
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "os_print_text",
+                            "id": "ws_100",
+                            "inputs": {
+                              "TEXT": {
+                                "block": {
+                                  "type": "os_text",
+                                  "id": "ws_099",
+                                  "fields": {
+                                    "TEXT": "Type help to see available commands."
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "os_print_text",
+                                "id": "ws_102",
+                                "inputs": {
+                                  "TEXT": {
+                                    "block": {
+                                      "type": "os_text",
+                                      "id": "ws_101",
+                                      "fields": {
+                                        "TEXT": "Ready for a command."
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "os_forever",
+                                    "id": "ws_092",
+                                    "inputs": {
+                                      "BODY": {
+                                        "block": {
+                                          "type": "os_if",
+                                          "id": "ws_090",
+                                          "inputs": {
+                                            "CONDITION": {
+                                              "block": {
+                                                "type": "os_input_line_available",
+                                                "id": "ws_089"
+                                              }
+                                            },
+                                            "BODY": {
+                                              "block": {
+                                                "type": "os_var_declare",
+                                                "id": "ws_059",
+                                                "fields": {
+                                                  "TYPE": "const char *",
+                                                  "NAME": "command"
+                                                },
+                                                "inputs": {
+                                                  "VALUE": {
+                                                    "block": {
+                                                      "type": "os_read_input_line",
+                                                      "id": "ws_058"
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "os_if",
+                                                    "id": "ws_063",
+                                                    "inputs": {
+                                                      "CONDITION": {
+                                                        "block": {
+                                                          "type": "os_text_equals_ignore_case",
+                                                          "id": "ws_062",
+                                                          "inputs": {
+                                                            "LEFT": {
+                                                              "block": {
+                                                                "type": "os_var_get",
+                                                                "id": "ws_060",
+                                                                "fields": {
+                                                                  "NAME": "command"
+                                                                }
+                                                              }
+                                                            },
+                                                            "RIGHT": {
+                                                              "block": {
+                                                                "type": "os_text",
+                                                                "id": "ws_061",
+                                                                "fields": {
+                                                                  "TEXT": "help"
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "BODY": {
+                                                        "block": {
+                                                          "type": "os_print_text",
+                                                          "id": "ws_002",
+                                                          "inputs": {
+                                                            "TEXT": {
+                                                              "block": {
+                                                                "type": "os_text",
+                                                                "id": "ws_001",
+                                                                "fields": {
+                                                                  "TEXT": "Available commands:"
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          "next": {
+                                                            "block": {
+                                                              "type": "os_print_text",
+                                                              "id": "ws_004",
+                                                              "inputs": {
+                                                                "TEXT": {
+                                                                  "block": {
+                                                                    "type": "os_text",
+                                                                    "id": "ws_003",
+                                                                    "fields": {
+                                                                      "TEXT": "help - show this command list"
+                                                                    }
+                                                                  }
+                                                                }
+                                                              },
+                                                              "next": {
+                                                                "block": {
+                                                                  "type": "os_print_text",
+                                                                  "id": "ws_006",
+                                                                  "inputs": {
+                                                                    "TEXT": {
+                                                                      "block": {
+                                                                        "type": "os_text",
+                                                                        "id": "ws_005",
+                                                                        "fields": {
+                                                                          "TEXT": "hello - print a greeting"
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "next": {
+                                                                    "block": {
+                                                                      "type": "os_print_text",
+                                                                      "id": "ws_008",
+                                                                      "inputs": {
+                                                                        "TEXT": {
+                                                                          "block": {
+                                                                            "type": "os_text",
+                                                                            "id": "ws_007",
+                                                                            "fields": {
+                                                                              "TEXT": "info - show CPU information"
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "next": {
+                                                                        "block": {
+                                                                          "type": "os_print_text",
+                                                                          "id": "ws_010",
+                                                                          "inputs": {
+                                                                            "TEXT": {
+                                                                              "block": {
+                                                                                "type": "os_text",
+                                                                                "id": "ws_009",
+                                                                                "fields": {
+                                                                                  "TEXT": "uptime - show kernel uptime ticks"
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          "next": {
+                                                                            "block": {
+                                                                              "type": "os_print_text",
+                                                                              "id": "ws_012",
+                                                                              "inputs": {
+                                                                                "TEXT": {
+                                                                                  "block": {
+                                                                                    "type": "os_text",
+                                                                                    "id": "ws_011",
+                                                                                    "fields": {
+                                                                                      "TEXT": "clear - clear the display"
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              "next": {
+                                                                                "block": {
+                                                                                  "type": "os_print_text",
+                                                                                  "id": "ws_014",
+                                                                                  "inputs": {
+                                                                                    "TEXT": {
+                                                                                      "block": {
+                                                                                        "type": "os_text",
+                                                                                        "id": "ws_013",
+                                                                                        "fields": {
+                                                                                          "TEXT": "halt - stop the virtual computer"
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "os_if",
+                                                        "id": "ws_067",
+                                                        "inputs": {
+                                                          "CONDITION": {
+                                                            "block": {
+                                                              "type": "os_text_equals_ignore_case",
+                                                              "id": "ws_066",
+                                                              "inputs": {
+                                                                "LEFT": {
+                                                                  "block": {
+                                                                    "type": "os_var_get",
+                                                                    "id": "ws_064",
+                                                                    "fields": {
+                                                                      "NAME": "command"
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "RIGHT": {
+                                                                  "block": {
+                                                                    "type": "os_text",
+                                                                    "id": "ws_065",
+                                                                    "fields": {
+                                                                      "TEXT": "hello"
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          "BODY": {
+                                                            "block": {
+                                                              "type": "os_print_text",
+                                                              "id": "ws_016",
+                                                              "inputs": {
+                                                                "TEXT": {
+                                                                  "block": {
+                                                                    "type": "os_text",
+                                                                    "id": "ws_015",
+                                                                    "fields": {
+                                                                      "TEXT": "Hello from the BlockOS word-command shell!"
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "next": {
+                                                          "block": {
+                                                            "type": "os_if",
+                                                            "id": "ws_071",
+                                                            "inputs": {
+                                                              "CONDITION": {
+                                                                "block": {
+                                                                  "type": "os_text_equals_ignore_case",
+                                                                  "id": "ws_070",
+                                                                  "inputs": {
+                                                                    "LEFT": {
+                                                                      "block": {
+                                                                        "type": "os_var_get",
+                                                                        "id": "ws_068",
+                                                                        "fields": {
+                                                                          "NAME": "command"
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "RIGHT": {
+                                                                      "block": {
+                                                                        "type": "os_text",
+                                                                        "id": "ws_069",
+                                                                        "fields": {
+                                                                          "TEXT": "info"
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              },
+                                                              "BODY": {
+                                                                "block": {
+                                                                  "type": "os_print_text",
+                                                                  "id": "ws_018",
+                                                                  "inputs": {
+                                                                    "TEXT": {
+                                                                      "block": {
+                                                                        "type": "os_text",
+                                                                        "id": "ws_017",
+                                                                        "fields": {
+                                                                          "TEXT": "CPU vendor:"
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "next": {
+                                                                    "block": {
+                                                                      "type": "os_print_text",
+                                                                      "id": "ws_020",
+                                                                      "inputs": {
+                                                                        "TEXT": {
+                                                                          "block": {
+                                                                            "type": "osx_cpu_get_cpu_vendor",
+                                                                            "id": "ws_019"
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "next": {
+                                                                        "block": {
+                                                                          "type": "os_print_text",
+                                                                          "id": "ws_022",
+                                                                          "inputs": {
+                                                                            "TEXT": {
+                                                                              "block": {
+                                                                                "type": "os_text",
+                                                                                "id": "ws_021",
+                                                                                "fields": {
+                                                                                  "TEXT": "CPU brand:"
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          "next": {
+                                                                            "block": {
+                                                                              "type": "os_print_text",
+                                                                              "id": "ws_024",
+                                                                              "inputs": {
+                                                                                "TEXT": {
+                                                                                  "block": {
+                                                                                    "type": "osx_cpu_get_cpu_brand",
+                                                                                    "id": "ws_023"
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "next": {
+                                                              "block": {
+                                                                "type": "os_if",
+                                                                "id": "ws_075",
+                                                                "inputs": {
+                                                                  "CONDITION": {
+                                                                    "block": {
+                                                                      "type": "os_text_equals_ignore_case",
+                                                                      "id": "ws_074",
+                                                                      "inputs": {
+                                                                        "LEFT": {
+                                                                          "block": {
+                                                                            "type": "os_var_get",
+                                                                            "id": "ws_072",
+                                                                            "fields": {
+                                                                              "NAME": "command"
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "RIGHT": {
+                                                                          "block": {
+                                                                            "type": "os_text",
+                                                                            "id": "ws_073",
+                                                                            "fields": {
+                                                                              "TEXT": "uptime"
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "BODY": {
+                                                                    "block": {
+                                                                      "type": "os_print_text",
+                                                                      "id": "ws_026",
+                                                                      "inputs": {
+                                                                        "TEXT": {
+                                                                          "block": {
+                                                                            "type": "os_text",
+                                                                            "id": "ws_025",
+                                                                            "fields": {
+                                                                              "TEXT": "Kernel uptime ticks:"
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "next": {
+                                                                        "block": {
+                                                                          "type": "os_print_number",
+                                                                          "id": "ws_028",
+                                                                          "inputs": {
+                                                                            "VALUE": {
+                                                                              "block": {
+                                                                                "type": "osx_kernel_services_get_kernel_uptime_ticks",
+                                                                                "id": "ws_027"
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "next": {
+                                                                  "block": {
+                                                                    "type": "os_if",
+                                                                    "id": "ws_079",
+                                                                    "inputs": {
+                                                                      "CONDITION": {
+                                                                        "block": {
+                                                                          "type": "os_text_equals_ignore_case",
+                                                                          "id": "ws_078",
+                                                                          "inputs": {
+                                                                            "LEFT": {
+                                                                              "block": {
+                                                                                "type": "os_var_get",
+                                                                                "id": "ws_076",
+                                                                                "fields": {
+                                                                                  "NAME": "command"
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "RIGHT": {
+                                                                              "block": {
+                                                                                "type": "os_text",
+                                                                                "id": "ws_077",
+                                                                                "fields": {
+                                                                                  "TEXT": "clear"
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "BODY": {
+                                                                        "block": {
+                                                                          "type": "os_clear_screen",
+                                                                          "id": "ws_030",
+                                                                          "inputs": {
+                                                                            "COLOUR": {
+                                                                              "block": {
+                                                                                "type": "os_colour",
+                                                                                "id": "ws_029",
+                                                                                "fields": {
+                                                                                  "COLOUR": "#0b1020"
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "next": {
+                                                                      "block": {
+                                                                        "type": "os_if",
+                                                                        "id": "ws_083",
+                                                                        "inputs": {
+                                                                          "CONDITION": {
+                                                                            "block": {
+                                                                              "type": "os_text_equals_ignore_case",
+                                                                              "id": "ws_082",
+                                                                              "inputs": {
+                                                                                "LEFT": {
+                                                                                  "block": {
+                                                                                    "type": "os_var_get",
+                                                                                    "id": "ws_080",
+                                                                                    "fields": {
+                                                                                      "NAME": "command"
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "RIGHT": {
+                                                                                  "block": {
+                                                                                    "type": "os_text",
+                                                                                    "id": "ws_081",
+                                                                                    "fields": {
+                                                                                      "TEXT": "halt"
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          "BODY": {
+                                                                            "block": {
+                                                                              "type": "os_print_text",
+                                                                              "id": "ws_032",
+                                                                              "inputs": {
+                                                                                "TEXT": {
+                                                                                  "block": {
+                                                                                    "type": "os_text",
+                                                                                    "id": "ws_031",
+                                                                                    "fields": {
+                                                                                      "TEXT": "Halting BlockOS."
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              "next": {
+                                                                                "block": {
+                                                                                  "type": "os_halt",
+                                                                                  "id": "ws_033"
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "next": {
+                                                                          "block": {
+                                                                            "type": "os_if",
+                                                                            "id": "ws_086",
+                                                                            "inputs": {
+                                                                              "CONDITION": {
+                                                                                "block": {
+                                                                                  "type": "os_not",
+                                                                                  "id": "ws_057",
+                                                                                  "inputs": {
+                                                                                    "VALUE": {
+                                                                                      "block": {
+                                                                                        "type": "os_logic",
+                                                                                        "id": "ws_056",
+                                                                                        "fields": {
+                                                                                          "OP": "OR"
+                                                                                        },
+                                                                                        "inputs": {
+                                                                                          "A": {
+                                                                                            "block": {
+                                                                                              "type": "os_text_equals_ignore_case",
+                                                                                              "id": "ws_036",
+                                                                                              "inputs": {
+                                                                                                "LEFT": {
+                                                                                                  "block": {
+                                                                                                    "type": "os_var_get",
+                                                                                                    "id": "ws_034",
+                                                                                                    "fields": {
+                                                                                                      "NAME": "command"
+                                                                                                    }
+                                                                                                  }
+                                                                                                },
+                                                                                                "RIGHT": {
+                                                                                                  "block": {
+                                                                                                    "type": "os_text",
+                                                                                                    "id": "ws_035",
+                                                                                                    "fields": {
+                                                                                                      "TEXT": "help"
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          },
+                                                                                          "B": {
+                                                                                            "block": {
+                                                                                              "type": "os_logic",
+                                                                                              "id": "ws_055",
+                                                                                              "fields": {
+                                                                                                "OP": "OR"
+                                                                                              },
+                                                                                              "inputs": {
+                                                                                                "A": {
+                                                                                                  "block": {
+                                                                                                    "type": "os_text_equals_ignore_case",
+                                                                                                    "id": "ws_039",
+                                                                                                    "inputs": {
+                                                                                                      "LEFT": {
+                                                                                                        "block": {
+                                                                                                          "type": "os_var_get",
+                                                                                                          "id": "ws_037",
+                                                                                                          "fields": {
+                                                                                                            "NAME": "command"
+                                                                                                          }
+                                                                                                        }
+                                                                                                      },
+                                                                                                      "RIGHT": {
+                                                                                                        "block": {
+                                                                                                          "type": "os_text",
+                                                                                                          "id": "ws_038",
+                                                                                                          "fields": {
+                                                                                                            "TEXT": "hello"
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                },
+                                                                                                "B": {
+                                                                                                  "block": {
+                                                                                                    "type": "os_logic",
+                                                                                                    "id": "ws_054",
+                                                                                                    "fields": {
+                                                                                                      "OP": "OR"
+                                                                                                    },
+                                                                                                    "inputs": {
+                                                                                                      "A": {
+                                                                                                        "block": {
+                                                                                                          "type": "os_text_equals_ignore_case",
+                                                                                                          "id": "ws_042",
+                                                                                                          "inputs": {
+                                                                                                            "LEFT": {
+                                                                                                              "block": {
+                                                                                                                "type": "os_var_get",
+                                                                                                                "id": "ws_040",
+                                                                                                                "fields": {
+                                                                                                                  "NAME": "command"
+                                                                                                                }
+                                                                                                              }
+                                                                                                            },
+                                                                                                            "RIGHT": {
+                                                                                                              "block": {
+                                                                                                                "type": "os_text",
+                                                                                                                "id": "ws_041",
+                                                                                                                "fields": {
+                                                                                                                  "TEXT": "info"
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      },
+                                                                                                      "B": {
+                                                                                                        "block": {
+                                                                                                          "type": "os_logic",
+                                                                                                          "id": "ws_053",
+                                                                                                          "fields": {
+                                                                                                            "OP": "OR"
+                                                                                                          },
+                                                                                                          "inputs": {
+                                                                                                            "A": {
+                                                                                                              "block": {
+                                                                                                                "type": "os_text_equals_ignore_case",
+                                                                                                                "id": "ws_045",
+                                                                                                                "inputs": {
+                                                                                                                  "LEFT": {
+                                                                                                                    "block": {
+                                                                                                                      "type": "os_var_get",
+                                                                                                                      "id": "ws_043",
+                                                                                                                      "fields": {
+                                                                                                                        "NAME": "command"
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  },
+                                                                                                                  "RIGHT": {
+                                                                                                                    "block": {
+                                                                                                                      "type": "os_text",
+                                                                                                                      "id": "ws_044",
+                                                                                                                      "fields": {
+                                                                                                                        "TEXT": "uptime"
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            },
+                                                                                                            "B": {
+                                                                                                              "block": {
+                                                                                                                "type": "os_logic",
+                                                                                                                "id": "ws_052",
+                                                                                                                "fields": {
+                                                                                                                  "OP": "OR"
+                                                                                                                },
+                                                                                                                "inputs": {
+                                                                                                                  "A": {
+                                                                                                                    "block": {
+                                                                                                                      "type": "os_text_equals_ignore_case",
+                                                                                                                      "id": "ws_048",
+                                                                                                                      "inputs": {
+                                                                                                                        "LEFT": {
+                                                                                                                          "block": {
+                                                                                                                            "type": "os_var_get",
+                                                                                                                            "id": "ws_046",
+                                                                                                                            "fields": {
+                                                                                                                              "NAME": "command"
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        },
+                                                                                                                        "RIGHT": {
+                                                                                                                          "block": {
+                                                                                                                            "type": "os_text",
+                                                                                                                            "id": "ws_047",
+                                                                                                                            "fields": {
+                                                                                                                              "TEXT": "clear"
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  },
+                                                                                                                  "B": {
+                                                                                                                    "block": {
+                                                                                                                      "type": "os_text_equals_ignore_case",
+                                                                                                                      "id": "ws_051",
+                                                                                                                      "inputs": {
+                                                                                                                        "LEFT": {
+                                                                                                                          "block": {
+                                                                                                                            "type": "os_var_get",
+                                                                                                                            "id": "ws_049",
+                                                                                                                            "fields": {
+                                                                                                                              "NAME": "command"
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        },
+                                                                                                                        "RIGHT": {
+                                                                                                                          "block": {
+                                                                                                                            "type": "os_text",
+                                                                                                                            "id": "ws_050",
+                                                                                                                            "fields": {
+                                                                                                                              "TEXT": "halt"
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              "BODY": {
+                                                                                "block": {
+                                                                                  "type": "os_print_text",
+                                                                                  "id": "ws_085",
+                                                                                  "inputs": {
+                                                                                    "TEXT": {
+                                                                                      "block": {
+                                                                                        "type": "os_text",
+                                                                                        "id": "ws_084",
+                                                                                        "fields": {
+                                                                                          "TEXT": "Unknown command. Type help."
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "next": {
+                                                                              "block": {
+                                                                                "type": "os_print_text",
+                                                                                "id": "ws_088",
+                                                                                "inputs": {
+                                                                                  "TEXT": {
+                                                                                    "block": {
+                                                                                      "type": "os_text",
+                                                                                      "id": "ws_087",
+                                                                                      "fields": {
+                                                                                        "TEXT": "Ready for another command."
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "next": {
+                                            "block": {
+                                              "type": "os_wait_interrupt",
+                                              "id": "ws_091"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "x": 40,
+          "y": 40
+        }
+      ]
+    }
+  }
+}

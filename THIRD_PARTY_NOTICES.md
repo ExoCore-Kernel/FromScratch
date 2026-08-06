@@ -1,17 +1,3 @@
 # Third-party notices
 
-## v86
-
-The GitHub Pages build downloads release artifacts from `copy/v86`.
-
-- Project: https://github.com/copy/v86
-- License: BSD 2-Clause
-- Purpose: client-side x86 PC emulation using JavaScript and WebAssembly
-
-The v86 files are downloaded during GitHub Actions deployment and copied into the static Pages artifact. They are not modified by FromScratch.
-
-## Blockly
-
-- Project: https://github.com/RaspberryPiFoundation/blockly
-- License: Apache-2.0
-- Purpose: visual block editor
+Blockly (Apache-2.0), Vite (MIT), v86 (BSD-2-Clause), wasm-clang (Apache-2.0), QEMU-Wasm/QEMU, xterm.js (MIT), and xterm-pty (MIT). Runtime binaries are downloaded during deployment.

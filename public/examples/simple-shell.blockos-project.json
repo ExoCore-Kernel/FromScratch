@@ -1,0 +1,687 @@
+{
+  "format": "blockos-project",
+  "formatVersion": 1,
+  "name": "Simple Shell",
+  "description": "A one-letter command shell for BlockOS x86_64. Run it and send h, i, t, c, or q through the Run input box.",
+  "target": "x86_64",
+  "customBlocks": [
+    {
+      "id": "cb_simple_shell_prompt",
+      "displayName": "show shell prompt",
+      "cName": "blockos_show_shell_prompt",
+      "arguments": []
+    }
+  ],
+  "workspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "os_start",
+          "id": "simple_shell_start",
+          "x": 40,
+          "y": 40,
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "os_clear_screen",
+                "id": "b_070",
+                "inputs": {
+                  "COLOUR": {
+                    "block": {
+                      "type": "os_colour",
+                      "id": "b_069",
+                      "fields": {
+                        "COLOUR": "#0b1020"
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "os_print_text",
+                    "id": "b_072",
+                    "inputs": {
+                      "TEXT": {
+                        "block": {
+                          "type": "os_text",
+                          "id": "b_071",
+                          "fields": {
+                            "TEXT": "BlockOS Simple Shell"
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "os_print_text",
+                        "id": "b_074",
+                        "inputs": {
+                          "TEXT": {
+                            "block": {
+                              "type": "os_text",
+                              "id": "b_073",
+                              "fields": {
+                                "TEXT": "Use the Run input box to send one-letter commands."
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "os_print_text",
+                            "id": "b_076",
+                            "inputs": {
+                              "TEXT": {
+                                "block": {
+                                  "type": "os_text",
+                                  "id": "b_075",
+                                  "fields": {
+                                    "TEXT": "Type h for help."
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "osx_keyboard_and_mouse_initialize_keyboard",
+                                "id": "b_077",
+                                "next": {
+                                  "block": {
+                                    "type": "os_custom_call_cb_simple_shell_prompt",
+                                    "id": "b_078",
+                                    "next": {
+                                      "block": {
+                                        "type": "os_forever",
+                                        "id": "b_068",
+                                        "inputs": {
+                                          "BODY": {
+                                            "block": {
+                                              "type": "os_if",
+                                              "id": "b_067",
+                                              "inputs": {
+                                                "CONDITION": {
+                                                  "block": {
+                                                    "type": "osx_keyboard_and_mouse_keyboard_key_available",
+                                                    "id": "b_066"
+                                                  }
+                                                },
+                                                "BODY": {
+                                                  "block": {
+                                                    "type": "os_var_declare",
+                                                    "id": "b_065",
+                                                    "fields": {
+                                                      "TYPE": "uint64_t",
+                                                      "NAME": "command"
+                                                    },
+                                                    "inputs": {
+                                                      "VALUE": {
+                                                        "block": {
+                                                          "type": "osx_keyboard_and_mouse_read_keyboard_character",
+                                                          "id": "b_064"
+                                                        }
+                                                      }
+                                                    },
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "os_if",
+                                                        "id": "b_047",
+                                                        "inputs": {
+                                                          "CONDITION": {
+                                                            "block": {
+                                                              "type": "os_compare",
+                                                              "id": "b_046",
+                                                              "fields": {
+                                                                "OP": "EQ"
+                                                              },
+                                                              "inputs": {
+                                                                "A": {
+                                                                  "block": {
+                                                                    "type": "os_var_get",
+                                                                    "id": "b_044",
+                                                                    "fields": {
+                                                                      "NAME": "command"
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "B": {
+                                                                  "block": {
+                                                                    "type": "os_number",
+                                                                    "id": "b_045",
+                                                                    "fields": {
+                                                                      "VALUE": 104
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          "BODY": {
+                                                            "block": {
+                                                              "type": "os_print_text",
+                                                              "id": "b_004",
+                                                              "inputs": {
+                                                                "TEXT": {
+                                                                  "block": {
+                                                                    "type": "os_text",
+                                                                    "id": "b_003",
+                                                                    "fields": {
+                                                                      "TEXT": "Available commands:"
+                                                                    }
+                                                                  }
+                                                                }
+                                                              },
+                                                              "next": {
+                                                                "block": {
+                                                                  "type": "os_print_text",
+                                                                  "id": "b_006",
+                                                                  "inputs": {
+                                                                    "TEXT": {
+                                                                      "block": {
+                                                                        "type": "os_text",
+                                                                        "id": "b_005",
+                                                                        "fields": {
+                                                                          "TEXT": "h - show this help"
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "next": {
+                                                                    "block": {
+                                                                      "type": "os_print_text",
+                                                                      "id": "b_008",
+                                                                      "inputs": {
+                                                                        "TEXT": {
+                                                                          "block": {
+                                                                            "type": "os_text",
+                                                                            "id": "b_007",
+                                                                            "fields": {
+                                                                              "TEXT": "i - system information"
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "next": {
+                                                                        "block": {
+                                                                          "type": "os_print_text",
+                                                                          "id": "b_010",
+                                                                          "inputs": {
+                                                                            "TEXT": {
+                                                                              "block": {
+                                                                                "type": "os_text",
+                                                                                "id": "b_009",
+                                                                                "fields": {
+                                                                                  "TEXT": "t - kernel uptime ticks"
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          "next": {
+                                                                            "block": {
+                                                                              "type": "os_print_text",
+                                                                              "id": "b_012",
+                                                                              "inputs": {
+                                                                                "TEXT": {
+                                                                                  "block": {
+                                                                                    "type": "os_text",
+                                                                                    "id": "b_011",
+                                                                                    "fields": {
+                                                                                      "TEXT": "c - clear the screen"
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              "next": {
+                                                                                "block": {
+                                                                                  "type": "os_print_text",
+                                                                                  "id": "b_014",
+                                                                                  "inputs": {
+                                                                                    "TEXT": {
+                                                                                      "block": {
+                                                                                        "type": "os_text",
+                                                                                        "id": "b_013",
+                                                                                        "fields": {
+                                                                                          "TEXT": "q - halt the OS"
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  },
+                                                                                  "next": {
+                                                                                    "block": {
+                                                                                      "type": "os_custom_call_cb_simple_shell_prompt",
+                                                                                      "id": "b_015"
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "next": {
+                                                          "block": {
+                                                            "type": "os_if",
+                                                            "id": "b_051",
+                                                            "inputs": {
+                                                              "CONDITION": {
+                                                                "block": {
+                                                                  "type": "os_compare",
+                                                                  "id": "b_050",
+                                                                  "fields": {
+                                                                    "OP": "EQ"
+                                                                  },
+                                                                  "inputs": {
+                                                                    "A": {
+                                                                      "block": {
+                                                                        "type": "os_var_get",
+                                                                        "id": "b_048",
+                                                                        "fields": {
+                                                                          "NAME": "command"
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "B": {
+                                                                      "block": {
+                                                                        "type": "os_number",
+                                                                        "id": "b_049",
+                                                                        "fields": {
+                                                                          "VALUE": 105
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              },
+                                                              "BODY": {
+                                                                "block": {
+                                                                  "type": "os_print_text",
+                                                                  "id": "b_017",
+                                                                  "inputs": {
+                                                                    "TEXT": {
+                                                                      "block": {
+                                                                        "type": "os_text",
+                                                                        "id": "b_016",
+                                                                        "fields": {
+                                                                          "TEXT": "BlockOS simple shell running on x86_64."
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "next": {
+                                                                    "block": {
+                                                                      "type": "os_print_text",
+                                                                      "id": "b_019",
+                                                                      "inputs": {
+                                                                        "TEXT": {
+                                                                          "block": {
+                                                                            "type": "os_text",
+                                                                            "id": "b_018",
+                                                                            "fields": {
+                                                                              "TEXT": "CPU vendor:"
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "next": {
+                                                                        "block": {
+                                                                          "type": "os_print_text",
+                                                                          "id": "b_021",
+                                                                          "inputs": {
+                                                                            "TEXT": {
+                                                                              "block": {
+                                                                                "type": "osx_cpu_get_cpu_vendor",
+                                                                                "id": "b_020"
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          "next": {
+                                                                            "block": {
+                                                                              "type": "os_print_text",
+                                                                              "id": "b_023",
+                                                                              "inputs": {
+                                                                                "TEXT": {
+                                                                                  "block": {
+                                                                                    "type": "os_text",
+                                                                                    "id": "b_022",
+                                                                                    "fields": {
+                                                                                      "TEXT": "CPU brand:"
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              "next": {
+                                                                                "block": {
+                                                                                  "type": "os_print_text",
+                                                                                  "id": "b_025",
+                                                                                  "inputs": {
+                                                                                    "TEXT": {
+                                                                                      "block": {
+                                                                                        "type": "osx_cpu_get_cpu_brand",
+                                                                                        "id": "b_024"
+                                                                                      }
+                                                                                    }
+                                                                                  },
+                                                                                  "next": {
+                                                                                    "block": {
+                                                                                      "type": "os_custom_call_cb_simple_shell_prompt",
+                                                                                      "id": "b_026"
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "next": {
+                                                              "block": {
+                                                                "type": "os_if",
+                                                                "id": "b_055",
+                                                                "inputs": {
+                                                                  "CONDITION": {
+                                                                    "block": {
+                                                                      "type": "os_compare",
+                                                                      "id": "b_054",
+                                                                      "fields": {
+                                                                        "OP": "EQ"
+                                                                      },
+                                                                      "inputs": {
+                                                                        "A": {
+                                                                          "block": {
+                                                                            "type": "os_var_get",
+                                                                            "id": "b_052",
+                                                                            "fields": {
+                                                                              "NAME": "command"
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "B": {
+                                                                          "block": {
+                                                                            "type": "os_number",
+                                                                            "id": "b_053",
+                                                                            "fields": {
+                                                                              "VALUE": 116
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "BODY": {
+                                                                    "block": {
+                                                                      "type": "os_print_text",
+                                                                      "id": "b_028",
+                                                                      "inputs": {
+                                                                        "TEXT": {
+                                                                          "block": {
+                                                                            "type": "os_text",
+                                                                            "id": "b_027",
+                                                                            "fields": {
+                                                                              "TEXT": "Kernel uptime ticks:"
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "next": {
+                                                                        "block": {
+                                                                          "type": "os_print_number",
+                                                                          "id": "b_030",
+                                                                          "inputs": {
+                                                                            "VALUE": {
+                                                                              "block": {
+                                                                                "type": "osx_kernel_services_get_kernel_uptime_ticks",
+                                                                                "id": "b_029"
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          "next": {
+                                                                            "block": {
+                                                                              "type": "os_print_text",
+                                                                              "id": "b_032",
+                                                                              "inputs": {
+                                                                                "TEXT": {
+                                                                                  "block": {
+                                                                                    "type": "os_text",
+                                                                                    "id": "b_031",
+                                                                                    "fields": {
+                                                                                      "TEXT": ""
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              "next": {
+                                                                                "block": {
+                                                                                  "type": "os_custom_call_cb_simple_shell_prompt",
+                                                                                  "id": "b_033"
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "next": {
+                                                                  "block": {
+                                                                    "type": "os_if",
+                                                                    "id": "b_059",
+                                                                    "inputs": {
+                                                                      "CONDITION": {
+                                                                        "block": {
+                                                                          "type": "os_compare",
+                                                                          "id": "b_058",
+                                                                          "fields": {
+                                                                            "OP": "EQ"
+                                                                          },
+                                                                          "inputs": {
+                                                                            "A": {
+                                                                              "block": {
+                                                                                "type": "os_var_get",
+                                                                                "id": "b_056",
+                                                                                "fields": {
+                                                                                  "NAME": "command"
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "B": {
+                                                                              "block": {
+                                                                                "type": "os_number",
+                                                                                "id": "b_057",
+                                                                                "fields": {
+                                                                                  "VALUE": 99
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "BODY": {
+                                                                        "block": {
+                                                                          "type": "os_clear_screen",
+                                                                          "id": "b_035",
+                                                                          "inputs": {
+                                                                            "COLOUR": {
+                                                                              "block": {
+                                                                                "type": "os_colour",
+                                                                                "id": "b_034",
+                                                                                "fields": {
+                                                                                  "COLOUR": "#0b1020"
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          "next": {
+                                                                            "block": {
+                                                                              "type": "os_print_text",
+                                                                              "id": "b_037",
+                                                                              "inputs": {
+                                                                                "TEXT": {
+                                                                                  "block": {
+                                                                                    "type": "os_text",
+                                                                                    "id": "b_036",
+                                                                                    "fields": {
+                                                                                      "TEXT": "BlockOS Simple Shell"
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              "next": {
+                                                                                "block": {
+                                                                                  "type": "os_print_text",
+                                                                                  "id": "b_039",
+                                                                                  "inputs": {
+                                                                                    "TEXT": {
+                                                                                      "block": {
+                                                                                        "type": "os_text",
+                                                                                        "id": "b_038",
+                                                                                        "fields": {
+                                                                                          "TEXT": "Screen cleared."
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  },
+                                                                                  "next": {
+                                                                                    "block": {
+                                                                                      "type": "os_custom_call_cb_simple_shell_prompt",
+                                                                                      "id": "b_040"
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "next": {
+                                                                      "block": {
+                                                                        "type": "os_if",
+                                                                        "id": "b_063",
+                                                                        "inputs": {
+                                                                          "CONDITION": {
+                                                                            "block": {
+                                                                              "type": "os_compare",
+                                                                              "id": "b_062",
+                                                                              "fields": {
+                                                                                "OP": "EQ"
+                                                                              },
+                                                                              "inputs": {
+                                                                                "A": {
+                                                                                  "block": {
+                                                                                    "type": "os_var_get",
+                                                                                    "id": "b_060",
+                                                                                    "fields": {
+                                                                                      "NAME": "command"
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "B": {
+                                                                                  "block": {
+                                                                                    "type": "os_number",
+                                                                                    "id": "b_061",
+                                                                                    "fields": {
+                                                                                      "VALUE": 113
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          "BODY": {
+                                                                            "block": {
+                                                                              "type": "os_print_text",
+                                                                              "id": "b_042",
+                                                                              "inputs": {
+                                                                                "TEXT": {
+                                                                                  "block": {
+                                                                                    "type": "os_text",
+                                                                                    "id": "b_041",
+                                                                                    "fields": {
+                                                                                      "TEXT": "Halting BlockOS."
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              "next": {
+                                                                                "block": {
+                                                                                  "type": "os_halt",
+                                                                                  "id": "b_043"
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "os_custom_def_cb_simple_shell_prompt",
+          "id": "shell_prompt_definition",
+          "x": 760,
+          "y": 70,
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "os_print_text",
+                "id": "b_002",
+                "inputs": {
+                  "TEXT": {
+                    "block": {
+                      "type": "os_text",
+                      "id": "b_001",
+                      "fields": {
+                        "TEXT": "blockos> enter h, i, t, c or q"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

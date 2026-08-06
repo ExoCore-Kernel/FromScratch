@@ -1,0 +1,1 @@
+(()=>{if(!window.isSecureContext||!navigator.serviceWorker||window.crossOriginIsolated)return;navigator.serviceWorker.register(new URL('coi-serviceworker.js',document.baseURI)).then(r=>{if(r.active&&!navigator.serviceWorker.controller)location.reload();}).catch(console.error);})();

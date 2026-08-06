@@ -12,8 +12,8 @@
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">B</div>
         <div>
-          <h1>BlockOS Studio <span class="version-badge">v0.8 · static web</span></h1>
-          <p>Visual kernel builder · guided OS-development lessons · client-side Web VM</p>
+          <h1>BlockOS Studio <span class="version-badge">v0.9 · browser + x86_64</span></h1>
+          <p>Visual kernel builder · browser compiler · 32-bit v86 and 64-bit QEMU-Wasm</p>
         </div>
       </div>
 
@@ -27,6 +27,7 @@
         <button id="customBlocksButton" class="button button-accent">New block</button>
         <button id="assetsButton" class="button button-accent">Files</button>
         <button id="exportIsoButton" class="button button-primary">Export build bundle</button>
+        <button id="compileButton" class="button button-primary">Compile x86_64</button>
         <button id="buildRunButton" class="button button-success">▶ Run Web Demo</button>
         <input id="bootImageInput" type="file" accept=".iso,.img,.bin,.elf,.mb,.multiboot,application/octet-stream" hidden />
       </nav>
@@ -61,27 +62,25 @@
         <section id="runView" class="inspector-view" aria-label="QEMU output">
           <div class="panel-heading">
             <div>
-              <h2>v86 Web VM</h2>
-              <p id="runStatus">Runs entirely in this browser with no backend</p>
+              <h2>Browser virtual machines</h2>
+              <p id="runStatus">Run the included demo, choose an image, or open the x86_64 laboratory</p>
             </div>
             <div class="panel-actions">
               <button id="chooseBootImageButton" class="button button-secondary">Choose ISO/IMG</button>
+              <a href="./qemu64.html" class="button button-secondary">64-bit runner</a>
               <button id="stopRunButton" class="button button-secondary" disabled>Stop</button>
               <button id="runAgainButton" class="button button-success">▶ Run again</button>
             </div>
           </div>
 
           <div class="qemu-layout">
-            <div class="notice web-vm-notice">
-              <strong>Browser target:</strong> v86 currently emulates 32-bit x86, not x86_64. The online editor and emulator need no backend, but generated x86_64 C still needs the local/Pi toolchain to become a boot image. Export an ISO locally, then choose it here; 32-bit images can run directly.
-            </div>
             <div class="display-card">
               <div class="display-card-heading">
                 <strong>OS display</strong>
-                <span>Interactive x86 PC emulator · keyboard, mouse and serial</span>
+                <span>Interactive browser-local emulator · keyboard, mouse and serial</span>
               </div>
               <div id="qemuScreen" class="qemu-screen" tabindex="0">
-                <div class="screen-placeholder">Press Run Web Demo, or choose a bootable ISO/IMG from your device.</div>
+                <div class="screen-placeholder">Press Run Web Demo, or choose a bootable image from your device.</div>
               </div>
             </div>
 
@@ -91,12 +90,12 @@
                 <input id="runInput" type="text" placeholder="Type input for the OS" disabled />
                 <button id="sendInputButton" class="button button-primary" disabled>Send</button>
               </div>
-              <p>Input is sent to the guest serial port. The Web VM runs fully client-side.</p>
+              <p>Input is sent to the active guest serial port. Files and generated C stay on this device.</p>
             </div>
 
             <details class="serial-details">
-              <summary>Web VM and serial output</summary>
-              <pre id="runOutput" class="code-view run-output">No Web VM has run yet.</pre>
+              <summary>Compiler and serial output</summary>
+              <pre id="runOutput" class="code-view run-output">No browser VM or compiler job has run yet.</pre>
             </details>
           </div>
         </section>
@@ -118,12 +117,12 @@
           </div>
           <button type="button" id="closeCustomBlocksButton" class="icon-button" aria-label="Close">×</button>
         </div>
-
+    
         <label>
           Block name
           <input id="customBlockName" type="text" maxlength="48" placeholder="draw warning box" required />
         </label>
-
+    
         <div class="custom-arguments-heading">
           <div>
             <strong>Arguments</strong>
@@ -132,16 +131,16 @@
           <button type="button" id="addCustomArgumentButton" class="button button-secondary">+ Add argument</button>
         </div>
         <div id="customArgumentRows" class="custom-argument-rows"></div>
-
+    
         <div class="notice">
           Custom type names create separate Blockly socket types and compile as named 64-bit C typedefs. Use the generated “make TYPE from” block to create one.
         </div>
-
+    
         <div class="dialog-actions">
           <button type="button" id="cancelCustomBlocksButton" class="button button-secondary">Cancel</button>
           <button type="submit" class="button button-primary">Create block</button>
         </div>
-
+    
         <div class="custom-existing-heading">
           <strong>Your custom blocks</strong>
         </div>
@@ -177,7 +176,7 @@
         <div class="dialog-heading">
           <div>
             <h2>OS files and dependencies</h2>
-            <p>Keep dependency files in this browser session and include them in an exported build bundle.</p>
+            <p>Attach files to the project locally. Files never leave this browser.</p>
           </div>
           <button type="button" id="closeAssetsButton" class="icon-button" aria-label="Close">×</button>
         </div>
@@ -188,7 +187,6 @@
         </label>
 
         <div class="dialog-actions dialog-actions-split">
-          <button type="button" id="importServerAssetsButton" class="button button-secondary" disabled title="The static web edition has no server folder">No server required</button>
           <button type="button" id="uploadAssetsButton" class="button button-primary">Upload selected</button>
         </div>
 
@@ -197,6 +195,7 @@
       </form>
     </dialog>
 
-    <script type="module" src="/src/main.js"></script>
+    <script src="./coi-serviceworker.js"></script>
+    <script type="module" src="./src/main.js"></script>
   </body>
 </html>
