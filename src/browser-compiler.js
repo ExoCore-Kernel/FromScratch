@@ -4,7 +4,7 @@ let worker = null;
 let nextId = 1;
 const jobs = new Map();
 
-const COMPILER_WORKER_VERSION = '2026-08-06-elf-iso-1';
+const COMPILER_WORKER_VERSION = '2026-08-06-elf-iso-2-red-zone';
 
 function ensureWorker() {
   if (worker) return worker;
