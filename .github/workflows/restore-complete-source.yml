@@ -1,0 +1,63 @@
+name: Restore complete FromScratch source
+
+on:
+  push:
+    paths:
+      - '.source-bootstrap/**'
+      - '.github/workflows/restore-complete-source.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check archive parts
+        id: parts
+        shell: bash
+        run: |
+          missing=0
+          for n in 00 01 02 03; do
+            if [ ! -f ".source-bootstrap/part$n" ]; then
+              missing=1
+            fi
+          done
+          if [ "$missing" -eq 0 ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Restore complete source tree
+        if: steps.parts.outputs.ready == 'true'
+        shell: bash
+        run: |
+          cat .source-bootstrap/part00 \
+              .source-bootstrap/part01 \
+              .source-bootstrap/part02 \
+              .source-bootstrap/part03 \
+            | base64 -d > /tmp/fromscratch-complete-v0.9.tar.gz
+
+          echo "c3c8839925b54434645ff397dfb9261e1646ac8197be9061f62cbeef7779be1b  /tmp/fromscratch-complete-v0.9.tar.gz" | sha256sum -c -
+
+          find . -mindepth 1 -maxdepth 1 \
+            ! -name .git \
+            ! -name .source-bootstrap \
+            -exec rm -rf {} +
+
+          tar -xzf /tmp/fromscratch-complete-v0.9.tar.gz -C .
+          rm -rf .source-bootstrap
+          rm -f .github/workflows/restore-complete-source.yml
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Restore complete FromScratch v0.9 source tree"
+          git push
