@@ -11,7 +11,7 @@ mkdir -p "$DEST"
 
 echo "Mirroring official QEMU-Wasm x86_64 runtime from: $BASE"
 
-fetch() {
+fetch_required() {
   local relative="$1"
   local output="$DEST/$relative"
   mkdir -p "$(dirname "$output")"
@@ -23,71 +23,80 @@ fetch() {
   }
 }
 
-# These two JavaScript files reveal the names of the generated Wasm, worker and
-# Emscripten data package files. The ROM loader is needed so QEMU can find BIOS
-# files under /pack-rom/ without shipping an Alpine guest image.
-fetch out.js
-fetch load-rom.js
+# The official qemu-wasm-demo create-images.sh publishes exactly these files
+# for the x86_64 runtime. Do not infer the ROM package name from Emscripten's
+# generated loader: some versions contain the internal name
+# `datafile_load-rom.data`, while the deployed file is `load-rom.data`.
+fetch_required out.js
+fetch_required load-rom.js
+fetch_required load-rom.data
+fetch_required qemu-system-x86_64.wasm
+fetch_required qemu-system-x86_64.worker.js
 
-python3 - "$DEST/out.js" "$DEST/load-rom.js" > "$WORK/assets.txt" <<'PY'
+# Make aliases for any generated filenames referenced by the Emscripten loader.
+# This covers builds where load-rom.js asks for datafile_load-rom.data, or where
+# out.js uses a different generated Wasm/worker basename. The aliases contain
+# the same official bytes and prevent runtime 404s without guessing remote URLs.
+python3 - "$DEST" <<'PY'
 from pathlib import Path
 import re
+import shutil
 import sys
 
-assets = set()
+root = Path(sys.argv[1])
+load_rom = root / 'load-rom.js'
+out_js = root / 'out.js'
+
+canonical = {
+    '.data': root / 'load-rom.data',
+    '.wasm': root / 'qemu-system-x86_64.wasm',
+    '.worker.js': root / 'qemu-system-x86_64.worker.js',
+}
+
 patterns = [
-    r"[\"']([^\"']+?\.wasm)[\"']",
-    r"[\"']([^\"']+?\.worker\.js)[\"']",
-    r"[\"']([^\"']+?\.data)[\"']",
-    r"[\"']([^\"']+?\.mem)[\"']",
+    r"[\"']([^\"']+?\.worker\.js)(?:\?[^\"']*)?[\"']",
+    r"[\"']([^\"']+?\.wasm)(?:\?[^\"']*)?[\"']",
+    r"[\"']([^\"']+?\.data)(?:\?[^\"']*)?[\"']",
 ]
-for file_name in sys.argv[1:]:
-    text = Path(file_name).read_text(errors='ignore')
+
+references = set()
+for source in (load_rom, out_js):
+    text = source.read_text(errors='ignore')
     for pattern in patterns:
-        for match in re.findall(pattern, text):
-            clean = match.split('?', 1)[0].lstrip('./')
-            if clean.startswith(('http://', 'https://', '/')):
-                clean = clean.rsplit('/', 1)[-1]
-            if clean and '/' not in clean:
-                assets.add(clean)
+        references.update(re.findall(pattern, text))
 
-# Current official builds use these names. Keeping them as fallbacks makes the
-# mirror script survive minifier changes that obscure literal strings.
-assets.update({
-    'qemu-system-x86_64.wasm',
-    'qemu-system-x86_64.worker.js',
-})
+for reference in sorted(references):
+    name = Path(reference.split('?', 1)[0]).name
+    if not name or name in {path.name for path in canonical.values()}:
+        continue
 
-for asset in sorted(assets):
-    print(asset)
+    if name.endswith('.worker.js'):
+        source = canonical['.worker.js']
+    elif name.endswith('.wasm'):
+        source = canonical['.wasm']
+    elif name.endswith('.data'):
+        source = canonical['.data']
+    else:
+        continue
+
+    destination = root / name
+    if destination.exists():
+        continue
+    shutil.copyfile(source, destination)
+    print(f"  compatibility alias: {name} -> {source.name}")
 PY
 
-while IFS= read -r asset; do
-  [[ -n "$asset" ]] || continue
-  if ! curl --compressed -fL --retry 4 --retry-delay 2 "$BASE/$asset" -o "$DEST/$asset"; then
-    # Some builds do not use a separate worker or use a differently named
-    # fallback. Only fail immediately for assets actually referenced by the
-    # downloaded loader code.
-    if grep -Fq "$asset" "$DEST/out.js" "$DEST/load-rom.js"; then
-      echo "Required QEMU-Wasm asset could not be downloaded: $asset" >&2
-      exit 1
-    fi
-    rm -f "$DEST/$asset"
-    echo "Optional asset not present in this official build: $asset"
-  fi
-done < "$WORK/assets.txt"
-
-WASM_FILE="$(find "$DEST" -maxdepth 1 -type f -name '*.wasm' -print -quit)"
-DATA_FILE="$(find "$DEST" -maxdepth 1 -type f -name '*.data' -print -quit)"
-
-[[ -n "$WASM_FILE" && -s "$WASM_FILE" ]] || {
-  echo "No QEMU x86_64 WebAssembly binary was mirrored." >&2
-  exit 1
-}
-[[ -n "$DATA_FILE" && -s "$DATA_FILE" ]] || {
-  echo "No QEMU ROM data package was mirrored. load-rom.js cannot create /pack-rom/." >&2
-  exit 1
-}
+for required in \
+  out.js \
+  load-rom.js \
+  load-rom.data \
+  qemu-system-x86_64.wasm \
+  qemu-system-x86_64.worker.js; do
+  test -s "$DEST/$required" || {
+    echo "Required QEMU-Wasm runtime asset is missing or empty: $required" >&2
+    exit 1
+  }
+done
 
 python3 - "$DEST" "$BASE" <<'PY'
 from pathlib import Path
@@ -108,7 +117,7 @@ for path in sorted(root.iterdir()):
     })
 metadata = {
     'format': 'fromscratch-qemu64-runtime',
-    'version': 1,
+    'version': 2,
     'available': True,
     'source': sys.argv[2],
     'files': files,
