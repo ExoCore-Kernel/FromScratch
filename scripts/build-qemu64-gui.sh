@@ -20,6 +20,10 @@ git -C "$WORK/qemu" checkout -q --detach FETCH_HEAD
 SOURCE_SHA="$(git -C "$WORK/qemu" rev-parse HEAD)"
 echo "QEMU source commit: $SOURCE_SHA"
 
+echo "Initializing QEMU submodules required by Meson..."
+git -C "$WORK/qemu" submodule sync --recursive
+git -C "$WORK/qemu" -c protocol.version=2 submodule update --init --recursive --depth 1
+
 QEMU_DOCKERFILE="$WORK/qemu/tests/docker/dockerfiles/emsdk-wasm32-cross.docker"
 [[ -f "$QEMU_DOCKERFILE" ]] || {
   echo "Pinned QEMU WebAssembly source is missing its dependency Dockerfile." >&2
@@ -31,6 +35,10 @@ grep -q 'host_os=emscripten' "$WORK/qemu/configure" || {
 }
 [[ -f "$WORK/qemu/configs/meson/emscripten.txt" ]] || {
   echo "Pinned QEMU source is missing configs/meson/emscripten.txt." >&2
+  exit 1
+}
+[[ -d "$WORK/qemu/dtc" ]] || {
+  echo "QEMU dtc submodule was not initialized." >&2
   exit 1
 }
 
@@ -100,8 +108,10 @@ docker build --progress=plain \
   "$WORK"
 
 echo "Compiling SDL-enabled qemu-system-x86_64..."
+# The source tree is disposable and must be writable: Meson may create or update
+# fallback subproject state while configuring QEMU.
 docker run --rm --init \
-  -v "$WORK/qemu:/qemu:ro" \
+  -v "$WORK/qemu:/qemu" \
   -v "$OUT:/output" \
   fromscratch-qemu-wasm-gui
 
@@ -137,7 +147,7 @@ for path in sorted(root.iterdir()):
 
 (root / 'runtime.json').write_text(json.dumps({
     'format': 'fromscratch-qemu64-runtime',
-    'version': 11,
+    'version': 12,
     'available': True,
     'gui': True,
     'displayBackend': 'sdl2-canvas',
