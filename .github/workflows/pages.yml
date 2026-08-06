@@ -39,8 +39,24 @@ jobs:
         run: bash scripts/fetch-v86.sh
       - name: Fetch browser compiler toolchain
         run: bash scripts/fetch-browser-toolchain.sh
+      - name: Validate QEMU GUI build scripts
+        run: bash -n scripts/build-qemu64-gui.sh scripts/qemu64-container-build.sh
+      - name: Restore GUI QEMU-Wasm runtime cache
+        id: qemu64-cache
+        uses: actions/cache@v4
+        with:
+          path: public/qemu64
+          key: qemu64-gui-v11-5a65998d-${{ hashFiles('scripts/build-qemu64-gui.sh', 'scripts/qemu64-container-build.sh') }}
       - name: Build GUI QEMU-Wasm x86_64 runtime
+        if: steps.qemu64-cache.outputs.cache-hit != 'true'
         run: bash scripts/build-qemu64-gui.sh
+      - name: Upload QEMU build diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qemu-build-logs
+          path: public/qemu64/build-logs
+          if-no-files-found: ignore
       - run: npm run check
       - run: npm run build
       - uses: actions/configure-pages@v5
