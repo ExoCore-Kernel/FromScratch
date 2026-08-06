@@ -99,10 +99,11 @@ function createDisplay(container) {
 
   const hint = document.createElement('div');
   hint.className = 'qemu64-input-hint';
-  hint.textContent = 'Tap the display for keyboard and mouse input';
+  hint.textContent = 'Starting VGA display… Open the log below if this stays black.';
 
   const serialShell = document.createElement('details');
   serialShell.className = 'qemu64-serial-shell';
+  serialShell.open = isIosLike();
   const summary = document.createElement('summary');
   summary.textContent = 'BIOS, GRUB and serial log';
   const serial = document.createElement('div');
@@ -111,7 +112,7 @@ function createDisplay(container) {
 
   displayShell.append(canvas, hint);
   container.append(displayShell, serialShell);
-  return {canvas, serial};
+  return {canvas, serial, hint};
 }
 
 export function qemu64Supported() {
@@ -141,7 +142,7 @@ export async function startQemu64({
   ensureTerminalStyle();
 
   onStatus('Creating the QEMU graphical display…');
-  const {canvas, serial} = createDisplay(terminal);
+  const {canvas, serial, hint} = createDisplay(terminal);
   activeCanvas = canvas;
 
   const [{Terminal}, {openpty}] = await Promise.all([
@@ -160,8 +161,12 @@ export async function startQemu64({
   xterm.writeln('FromScratch QEMU x86_64 GUI VM');
   xterm.writeln('SDL display backend: ready');
   xterm.writeln(`Image: ${file.name} (${Math.ceil(file.size / 1024)} KiB)`);
-  if (isIosLike()) {
-    xterm.writeln('Warning: this QEMU build is memory-heavy on iPhone/iPad.');
+
+  const ios = isIosLike();
+  const requestedMemory = Math.max(64, Number(memoryMb) || 256);
+  const guestMemory = ios ? Math.min(requestedMemory, 128) : requestedMemory;
+  if (ios) {
+    xterm.writeln(`iPhone/iPad safe mode: ${guestMemory} MiB guest RAM, standard VGA.`);
   }
 
   const {master, slave} = openpty();
@@ -175,11 +180,12 @@ export async function startQemu64({
   const inputName = isKernel ? '/input/kernel' : '/input/image';
   const args = [
     '-M', 'pc',
-    '-m', `${Math.max(64, Number(memoryMb) || 256)}M`,
-    '-accel', 'tcg,tb-size=256',
+    '-m', `${guestMemory}M`,
+    '-accel', 'tcg,tb-size=128',
     '-L', '/pack-rom/',
     '-nic', 'none',
     '-no-reboot',
+    '-vga', 'std',
     '-display', 'sdl,gl=off,show-cursor=on',
     '-serial', 'stdio',
     '-monitor', 'none',
@@ -221,6 +227,7 @@ export async function startQemu64({
       slave.write(`${text}\n`);
     },
     onRuntimeInitialized() {
+      hint.textContent = 'QEMU is running. Tap the display for keyboard and mouse input.';
       onStatus('QEMU x86_64 GUI started. Tap the display to interact.');
       canvas.focus();
     },
@@ -243,6 +250,7 @@ export async function startQemu64({
     moduleInstance = await initQemu(Module);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
+    hint.textContent = 'QEMU failed to start. Read the log below.';
     xterm.writeln('');
     xterm.writeln(`GUI BOOT ERROR: ${message}`);
     throw new Error(`QEMU-Wasm GUI startup failed: ${message}`);
