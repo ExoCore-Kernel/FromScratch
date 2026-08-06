@@ -90,6 +90,7 @@ mkdir -p /tmp/meson-bin
 cat > /tmp/meson-bin/meson <<EOF
 #!/usr/bin/env bash
 set -Eeuo pipefail
+echo "MESON WRAPPER: \$*" >&2
 if [[ "\${1:-}" == "setup" ]]; then
   exec "$MESON_REAL" "\$@" --cross-file=/tmp/emscripten-cross.ini
 fi
@@ -97,9 +98,10 @@ exec "$MESON_REAL" "\$@"
 EOF
 chmod +x /tmp/meson-bin/meson
 export PATH="/tmp/meson-bin:$PATH"
+export MESON="/tmp/meson-bin/meson"
 
-echo "Meson wrapper selected: $(command -v meson)"
-meson --version
+echo "Meson wrapper selected: $MESON"
+"$MESON" --version
 cat /tmp/emscripten-cross.ini
 
 emconfigure /qemu/configure \
@@ -150,7 +152,7 @@ for path in sorted(root.iterdir()):
         files.append({'name': path.name, 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
 (root / 'runtime.json').write_text(json.dumps({
     'format': 'fromscratch-qemu64-runtime',
-    'version': 9,
+    'version': 10,
     'available': True,
     'gui': True,
     'displayBackend': 'sdl2-canvas',
