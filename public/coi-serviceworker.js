@@ -3,11 +3,11 @@
 
   const mobileStyle = document.createElement('link');
   mobileStyle.rel = 'stylesheet';
-  mobileStyle.href = new URL('mobile-interface.css?v=1', base).href;
+  mobileStyle.href = new URL('mobile-interface.css?v=2', base).href;
   document.head.append(mobileStyle);
 
   const mobileScript = document.createElement('script');
-  mobileScript.src = new URL('mobile-interface.js?v=1', base).href;
+  mobileScript.src = new URL('mobile-interface.js?v=2', base).href;
   mobileScript.defer = true;
   document.head.append(mobileScript);
 
