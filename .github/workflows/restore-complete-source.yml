@@ -24,7 +24,7 @@ jobs:
         shell: bash
         run: |
           missing=0
-          for n in 00 01 02 03; do
+          for n in 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16; do
             if [ ! -f ".source-bootstrap/part$n" ]; then
               missing=1
             fi
@@ -39,10 +39,7 @@ jobs:
         if: steps.parts.outputs.ready == 'true'
         shell: bash
         run: |
-          cat .source-bootstrap/part00 \
-              .source-bootstrap/part01 \
-              .source-bootstrap/part02 \
-              .source-bootstrap/part03 \
+          cat .source-bootstrap/part?? \
             | base64 -d > /tmp/fromscratch-complete-v0.9.tar.gz
 
           echo "6d2b709ec3a7fad9a99a073c16c7f55cfde6cb7a433a57658decc8d114e796ab  /tmp/fromscratch-complete-v0.9.tar.gz" | sha256sum -c -
