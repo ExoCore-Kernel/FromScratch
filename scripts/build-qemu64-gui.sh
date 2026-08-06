@@ -5,162 +5,146 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OUT="$ROOT/public/qemu64"
 WORK="${RUNNER_TEMP:-/tmp}/fromscratch-qemu64-gui"
 QEMU_REPO="https://github.com/ktock/qemu-wasm.git"
-QEMU_REF="${QEMU_WASM_REF:-master}"
+# Pinned head of ktock/qemu-wasm PR 21 (dev-e), which contains the maintained
+# Emscripten host and WebAssembly TCG backend. The default master branch does not.
+QEMU_REF="${QEMU_WASM_REF:-5a65998d47d78723115d1478a8a40f8d6d497f37}"
 
 rm -rf "$WORK" "$OUT"
 mkdir -p "$WORK" "$OUT"
 
-echo "Cloning QEMU-Wasm source..."
-git clone --depth 1 --branch "$QEMU_REF" "$QEMU_REPO" "$WORK/qemu"
+echo "Fetching maintained QEMU WebAssembly backend: $QEMU_REF"
+git init -q "$WORK/qemu"
+git -C "$WORK/qemu" remote add origin "$QEMU_REPO"
+git -C "$WORK/qemu" fetch --depth 1 origin "$QEMU_REF"
+git -C "$WORK/qemu" checkout -q --detach FETCH_HEAD
+SOURCE_SHA="$(git -C "$WORK/qemu" rev-parse HEAD)"
+echo "QEMU source commit: $SOURCE_SHA"
 
-DOCKERFILE="$WORK/qemu/Dockerfile"
-CONFIGURE="$WORK/qemu/configure"
-[[ -f "$DOCKERFILE" ]] || {
-  echo "QEMU Emscripten Dockerfile was not found at: $DOCKERFILE" >&2
+QEMU_DOCKERFILE="$WORK/qemu/tests/docker/dockerfiles/emsdk-wasm32-cross.docker"
+[[ -f "$QEMU_DOCKERFILE" ]] || {
+  echo "Pinned QEMU WebAssembly source is missing its dependency Dockerfile." >&2
   exit 1
 }
-[[ -f "$CONFIGURE" ]] || {
-  echo "QEMU configure script was not found at: $CONFIGURE" >&2
+grep -q 'host_os=emscripten' "$WORK/qemu/configure" || {
+  echo "Pinned QEMU source is missing the Emscripten configure patch." >&2
+  exit 1
+}
+[[ -f "$WORK/qemu/configs/meson/emscripten.txt" ]] || {
+  echo "Pinned QEMU source is missing configs/meson/emscripten.txt." >&2
   exit 1
 }
 
-python3 - "$DOCKERFILE" "$CONFIGURE" <<'PY'
+# zlib.net returns an HTML response in GitHub Actions. Use the same zlib release
+# from its official GitHub tag while leaving the upstream dependency image intact.
+python3 - "$QEMU_DOCKERFILE" <<'PY'
 from pathlib import Path
+import re
 import sys
 
-dockerfile = Path(sys.argv[1])
-configure = Path(sys.argv[2])
-
-text = dockerfile.read_text()
-old_candidates = (
-    'RUN curl -Ls https://zlib.net/zlib-$ZLIB_VERSION.tar.xz | tar xJC /zlib --strip-components=1',
-    'RUN curl -Ls https://zlib.net/fossils/zlib-$ZLIB_VERSION.tar.xz | tar xJC /zlib --strip-components=1',
+path = Path(sys.argv[1])
+text = path.read_text()
+pattern = re.compile(
+    r"RUN curl -Ls https://zlib\.net/zlib-\$ZLIB_VERSION\.tar\.xz \| \\\n"
+    r"\s*tar xJC /zlib --strip-components=1"
 )
-new = (
-    'RUN curl -fL --retry 5 --retry-delay 2 '
-    'https://github.com/madler/zlib/archive/refs/tags/v$ZLIB_VERSION.tar.gz '
-    '| tar xzC /zlib --strip-components=1'
+replacement = (
+    "RUN curl -fL --retry 5 --retry-delay 2 "
+    "https://github.com/madler/zlib/archive/refs/tags/v$ZLIB_VERSION.tar.gz | \\\n"
+    "    tar xzC /zlib --strip-components=1"
 )
-for old in old_candidates:
-    if old in text:
-        text = text.replace(old, new)
-        break
-else:
-    raise SystemExit('Expected upstream zlib download command was not found')
-dockerfile.write_text(text)
-print('Patched zlib source download to the official GitHub tag archive')
-
-text = configure.read_text()
-old = '    NINJA=$ninja $meson setup "$@" "$PWD" "$source_path"'
-new = '    NINJA=$ninja $meson setup --cross-file=/tmp/emscripten-cross.ini "$@" "$PWD" "$source_path"'
-if old not in text:
-    raise SystemExit('Expected QEMU Meson setup command was not found')
-configure.write_text(text.replace(old, new, 1))
-print('Patched QEMU configure to pass the Emscripten Meson cross file directly')
+text, count = pattern.subn(replacement, text, count=1)
+if count != 1:
+    raise SystemExit("Could not patch the upstream zlib download command")
+path.write_text(text)
+print("Patched upstream zlib source URL")
 PY
 
-echo "Building QEMU Emscripten base image from $DOCKERFILE..."
-docker build --progress=plain -t fromscratch-qemu-wasm-base -f "$DOCKERFILE" "$WORK/qemu"
+cat > "$WORK/sdl2-config" <<'SDL'
+#!/bin/sh
+set -eu
+case "${1:-}" in
+  --version) echo "2.28.5" ;;
+  --cflags) echo "-sUSE_SDL=2" ;;
+  --libs|--static-libs) echo "-sUSE_SDL=2" ;;
+  --prefix|--exec-prefix) echo "/emsdk/upstream/emscripten/cache/sysroot" ;;
+  *) exit 0 ;;
+esac
+SDL
+chmod +x "$WORK/sdl2-config"
+
+cp "$ROOT/scripts/qemu64-container-build.sh" "$WORK/container-build.sh"
+chmod +x "$WORK/container-build.sh"
+bash -n "$WORK/container-build.sh"
 
 cat > "$WORK/Dockerfile" <<'DOCKER'
 FROM fromscratch-qemu-wasm-base
 WORKDIR /builddeps
 RUN npm install xterm-pty@0.10.1
 RUN embuilder build sdl2
+COPY sdl2-config /usr/local/bin/sdl2-config
+COPY container-build.sh /usr/local/bin/fromscratch-build-qemu
+RUN chmod +x /usr/local/bin/sdl2-config /usr/local/bin/fromscratch-build-qemu
 WORKDIR /build
-RUN command -v emconfigure && command -v emmake && command -v embuilder && command -v meson
-CMD ["sleep", "infinity"]
+ENTRYPOINT ["/usr/local/bin/fromscratch-build-qemu"]
 DOCKER
 
-echo "Adding SDL2 to the QEMU-Wasm build image..."
-docker build --progress=plain -t fromscratch-qemu-wasm-gui "$WORK"
+echo "Building official Emscripten dependency image..."
+docker build --progress=plain \
+  -t fromscratch-qemu-wasm-base \
+  -f "$QEMU_DOCKERFILE" \
+  "$WORK/qemu"
 
-echo "Configuring and compiling SDL-enabled qemu-system-x86_64..."
-docker run --rm --name fromscratch-qemu-gui \
+echo "Adding SDL2 browser display support..."
+docker build --progress=plain \
+  -t fromscratch-qemu-wasm-gui \
+  "$WORK"
+
+echo "Compiling SDL-enabled qemu-system-x86_64..."
+docker run --rm --init \
   -v "$WORK/qemu:/qemu:ro" \
   -v "$OUT:/output" \
-  fromscratch-qemu-wasm-gui bash -lc '
-set -Eeuo pipefail
-export EMCC_CFLAGS="-sUSE_SDL=2 --js-library=/builddeps/node_modules/xterm-pty/emscripten-pty.js"
-COMMON_FLAGS="-O3 -g0 -Wno-error=unused-command-line-argument -matomics -mbulk-memory -DNDEBUG -DG_DISABLE_ASSERT -D_GNU_SOURCE -pthread -sPROXY_TO_PTHREAD=1 -sFORCE_FILESYSTEM -sALLOW_TABLE_GROWTH -sTOTAL_MEMORY=2300MB -sWASM_BIGINT -sMALLOC=emmalloc -sUSE_SDL=2 -sEXPORT_ES6=1"
+  fromscratch-qemu-wasm-gui
 
-cat > /tmp/emscripten-cross.ini <<EOF
-[host_machine]
-system = 'emscripten'
-cpu_family = 'wasm32'
-cpu = 'wasm32'
-endian = 'little'
-
-[binaries]
-c = 'emcc'
-cpp = 'em++'
-ar = 'emar'
-ranlib = 'emranlib'
-strip = 'emstrip'
-pkg-config = 'pkg-config'
-EOF
-
-echo "Emscripten Meson cross file:"
-cat /tmp/emscripten-cross.ini
-
-grep -F "meson setup --cross-file=/tmp/emscripten-cross.ini" /qemu/configure
-
-emconfigure /qemu/configure \
-  --static \
-  --target-list=x86_64-softmmu \
-  --without-default-features \
-  --enable-system \
-  --enable-sdl \
-  --disable-opengl \
-  --with-coroutine=fiber \
-  --extra-cflags="$COMMON_FLAGS" \
-  --extra-cxxflags="$COMMON_FLAGS" \
-  --extra-ldflags="$COMMON_FLAGS -sEXPORTED_RUNTIME_METHODS=getTempRet0,setTempRet0,addFunction,removeFunction,TTY,FS"
-
-emmake make -j"$(nproc)" qemu-system-x86_64
-
-mkdir -p /pack-rom
-cp /qemu/pc-bios/{bios-256k.bin,vgabios-stdvga.bin,kvmvapic.bin,linuxboot_dma.bin,efi-virtio.rom} /pack-rom/
-/emsdk/upstream/emscripten/tools/file_packager.py load-rom.data --preload /pack-rom > load-rom.js
-
-if [[ -s qemu-system-x86_64.js ]]; then
-  cp qemu-system-x86_64.js /output/out.js
-elif [[ -s qemu-system-x86_64 ]]; then
-  cp qemu-system-x86_64 /output/out.js
-else
-  echo "QEMU JavaScript launcher was not generated." >&2
-  find . -maxdepth 2 -type f -name "*qemu-system-x86_64*" -ls >&2 || true
-  exit 1
-fi
-cp qemu-system-x86_64.wasm /output/
-cp qemu-system-x86_64.worker.js /output/
-cp load-rom.js load-rom.data /output/
-'
-
-python3 - "$OUT" "$QEMU_REF" <<'PY'
+python3 - "$OUT" "$SOURCE_SHA" <<'PY'
 from pathlib import Path
-import hashlib, json, sys
+import hashlib
+import json
+import sys
+
 root = Path(sys.argv[1])
-required = ['out.js', 'load-rom.js', 'load-rom.data', 'qemu-system-x86_64.wasm', 'qemu-system-x86_64.worker.js']
+source_sha = sys.argv[2]
+required = [
+    'out.js',
+    'load-rom.js',
+    'load-rom.data',
+    'qemu-system-x86_64.wasm',
+    'qemu-system-x86_64.worker.js',
+]
 for name in required:
     path = root / name
     if not path.is_file() or path.stat().st_size == 0:
         raise SystemExit(f'missing GUI QEMU runtime file: {name}')
+
 files = []
 for path in sorted(root.iterdir()):
     if path.is_file():
         data = path.read_bytes()
-        files.append({'name': path.name, 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
+        files.append({
+            'name': path.name,
+            'bytes': len(data),
+            'sha256': hashlib.sha256(data).hexdigest(),
+        })
+
 (root / 'runtime.json').write_text(json.dumps({
     'format': 'fromscratch-qemu64-runtime',
     'version': 11,
     'available': True,
     'gui': True,
     'displayBackend': 'sdl2-canvas',
-    'sourceRef': sys.argv[2],
+    'sourceCommit': source_sha,
     'files': files,
 }, indent=2) + '\n')
 PY
 
-echo "SDL-enabled QEMU-Wasm runtime built:"
+echo "SDL-enabled QEMU-Wasm runtime built successfully:"
 ls -lh "$OUT"
