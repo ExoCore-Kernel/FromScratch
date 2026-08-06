@@ -57,7 +57,6 @@ async function compileFreestandingC(api, id, source) {
     '-triple=x86_64-unknown-none-elf',
     '-ffreestanding',
     '-fno-builtin',
-    '-fno-stack-protector',
     '-mrelocation-model', 'static',
     '-mllvm', '--x86-asm-syntax=intel',
     '-O2',
