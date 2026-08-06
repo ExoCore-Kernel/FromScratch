@@ -1,6 +1,7 @@
 let moduleInstance = null;
 let activeTerminal = null;
 let activeSlave = null;
+let activeCanvas = null;
 let runCounter = 0;
 
 function runtimePath(name) {
@@ -56,6 +57,9 @@ async function assertRuntimeAvailable() {
   if (metadata?.available !== true) {
     throw new Error('The deployed x86_64 QEMU-Wasm runtime reports that it is incomplete.');
   }
+  if (metadata?.gui !== true || metadata?.displayBackend !== 'sdl') {
+    throw new Error('The deployed QEMU runtime is terminal-only. Run the newest GUI QEMU Pages workflow.');
+  }
 
   const names = new Set((metadata.files ?? []).map((entry) => entry.name));
   const required = [
@@ -72,6 +76,40 @@ async function assertRuntimeAvailable() {
   return metadata;
 }
 
+function createDisplay(container) {
+  container.replaceChildren();
+  container.classList.add('qemu64-gui-host');
+
+  const displayShell = document.createElement('div');
+  displayShell.className = 'qemu64-display-shell';
+
+  const canvas = document.createElement('canvas');
+  canvas.id = 'qemu64Canvas';
+  canvas.className = 'qemu64-canvas';
+  canvas.width = 1024;
+  canvas.height = 768;
+  canvas.tabIndex = 0;
+  canvas.setAttribute('aria-label', 'QEMU x86_64 graphical display');
+  canvas.addEventListener('contextmenu', (event) => event.preventDefault());
+  canvas.addEventListener('pointerdown', () => canvas.focus());
+
+  const hint = document.createElement('div');
+  hint.className = 'qemu64-input-hint';
+  hint.textContent = 'Tap the display for keyboard and mouse input';
+
+  const serialShell = document.createElement('details');
+  serialShell.className = 'qemu64-serial-shell';
+  const summary = document.createElement('summary');
+  summary.textContent = 'BIOS, GRUB and serial log';
+  const serial = document.createElement('div');
+  serial.className = 'qemu64-serial-terminal';
+  serialShell.append(summary, serial);
+
+  displayShell.append(canvas, hint);
+  container.append(displayShell, serialShell);
+  return {canvas, serial};
+}
+
 export function qemu64Supported() {
   return environmentProblems().length === 0;
 }
@@ -83,7 +121,7 @@ export async function startQemu64({
   onStatus = () => {},
 }) {
   if (!file) throw new Error('Choose a 64-bit ISO, raw disk image, or kernel image first.');
-  if (!terminal) throw new Error('The QEMU terminal container is missing.');
+  if (!terminal) throw new Error('The QEMU display container is missing.');
 
   const problems = environmentProblems();
   if (problems.length) {
@@ -94,33 +132,33 @@ export async function startQemu64({
   }
 
   await stopQemu64();
-  onStatus('Checking the deployed QEMU-Wasm runtime…');
+  onStatus('Checking the deployed GUI QEMU-Wasm runtime…');
   await assertRuntimeAvailable();
   ensureTerminalStyle();
 
-  onStatus('Loading the browser terminal…');
+  onStatus('Creating the QEMU graphical display…');
+  const {canvas, serial} = createDisplay(terminal);
+  activeCanvas = canvas;
+
   const [{Terminal}, {openpty}] = await Promise.all([
     import('https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/+esm'),
     import('https://cdn.jsdelivr.net/npm/xterm-pty@0.12.0/+esm'),
   ]);
 
-  terminal.replaceChildren();
   const xterm = new Terminal({
     convertEol: true,
     cursorBlink: true,
-    fontSize: window.matchMedia('(max-width: 760px)').matches ? 12 : 14,
+    fontSize: window.matchMedia('(max-width: 760px)').matches ? 11 : 13,
     scrollback: 3000,
     theme: {background: '#020617', foreground: '#e2e8f0'},
   });
-  xterm.open(terminal);
-  xterm.writeln('FromScratch x86_64 VM');
-  xterm.writeln('Cross-origin isolation: ready');
+  xterm.open(serial);
+  xterm.writeln('FromScratch QEMU x86_64 GUI VM');
+  xterm.writeln('SDL display backend: ready');
   xterm.writeln(`Image: ${file.name} (${Math.ceil(file.size / 1024)} KiB)`);
   if (isIosLike()) {
-    xterm.writeln('Warning: the current upstream QEMU-Wasm build is very memory-heavy on iPhone/iPad.');
-    xterm.writeln('A Mac or desktop browser is recommended if iOS closes the tab during startup.');
+    xterm.writeln('Warning: this QEMU build is memory-heavy on iPhone/iPad.');
   }
-  xterm.writeln('Preparing QEMU-Wasm and the generated ISO…');
 
   const {master, slave} = openpty();
   xterm.loadAddon(master);
@@ -132,13 +170,16 @@ export async function startQemu64({
   const isKernel = lower.endsWith('.elf') || lower.endsWith('.bin') || lower.endsWith('.kernel');
   const inputName = isKernel ? '/input/kernel' : '/input/image';
   const args = [
-    '-nographic',
     '-M', 'pc',
     '-m', `${Math.max(64, Number(memoryMb) || 256)}M`,
     '-accel', 'tcg,tb-size=256',
     '-L', '/pack-rom/',
     '-nic', 'none',
     '-no-reboot',
+    '-display', 'sdl,gl=off,show-cursor=on',
+    '-serial', 'stdio',
+    '-monitor', 'none',
+    '-device', 'usb-tablet',
   ];
 
   if (isKernel) {
@@ -157,6 +198,7 @@ export async function startQemu64({
   const runId = ++runCounter;
   const Module = {
     arguments: args,
+    canvas,
     pty: slave,
     locateFile(path) {
       return runtimePath(path);
@@ -175,7 +217,8 @@ export async function startQemu64({
       slave.write(`${text}\n`);
     },
     onRuntimeInitialized() {
-      onStatus('QEMU-Wasm x86_64 started. BIOS, GRUB and kernel messages appear below.');
+      onStatus('QEMU x86_64 GUI started. Tap the display to interact.');
+      canvas.focus();
     },
   };
 
@@ -184,7 +227,7 @@ export async function startQemu64({
     globalThis.Module = Module;
     await loadClassicScript(`${runtimePath('load-rom.js')}?run=${runId}`);
 
-    onStatus('Loading the QEMU x86_64 WebAssembly module…');
+    onStatus('Loading the GUI QEMU x86_64 WebAssembly module…');
     const runtimeUrl = `${runtimePath('out.js')}?run=${runId}`;
     const qemuModule = await import(/* @vite-ignore */ runtimeUrl);
     const initQemu = qemuModule.default;
@@ -192,13 +235,13 @@ export async function startQemu64({
       throw new Error('QEMU-Wasm out.js did not export its Emscripten module factory.');
     }
 
-    onStatus('Starting the x86_64 virtual machine…');
+    onStatus('Starting the graphical x86_64 virtual machine…');
     moduleInstance = await initQemu(Module);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     xterm.writeln('');
-    xterm.writeln(`BOOT RUNTIME ERROR: ${message}`);
-    throw new Error(`QEMU-Wasm startup failed: ${message}`);
+    xterm.writeln(`GUI BOOT ERROR: ${message}`);
+    throw new Error(`QEMU-Wasm GUI startup failed: ${message}`);
   }
 
   if (Module.TTY?.stream_ops?.poll && Module.pty) {
@@ -210,7 +253,7 @@ export async function startQemu64({
     };
   }
 
-  return {xterm, module: moduleInstance};
+  return {xterm, canvas, module: moduleInstance};
 }
 
 export async function stopQemu64() {
@@ -221,8 +264,10 @@ export async function stopQemu64() {
   moduleInstance = null;
   activeTerminal = null;
   activeSlave = null;
+  activeCanvas = null;
 }
 
 export function sendQemu64Input() {
-  throw new Error('For the 64-bit QEMU VM, tap the terminal and type directly into it.');
+  activeCanvas?.focus();
+  throw new Error('For the graphical QEMU VM, tap the display and type directly into it.');
 }
