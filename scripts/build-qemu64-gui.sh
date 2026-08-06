@@ -22,14 +22,26 @@ DOCKERFILE="$WORK/qemu/Dockerfile"
 python3 - "$DOCKERFILE" <<'PY'
 from pathlib import Path
 import sys
-p = Path(sys.argv[1])
-s = p.read_text()
-old = 'https://zlib.net/zlib-$ZLIB_VERSION.tar.xz'
-new = 'https://zlib.net/fossils/zlib-$ZLIB_VERSION.tar.xz'
-if old not in s:
-    raise SystemExit('Expected zlib URL not found in upstream Dockerfile')
-p.write_text(s.replace(old, new))
-print('Patched zlib download URL to the stable fossils archive')
+
+path = Path(sys.argv[1])
+text = path.read_text()
+old_candidates = (
+    'RUN curl -Ls https://zlib.net/zlib-$ZLIB_VERSION.tar.xz | tar xJC /zlib --strip-components=1',
+    'RUN curl -Ls https://zlib.net/fossils/zlib-$ZLIB_VERSION.tar.xz | tar xJC /zlib --strip-components=1',
+)
+new = (
+    'RUN curl -fL --retry 5 --retry-delay 2 '
+    'https://github.com/madler/zlib/archive/refs/tags/v$ZLIB_VERSION.tar.gz '
+    '| tar xzC /zlib --strip-components=1'
+)
+for old in old_candidates:
+    if old in text:
+        text = text.replace(old, new)
+        break
+else:
+    raise SystemExit('Expected upstream zlib download command was not found')
+path.write_text(text)
+print('Patched zlib source download to the official GitHub tag archive')
 PY
 
 echo "Building QEMU Emscripten base image from $DOCKERFILE..."
@@ -104,7 +116,7 @@ for path in sorted(root.iterdir()):
         files.append({'name': path.name, 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
 (root / 'runtime.json').write_text(json.dumps({
     'format': 'fromscratch-qemu64-runtime',
-    'version': 5,
+    'version': 6,
     'available': True,
     'gui': True,
     'displayBackend': 'sdl2-canvas',
