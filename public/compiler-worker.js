@@ -81,7 +81,7 @@ async function compileKernelObject(api, id, source) {
     '-ffreestanding',
     '-fno-builtin',
     '-mrelocation-model', 'static',
-    '-mno-red-zone',
+    '-disable-red-zone',
     '-O2',
     '-o', output,
     '-x', 'c',
