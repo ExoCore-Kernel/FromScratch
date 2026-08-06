@@ -1,0 +1,45 @@
+name: Redeploy existing Pages artifact
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  redeploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download previously built Pages artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api \
+            /repos/${{ github.repository }}/actions/artifacts/8968605359/zip \
+            > pages-artifact.zip
+
+          mkdir pages-artifact
+          unzip pages-artifact.zip -d pages-artifact
+
+          echo "Downloaded existing artifact:"
+          find pages-artifact -maxdepth 2 -type f | head -20
+
+      - name: Re-upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: pages-artifact
+
+      - name: Deploy existing build
+        id: deployment
+        uses: actions/deploy-pages@v4
