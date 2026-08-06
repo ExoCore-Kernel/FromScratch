@@ -6,22 +6,24 @@ OUT="$ROOT/public/qemu64"
 WORK="${RUNNER_TEMP:-/tmp}/fromscratch-qemu64-gui"
 QEMU_REPO="https://github.com/ktock/qemu-wasm.git"
 QEMU_REF="${QEMU_WASM_REF:-master}"
-SAMPLE_REPO="https://github.com/ktock/qemu-wasm-sample.git"
 
 rm -rf "$WORK" "$OUT"
 mkdir -p "$WORK" "$OUT"
 
 echo "Cloning QEMU-Wasm source..."
 git clone --depth 1 --branch "$QEMU_REF" "$QEMU_REPO" "$WORK/qemu"
-git clone --depth 1 "$SAMPLE_REPO" "$WORK/sample"
 
-DOCKERFILE="$WORK/qemu/tests/docker/dockerfiles/emsdk-wasm32-cross.docker"
-if [[ ! -f "$DOCKERFILE" ]]; then
-  DOCKERFILE="$WORK/qemu/tests/docker/dockerfiles/emsdk-wasm-cross.docker"
-fi
-[[ -f "$DOCKERFILE" ]] || { echo "QEMU Emscripten Dockerfile was not found." >&2; exit 1; }
+# ktock/qemu-wasm provides its Emscripten dependency image in the repository
+# root. Older guessed paths under tests/docker do not exist in this fork.
+DOCKERFILE="$WORK/qemu/Dockerfile"
+[[ -f "$DOCKERFILE" ]] || {
+  echo "QEMU Emscripten Dockerfile was not found at: $DOCKERFILE" >&2
+  echo "Top-level repository files:" >&2
+  find "$WORK/qemu" -maxdepth 1 -type f -printf '  %f\n' | sort >&2
+  exit 1
+}
 
-echo "Building QEMU Emscripten base image..."
+echo "Building QEMU Emscripten base image from $DOCKERFILE..."
 docker build --progress=plain -t fromscratch-qemu-wasm-base -f "$DOCKERFILE" "$WORK/qemu"
 
 cat > "$WORK/Dockerfile" <<'DOCKER'
@@ -31,11 +33,14 @@ RUN npm install xterm-pty@0.10.1
 # Emscripten's SDL2 port supplies the browser canvas implementation.
 RUN embuilder build sdl2
 WORKDIR /build
+RUN command -v emconfigure && command -v emmake && command -v embuilder
 CMD ["sleep", "infinity"]
 DOCKER
 
+echo "Adding SDL2 to the QEMU-Wasm build image..."
 docker build --progress=plain -t fromscratch-qemu-wasm-gui "$WORK"
 
+echo "Configuring and compiling SDL-enabled qemu-system-x86_64..."
 docker run --rm --name fromscratch-qemu-gui \
   -v "$WORK/qemu:/qemu:ro" \
   -v "$OUT:/output" \
@@ -62,7 +67,17 @@ mkdir -p /pack-rom
 cp /qemu/pc-bios/{bios-256k.bin,vgabios-stdvga.bin,kvmvapic.bin,linuxboot_dma.bin,efi-virtio.rom} /pack-rom/
 /emsdk/upstream/emscripten/tools/file_packager.py load-rom.data --preload /pack-rom > load-rom.js
 
-cp qemu-system-x86_64.js /output/out.js
+# Depending on the QEMU Makefile version, the modularized output may have the
+# .js suffix or no suffix. Normalize it to out.js for the browser runner.
+if [[ -s qemu-system-x86_64.js ]]; then
+  cp qemu-system-x86_64.js /output/out.js
+elif [[ -s qemu-system-x86_64 ]]; then
+  cp qemu-system-x86_64 /output/out.js
+else
+  echo "QEMU JavaScript launcher was not generated." >&2
+  find . -maxdepth 2 -type f -name "*qemu-system-x86_64*" -ls >&2 || true
+  exit 1
+fi
 cp qemu-system-x86_64.wasm /output/
 cp qemu-system-x86_64.worker.js /output/
 cp load-rom.js load-rom.data /output/
@@ -87,10 +102,10 @@ for path in sorted(root.iterdir()):
         files.append({'name': path.name, 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
 (root / 'runtime.json').write_text(json.dumps({
     'format': 'fromscratch-qemu64-runtime',
-    'version': 3,
+    'version': 4,
     'available': True,
     'gui': True,
-    'displayBackend': 'sdl',
+    'displayBackend': 'sdl2-canvas',
     'sourceRef': sys.argv[2],
     'files': files,
 }, indent=2) + '\n')
