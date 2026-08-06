@@ -2,7 +2,7 @@ let worker = null;
 let nextId = 1;
 const jobs = new Map();
 
-const COMPILER_WORKER_VERSION = '2026-08-06-c-fix-2';
+const COMPILER_WORKER_VERSION = '2026-08-06-c-fix-3';
 
 function ensureWorker() {
   if (worker) return worker;
