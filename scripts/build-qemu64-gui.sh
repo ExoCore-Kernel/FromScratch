@@ -86,7 +86,8 @@ pkg-config = 'pkg-config'
 EOF
 
 MESON_REAL="$(command -v meson)"
-cat > /tmp/meson-wrapper <<EOF
+mkdir -p /tmp/meson-bin
+cat > /tmp/meson-bin/meson <<EOF
 #!/usr/bin/env bash
 set -Eeuo pipefail
 if [[ "\${1:-}" == "setup" ]]; then
@@ -94,14 +95,14 @@ if [[ "\${1:-}" == "setup" ]]; then
 fi
 exec "$MESON_REAL" "\$@"
 EOF
-chmod +x /tmp/meson-wrapper
+chmod +x /tmp/meson-bin/meson
+export PATH="/tmp/meson-bin:$PATH"
 
-echo "Meson wrapper: /tmp/meson-wrapper"
-/tmp/meson-wrapper --version
+echo "Meson wrapper selected: $(command -v meson)"
+meson --version
 cat /tmp/emscripten-cross.ini
 
 emconfigure /qemu/configure \
-  --meson=/tmp/meson-wrapper \
   --static \
   --target-list=x86_64-softmmu \
   --without-default-features \
@@ -149,7 +150,7 @@ for path in sorted(root.iterdir()):
         files.append({'name': path.name, 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
 (root / 'runtime.json').write_text(json.dumps({
     'format': 'fromscratch-qemu64-runtime',
-    'version': 8,
+    'version': 9,
     'available': True,
     'gui': True,
     'displayBackend': 'sdl2-canvas',
