@@ -57,8 +57,12 @@ async function assertRuntimeAvailable() {
   if (metadata?.available !== true) {
     throw new Error('The deployed x86_64 QEMU-Wasm runtime reports that it is incomplete.');
   }
-  if (metadata?.gui !== true || metadata?.displayBackend !== 'sdl') {
-    throw new Error('The deployed QEMU runtime is terminal-only. Run the newest GUI QEMU Pages workflow.');
+  const guiBackends = new Set(['sdl', 'sdl2', 'sdl2-canvas']);
+  if (metadata?.gui !== true || !guiBackends.has(metadata?.displayBackend)) {
+    throw new Error(
+      `The deployed QEMU runtime is not a recognised GUI build `
+      + `(gui=${String(metadata?.gui)}, displayBackend=${String(metadata?.displayBackend)}).`,
+    );
   }
 
   const names = new Set((metadata.files ?? []).map((entry) => entry.name));
