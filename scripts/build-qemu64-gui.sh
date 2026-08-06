@@ -13,15 +13,24 @@ mkdir -p "$WORK" "$OUT"
 echo "Cloning QEMU-Wasm source..."
 git clone --depth 1 --branch "$QEMU_REF" "$QEMU_REPO" "$WORK/qemu"
 
-# ktock/qemu-wasm provides its Emscripten dependency image in the repository
-# root. Older guessed paths under tests/docker do not exist in this fork.
 DOCKERFILE="$WORK/qemu/Dockerfile"
 [[ -f "$DOCKERFILE" ]] || {
   echo "QEMU Emscripten Dockerfile was not found at: $DOCKERFILE" >&2
-  echo "Top-level repository files:" >&2
-  find "$WORK/qemu" -maxdepth 1 -type f -printf '  %f\n' | sort >&2
   exit 1
 }
+
+python3 - "$DOCKERFILE" <<'PY'
+from pathlib import Path
+import sys
+p = Path(sys.argv[1])
+s = p.read_text()
+old = 'https://zlib.net/zlib-$ZLIB_VERSION.tar.xz'
+new = 'https://zlib.net/fossils/zlib-$ZLIB_VERSION.tar.xz'
+if old not in s:
+    raise SystemExit('Expected zlib URL not found in upstream Dockerfile')
+p.write_text(s.replace(old, new))
+print('Patched zlib download URL to the stable fossils archive')
+PY
 
 echo "Building QEMU Emscripten base image from $DOCKERFILE..."
 docker build --progress=plain -t fromscratch-qemu-wasm-base -f "$DOCKERFILE" "$WORK/qemu"
@@ -30,7 +39,6 @@ cat > "$WORK/Dockerfile" <<'DOCKER'
 FROM fromscratch-qemu-wasm-base
 WORKDIR /builddeps
 RUN npm install xterm-pty@0.10.1
-# Emscripten's SDL2 port supplies the browser canvas implementation.
 RUN embuilder build sdl2
 WORKDIR /build
 RUN command -v emconfigure && command -v emmake && command -v embuilder
@@ -67,15 +75,12 @@ mkdir -p /pack-rom
 cp /qemu/pc-bios/{bios-256k.bin,vgabios-stdvga.bin,kvmvapic.bin,linuxboot_dma.bin,efi-virtio.rom} /pack-rom/
 /emsdk/upstream/emscripten/tools/file_packager.py load-rom.data --preload /pack-rom > load-rom.js
 
-# Depending on the QEMU Makefile version, the modularized output may have the
-# .js suffix or no suffix. Normalize it to out.js for the browser runner.
 if [[ -s qemu-system-x86_64.js ]]; then
   cp qemu-system-x86_64.js /output/out.js
 elif [[ -s qemu-system-x86_64 ]]; then
   cp qemu-system-x86_64 /output/out.js
 else
   echo "QEMU JavaScript launcher was not generated." >&2
-  find . -maxdepth 2 -type f -name "*qemu-system-x86_64*" -ls >&2 || true
   exit 1
 fi
 cp qemu-system-x86_64.wasm /output/
@@ -87,10 +92,7 @@ python3 - "$OUT" "$QEMU_REF" <<'PY'
 from pathlib import Path
 import hashlib, json, sys
 root = Path(sys.argv[1])
-required = [
-    'out.js', 'load-rom.js', 'load-rom.data',
-    'qemu-system-x86_64.wasm', 'qemu-system-x86_64.worker.js',
-]
+required = ['out.js', 'load-rom.js', 'load-rom.data', 'qemu-system-x86_64.wasm', 'qemu-system-x86_64.worker.js']
 for name in required:
     path = root / name
     if not path.is_file() or path.stat().st_size == 0:
@@ -102,7 +104,7 @@ for path in sorted(root.iterdir()):
         files.append({'name': path.name, 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
 (root / 'runtime.json').write_text(json.dumps({
     'format': 'fromscratch-qemu64-runtime',
-    'version': 4,
+    'version': 5,
     'available': True,
     'gui': True,
     'displayBackend': 'sdl2-canvas',
