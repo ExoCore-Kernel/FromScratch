@@ -69,7 +69,39 @@ set -Eeuo pipefail
 export EMCC_CFLAGS="-sUSE_SDL=2 --js-library=/builddeps/node_modules/xterm-pty/emscripten-pty.js"
 COMMON_FLAGS="-O3 -g0 -Wno-error=unused-command-line-argument -matomics -mbulk-memory -DNDEBUG -DG_DISABLE_ASSERT -D_GNU_SOURCE -pthread -sPROXY_TO_PTHREAD=1 -sFORCE_FILESYSTEM -sALLOW_TABLE_GROWTH -sTOTAL_MEMORY=2300MB -sWASM_BIGINT -sMALLOC=emmalloc -sUSE_SDL=2 -sEXPORT_ES6=1"
 
+# Meson refuses to use emcc as a native compiler. QEMU configure launches
+# Meson internally, so provide a wrapper that injects the Emscripten cross file
+# into only the `meson setup` invocation while passing all other commands through.
+cat > /tmp/emscripten-cross.ini <<EOF
+[binaries]
+c = 'emcc'
+cpp = 'em++'
+ar = 'emar'
+strip = 'emstrip'
+pkgconfig = ['pkg-config', '--static']
+
+[host_machine]
+system = 'emscripten'
+cpu_family = 'wasm32'
+cpu = 'wasm32'
+endian = 'little'
+
+[properties]
+needs_exe_wrapper = true
+EOF
+
+cat > /tmp/meson-cross <<'EOF'
+#!/bin/sh
+set -eu
+if [ "${1:-}" = "setup" ]; then
+  exec meson "$@" --cross-file=/tmp/emscripten-cross.ini
+fi
+exec meson "$@"
+EOF
+chmod +x /tmp/meson-cross
+
 emconfigure /qemu/configure \
+  --meson=/tmp/meson-cross \
   --static \
   --target-list=x86_64-softmmu \
   --without-default-features \
@@ -116,7 +148,7 @@ for path in sorted(root.iterdir()):
         files.append({'name': path.name, 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
 (root / 'runtime.json').write_text(json.dumps({
     'format': 'fromscratch-qemu64-runtime',
-    'version': 6,
+    'version': 7,
     'available': True,
     'gui': True,
     'displayBackend': 'sdl2-canvas',
