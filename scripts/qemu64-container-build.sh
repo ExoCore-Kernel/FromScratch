@@ -17,7 +17,10 @@ copy_failure_logs() {
 }
 trap copy_failure_logs EXIT
 
-export EMCC_CFLAGS="--js-library=/builddeps/node_modules/xterm-pty/emscripten-pty.js"
+# QEMU is linked with PROXY_TO_PTHREAD by the upstream WebAssembly port. SDL
+# therefore renders from a worker thread and needs OffscreenCanvas support or
+# the VM can run while the browser canvas remains permanently black.
+export EMCC_CFLAGS="--js-library=/builddeps/node_modules/xterm-pty/emscripten-pty.js -sOFFSCREENCANVAS_SUPPORT=1"
 export SDL2_CONFIG=/usr/local/bin/sdl2-config
 
 command -v emconfigure
@@ -38,7 +41,7 @@ emconfigure /qemu/configure \
   --disable-opengl \
   --with-coroutine=fiber
 
-echo "QEMU configure completed with required SDL2 support."
+echo "QEMU configure completed with required SDL2 and OffscreenCanvas support."
 echo "Building the Meson default target set through Ninja..."
 emmake ninja -C /build -j"$(nproc)"
 
@@ -66,6 +69,12 @@ done
 
 echo "Generated QEMU files:"
 ls -lh "$JS_FILE" "$WASM_FILE" "$WORKER_FILE"
+
+# Verify the generated launcher contains Emscripten's OffscreenCanvas plumbing.
+grep -q 'OffscreenCanvas' "$JS_FILE" || {
+  echo "Generated QEMU launcher does not contain OffscreenCanvas support." >&2
+  exit 1
+}
 
 rm -rf /pack-rom
 mkdir -p /pack-rom
