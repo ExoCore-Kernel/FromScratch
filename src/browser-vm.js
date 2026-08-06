@@ -1,3 +1,5 @@
+import {startQemu64, stopQemu64, sendQemu64Input} from './browser-qemu64.js';
+
 let emulator = null;
 let loaderPromise = null;
 let serialText = '';
@@ -81,7 +83,6 @@ export async function bootBrowserVm({
   if (file && isGeneratedX86_64Image(name)) {
     activeBackend = 'qemu64';
     onSerial?.('Starting the 64-bit QEMU-Wasm terminal…\n');
-    const {startQemu64} = await import('./browser-qemu64.js');
     await startQemu64({
       file,
       terminal: screenContainer,
@@ -132,10 +133,7 @@ export async function bootBrowserVm({
 }
 
 export async function stopBrowserVm() {
-  if (activeBackend === 'qemu64') {
-    const {stopQemu64} = await import('./browser-qemu64.js');
-    await stopQemu64();
-  }
+  if (activeBackend === 'qemu64') await stopQemu64();
 
   if (emulator) {
     try { emulator.stop(); } catch {}
@@ -146,11 +144,8 @@ export async function stopBrowserVm() {
   activeBackend = 'none';
 }
 
-export async function sendBrowserSerial(text) {
-  if (activeBackend === 'qemu64') {
-    const {sendQemu64Input} = await import('./browser-qemu64.js');
-    return sendQemu64Input(text);
-  }
+export function sendBrowserSerial(text) {
+  if (activeBackend === 'qemu64') return sendQemu64Input(text);
   if (!emulator) throw new Error('Start the Web VM first.');
   emulator.serial0_send(text);
 }
