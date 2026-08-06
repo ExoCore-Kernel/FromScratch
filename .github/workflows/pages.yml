@@ -33,9 +33,11 @@ jobs:
       - run: bash scripts/build-web-demo.sh
       - name: Build browser ISO template
         run: bash scripts/build-browser-iso-template.sh
-      - run: bash scripts/fetch-v86.sh
-      - run: bash scripts/fetch-browser-toolchain.sh
-      - continue-on-error: true
+      - name: Fetch v86 compatibility runtime
+        run: bash scripts/fetch-v86.sh
+      - name: Fetch browser compiler toolchain
+        run: bash scripts/fetch-browser-toolchain.sh
+      - name: Fetch QEMU-Wasm x86_64 runtime
         run: bash scripts/fetch-qemu64.sh
       - run: npm run check
       - run: npm run build
