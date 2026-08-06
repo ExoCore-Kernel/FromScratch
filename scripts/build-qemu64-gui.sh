@@ -14,17 +14,24 @@ echo "Cloning QEMU-Wasm source..."
 git clone --depth 1 --branch "$QEMU_REF" "$QEMU_REPO" "$WORK/qemu"
 
 DOCKERFILE="$WORK/qemu/Dockerfile"
+CONFIGURE="$WORK/qemu/configure"
 [[ -f "$DOCKERFILE" ]] || {
   echo "QEMU Emscripten Dockerfile was not found at: $DOCKERFILE" >&2
   exit 1
 }
+[[ -f "$CONFIGURE" ]] || {
+  echo "QEMU configure script was not found at: $CONFIGURE" >&2
+  exit 1
+}
 
-python3 - "$DOCKERFILE" <<'PY'
+python3 - "$DOCKERFILE" "$CONFIGURE" <<'PY'
 from pathlib import Path
 import sys
 
-path = Path(sys.argv[1])
-text = path.read_text()
+dockerfile = Path(sys.argv[1])
+configure = Path(sys.argv[2])
+
+text = dockerfile.read_text()
 old_candidates = (
     'RUN curl -Ls https://zlib.net/zlib-$ZLIB_VERSION.tar.xz | tar xJC /zlib --strip-components=1',
     'RUN curl -Ls https://zlib.net/fossils/zlib-$ZLIB_VERSION.tar.xz | tar xJC /zlib --strip-components=1',
@@ -40,8 +47,16 @@ for old in old_candidates:
         break
 else:
     raise SystemExit('Expected upstream zlib download command was not found')
-path.write_text(text)
+dockerfile.write_text(text)
 print('Patched zlib source download to the official GitHub tag archive')
+
+text = configure.read_text()
+old = '    NINJA=$ninja $meson setup "$@" "$PWD" "$source_path"'
+new = '    NINJA=$ninja $meson setup --cross-file=/tmp/emscripten-cross.ini "$@" "$PWD" "$source_path"'
+if old not in text:
+    raise SystemExit('Expected QEMU Meson setup command was not found')
+configure.write_text(text.replace(old, new, 1))
+print('Patched QEMU configure to pass the Emscripten Meson cross file directly')
 PY
 
 echo "Building QEMU Emscripten base image from $DOCKERFILE..."
@@ -85,24 +100,10 @@ strip = 'emstrip'
 pkg-config = 'pkg-config'
 EOF
 
-MESON_REAL="$(command -v meson)"
-mkdir -p /tmp/meson-bin
-cat > /tmp/meson-bin/meson <<EOF
-#!/usr/bin/env bash
-set -Eeuo pipefail
-echo "MESON WRAPPER: \$*" >&2
-if [[ "\${1:-}" == "setup" ]]; then
-  exec "$MESON_REAL" "\$@" --cross-file=/tmp/emscripten-cross.ini
-fi
-exec "$MESON_REAL" "\$@"
-EOF
-chmod +x /tmp/meson-bin/meson
-export PATH="/tmp/meson-bin:$PATH"
-export MESON="/tmp/meson-bin/meson"
-
-echo "Meson wrapper selected: $MESON"
-"$MESON" --version
+echo "Emscripten Meson cross file:"
 cat /tmp/emscripten-cross.ini
+
+grep -F "meson setup --cross-file=/tmp/emscripten-cross.ini" /qemu/configure
 
 emconfigure /qemu/configure \
   --static \
@@ -152,7 +153,7 @@ for path in sorted(root.iterdir()):
         files.append({'name': path.name, 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
 (root / 'runtime.json').write_text(json.dumps({
     'format': 'fromscratch-qemu64-runtime',
-    'version': 10,
+    'version': 11,
     'available': True,
     'gui': True,
     'displayBackend': 'sdl2-canvas',
