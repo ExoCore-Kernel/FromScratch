@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
+trap 'code=$?; echo "ISO template build failed at line $LINENO with exit code $code" >&2; exit "$code"' ERR
 
 OUT="public/browser-kernel"
 WORK="$(mktemp -d)"
@@ -8,10 +9,16 @@ PLACEHOLDER_SIZE=$((4 * 1024 * 1024))
 SIGNATURE="FROMSCRATCH_KERNEL_SLOT_V1_6B04DFF9"
 trap 'rm -rf "$WORK"' EXIT
 
+for tool in clang grub-mkrescue xorriso mformat python3; do
+  command -v "$tool" >/dev/null || {
+    echo "Missing required tool: $tool" >&2
+    exit 1
+  }
+done
+
 mkdir -p "$OUT" "$ISO_ROOT/boot/grub"
 
-# Precompile the parts that do not change per project. Browser Clang only needs
-# to compile the generated kernel C; browser LLD links it with these objects.
+echo "Compiling fixed x86_64 browser runtime objects..."
 clang --target=x86_64-unknown-none-elf -ffreestanding -fno-stack-protector \
   -fno-pic -mno-red-zone -Ikernel/include -c kernel/runtime.c -o "$OUT/runtime.o"
 clang --target=x86_64-unknown-none-elf -ffreestanding -fno-stack-protector \
@@ -44,7 +51,13 @@ menuentry "FromScratch BlockOS" {
 }
 CFG
 
-grub-mkrescue -o "$OUT/fromscratch-template.iso" "$ISO_ROOT" >/dev/null 2>&1
+echo "Creating GRUB ISO template..."
+grub-mkrescue -o "$OUT/fromscratch-template.iso" "$ISO_ROOT"
+
+test -s "$OUT/fromscratch-template.iso" || {
+  echo "grub-mkrescue did not produce a non-empty ISO" >&2
+  exit 1
+}
 
 python3 - "$OUT/fromscratch-template.iso" "$OUT/iso-template.json" "$PLACEHOLDER_SIZE" "$SIGNATURE" <<'PY'
 from pathlib import Path
@@ -72,3 +85,6 @@ meta = {
 meta_path.write_text(json.dumps(meta, indent=2) + '\n')
 print(f'Browser ISO template: {len(data)} bytes; kernel slot at {offset}, {slot_size} bytes')
 PY
+
+ls -lh "$OUT/runtime.o" "$OUT/extensions_runtime.o" "$OUT/boot.o" \
+  "$OUT/linker.ld" "$OUT/fromscratch-template.iso" "$OUT/iso-template.json"
