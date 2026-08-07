@@ -1,4 +1,5 @@
 import './blocks/event-blocks.js';
+import './blocks/text-style-blocks.js';
 import {extensionCategories} from './blocks/block-catalog.js';
 
 const extensionToolboxCategories = extensionCategories.map((category) => ({
@@ -38,6 +39,10 @@ export const toolbox = {
       colour: '165',
       contents: [
         {kind: 'block', type: 'os_print_text'},
+        {kind: 'block', type: 'os_set_text_size'},
+        {kind: 'block', type: 'os_set_text_colour'},
+        {kind: 'block', type: 'os_set_text_font'},
+        {kind: 'block', type: 'os_set_text_location'},
         {kind: 'block', type: 'os_print_number'},
         {kind: 'block', type: 'os_clear_screen'},
         {kind: 'block', type: 'os_set_pixel'},
