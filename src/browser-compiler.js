@@ -4,7 +4,7 @@ let worker = null;
 let nextId = 1;
 const jobs = new Map();
 
-const COMPILER_WORKER_VERSION = '2026-08-06-elf-iso-2-red-zone';
+const COMPILER_WORKER_VERSION = '2026-08-07-styled-text-runtime-1';
 
 function ensureWorker() {
   if (worker) return worker;
@@ -58,8 +58,6 @@ export function buildX86_64Elf(source, {onLog} = {}) {
   });
 }
 
-// Kept as a compatibility alias for older UI code. The result now contains a
-// linked ELF instead of stopping at an assembly listing.
 export const compileX86_64Assembly = buildX86_64Elf;
 
 export async function createBootableIso(elf) {
@@ -216,7 +214,4 @@ function installIsoPipelineUi() {
   }
 }
 
-// main.js installs its original listeners during module evaluation. Installing
-// on the next task lets these capture listeners replace the old assembly/demo
-// actions without coupling the compiler module to the large editor module.
 if (typeof document !== 'undefined') setTimeout(installIsoPipelineUi, 0);
