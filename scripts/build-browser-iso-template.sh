@@ -24,6 +24,8 @@ clang --target=x86_64-unknown-none-elf -ffreestanding -fno-stack-protector \
 clang --target=x86_64-unknown-none-elf -ffreestanding -fno-stack-protector \
   -fno-pic -mno-red-zone -Ikernel/include -c kernel/extensions_runtime.c -o "$OUT/extensions_runtime.o"
 clang --target=x86_64-unknown-none-elf -ffreestanding -fno-stack-protector \
+  -fno-pic -mno-red-zone -Ikernel/include -c kernel/text_style_runtime.c -o "$OUT/text_style_runtime.o"
+clang --target=x86_64-unknown-none-elf -ffreestanding -fno-stack-protector \
   -fno-pic -mno-red-zone -c kernel/boot.S -o "$OUT/boot.o"
 cp kernel/linker.ld "$OUT/linker.ld"
 
@@ -45,8 +47,6 @@ cat > "$ISO_ROOT/boot/grub/grub.cfg" <<'CFG'
 set timeout=0
 set default=0
 
-# QEMU-Wasm uses a terminal-oriented display. Sending GRUB output to COM1
-# makes bootloader errors visible instead of looking like a black screen.
 serial --unit=0 --speed=115200 --word=8 --parity=no --stop=1
 terminal_input console serial
 terminal_output console serial
@@ -84,7 +84,7 @@ if offset + slot_size > len(data):
     raise SystemExit('kernel placeholder extends past the ISO')
 meta = {
     'format': 'fromscratch-iso-template',
-    'version': 2,
+    'version': 3,
     'kernelOffset': offset,
     'kernelSlotSize': slot_size,
     'templateBytes': len(data),
@@ -96,5 +96,5 @@ meta_path.write_text(json.dumps(meta, indent=2) + '\n')
 print(f'Browser ISO template: {len(data)} bytes; kernel slot at {offset}, {slot_size} bytes')
 PY
 
-ls -lh "$OUT/runtime.o" "$OUT/extensions_runtime.o" "$OUT/boot.o" \
+ls -lh "$OUT/runtime.o" "$OUT/extensions_runtime.o" "$OUT/text_style_runtime.o" "$OUT/boot.o" \
   "$OUT/linker.ld" "$OUT/fromscratch-template.iso" "$OUT/iso-template.json"
