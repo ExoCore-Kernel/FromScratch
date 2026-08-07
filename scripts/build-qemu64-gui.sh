@@ -21,6 +21,7 @@ SOURCE_SHA="$(git -C "$WORK/qemu" rev-parse HEAD)"
 echo "QEMU source commit: $SOURCE_SHA"
 
 QEMU_DOCKERFILE="$WORK/qemu/tests/docker/dockerfiles/emsdk-wasm32-cross.docker"
+QEMU_CROSS_FILE="$WORK/qemu/configs/meson/emscripten.txt"
 [[ -f "$QEMU_DOCKERFILE" ]] || {
   echo "Pinned QEMU WebAssembly source is missing its dependency Dockerfile." >&2
   exit 1
@@ -29,7 +30,7 @@ grep -q 'host_os=emscripten' "$WORK/qemu/configure" || {
   echo "Pinned QEMU source is missing the Emscripten configure patch." >&2
   exit 1
 }
-[[ -f "$WORK/qemu/configs/meson/emscripten.txt" ]] || {
+[[ -f "$QEMU_CROSS_FILE" ]] || {
   echo "Pinned QEMU source is missing configs/meson/emscripten.txt." >&2
   exit 1
 }
@@ -48,9 +49,23 @@ old = "if get_option('safe_stack') != not cc.compiles(safe_stack_probe)\n"
 new = "if host_os != 'emscripten' and get_option('safe_stack') != not cc.compiles(safe_stack_probe)\n"
 if old not in text:
     raise SystemExit('Could not locate QEMU SafeStack probe')
-text = text.replace(old, new, 1)
-path.write_text(text)
+path.write_text(text.replace(old, new, 1))
 print('Patched QEMU SafeStack probe for Emscripten')
+PY
+
+# Meson otherwise may fall back to Ubuntu's native GLib because both the build
+# and wasm32 target provide glib-2.0.pc. Pin host dependency lookup to the target
+# prefix in the cross file itself, in addition to the in-container environment.
+python3 - "$QEMU_CROSS_FILE" <<'PY'
+from pathlib import Path
+import sys
+
+path = Path(sys.argv[1])
+text = path.read_text().rstrip() + '\n'
+if 'pkg_config_libdir' not in text:
+    text += "\n[properties]\npkg_config_libdir = '/builddeps/target/lib/pkgconfig'\n"
+path.write_text(text)
+print('Pinned Meson pkg-config lookup to /builddeps/target/lib/pkgconfig')
 PY
 
 # zlib.net returns an HTML response in GitHub Actions. Use the same zlib release
@@ -98,6 +113,7 @@ bash -n "$WORK/container-build.sh"
 cat > "$WORK/Dockerfile" <<'DOCKER'
 FROM fromscratch-qemu-wasm-base
 WORKDIR /builddeps
+RUN test -s /builddeps/target/lib/pkgconfig/glib-2.0.pc
 RUN npm install xterm-pty@0.10.1
 RUN embuilder build sdl2
 COPY sdl2-config /usr/local/bin/sdl2-config
@@ -119,8 +135,6 @@ docker build --progress=plain \
   "$WORK"
 
 echo "Compiling SDL-enabled qemu-system-x86_64..."
-# The source tree is disposable and writable in case QEMU's build generates
-# source-side helper files. FDT is disabled because this target is x86_64-only.
 docker run --rm --init \
   -v "$WORK/qemu:/qemu" \
   -v "$OUT:/output" \
@@ -158,7 +172,7 @@ for path in sorted(root.iterdir()):
 
 (root / 'runtime.json').write_text(json.dumps({
     'format': 'fromscratch-qemu64-runtime',
-    'version': 14,
+    'version': 15,
     'available': True,
     'gui': True,
     'displayBackend': 'sdl2-canvas',
