@@ -17,9 +17,15 @@ clang "${COMMON[@]}" -c kernel/extensions_runtime.c -o "$WORK/extensions_runtime
 clang "${COMMON[@]}" -c kernel/text_style_runtime.c -o "$WORK/text_style_runtime.o"
 clang "${COMMON[@]}" -c "$WORK/smoke.c" -o "$WORK/smoke.o"
 clang --target=x86_64-unknown-none-elf -ffreestanding -fno-stack-protector -fno-pic -mno-red-zone -c kernel/boot.S -o "$WORK/boot.o"
-ld.lld --no-threads --build-id=none -nostdlib -static -z max-page-size=4096 -T kernel/linker.ld \
+
+# Use only linker flags supported by the Ubuntu runner's ld.lld. The browser
+# compiler's wasm LLD accepts --no-threads, but the native CI linker may not.
+ld.lld --build-id=none -nostdlib -static -z max-page-size=4096 -T kernel/linker.ld \
   "$WORK/boot.o" "$WORK/runtime.o" "$WORK/extensions_runtime.o" "$WORK/text_style_runtime.o" "$WORK/smoke.o" \
   -o "$WORK/iso/boot/kernel.elf"
+
+test -s "$WORK/iso/boot/kernel.elf"
+file "$WORK/iso/boot/kernel.elf"
 
 cat > "$WORK/iso/boot/grub/grub.cfg" <<'CFG'
 set timeout=0
@@ -34,6 +40,7 @@ menuentry "FromScratch smoke" {
 CFG
 
 grub-mkrescue -o "$WORK/smoke.iso" "$WORK/iso" >/dev/null 2>&1
+test -s "$WORK/smoke.iso"
 
 set +e
 timeout 12s qemu-system-x86_64 \
