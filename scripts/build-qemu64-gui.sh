@@ -35,22 +35,30 @@ grep -q 'host_os=emscripten' "$WORK/qemu/configure" || {
   exit 1
 }
 
-# QEMU's generic SafeStack probe assumes Clang supports
-# -fno-sanitize=safe-stack. Emscripten does not expose that switch, and its
-# WebAssembly target is not using SafeStack here. Skip only this toggle for the
-# Emscripten host while preserving the original check for every other target.
+# Patch two generic QEMU compiler probes that are unreliable under Emscripten.
+# The GLib ABI condition is independently verified by qemu64-container-build.sh
+# using an actual wasm32 compile before Meson is started.
 python3 - "$WORK/qemu/meson.build" <<'PY'
 from pathlib import Path
 import sys
 
 path = Path(sys.argv[1])
 text = path.read_text()
-old = "if get_option('safe_stack') != not cc.compiles(safe_stack_probe)\n"
-new = "if host_os != 'emscripten' and get_option('safe_stack') != not cc.compiles(safe_stack_probe)\n"
-if old not in text:
+
+safe_old = "if get_option('safe_stack') != not cc.compiles(safe_stack_probe)\n"
+safe_new = "if host_os != 'emscripten' and get_option('safe_stack') != not cc.compiles(safe_stack_probe)\n"
+if safe_old not in text:
     raise SystemExit('Could not locate QEMU SafeStack probe')
-path.write_text(text.replace(old, new, 1))
-print('Patched QEMU SafeStack probe for Emscripten')
+text = text.replace(safe_old, safe_new, 1)
+
+glib_old = "if not cc.compiles('''\n  #include <glib.h>\n  #include <unistd.h>\n"
+glib_new = "if host_os != 'emscripten' and not cc.compiles('''\n  #include <glib.h>\n  #include <unistd.h>\n"
+if glib_old not in text:
+    raise SystemExit('Could not locate QEMU GLib size_t sanity probe')
+text = text.replace(glib_old, glib_new, 1)
+
+path.write_text(text)
+print('Patched QEMU SafeStack and GLib ABI probes for Emscripten')
 PY
 
 # Meson otherwise may fall back to Ubuntu's native GLib because both the build
@@ -139,8 +147,6 @@ else
 fi
 
 echo "Adding SDL2 browser display support..."
-# Build this small child image with the regular Docker daemon so it can consume
-# the base image loaded by Buildx without requiring a registry push.
 docker build --progress=plain \
   -t fromscratch-qemu-wasm-gui \
   "$WORK"
@@ -183,7 +189,7 @@ for path in sorted(root.iterdir()):
 
 (root / 'runtime.json').write_text(json.dumps({
     'format': 'fromscratch-qemu64-runtime',
-    'version': 15,
+    'version': 16,
     'available': True,
     'gui': True,
     'displayBackend': 'sdl2-canvas',
