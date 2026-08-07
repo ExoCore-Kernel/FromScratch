@@ -52,6 +52,7 @@ async function ensureSupportFiles(api) {
       addFetchedFile(api, 'boot.o', kernelAsset('boot.o')),
       addFetchedFile(api, 'runtime.o', kernelAsset('runtime.o')),
       addFetchedFile(api, 'extensions_runtime.o', kernelAsset('extensions_runtime.o')),
+      addFetchedFile(api, 'text_style_runtime.o', kernelAsset('text_style_runtime.o')),
       addFetchedFile(api, 'linker.ld', kernelAsset('linker.ld')),
     ]);
   })();
@@ -109,6 +110,7 @@ async function linkKernelElf(api, id, objectName) {
     'boot.o',
     'runtime.o',
     'extensions_runtime.o',
+    'text_style_runtime.o',
     objectName,
     '-o', output,
   );
