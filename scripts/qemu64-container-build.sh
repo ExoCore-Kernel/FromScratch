@@ -44,9 +44,11 @@ PKG
 chmod +x /tmp/wasm32-pkg-config
 export PKG_CONFIG=/tmp/wasm32-pkg-config
 
-# QEMU is linked with PROXY_TO_PTHREAD by the upstream WebAssembly port. SDL
-# therefore renders from a worker thread and needs OffscreenCanvas support.
-export EMCC_CFLAGS="--js-library=/builddeps/node_modules/xterm-pty/emscripten-pty.js -sOFFSCREENCANVAS_SUPPORT=1"
+# The upstream WebAssembly port links QEMU with PROXY_TO_PTHREAD. SDL therefore
+# runs on that pthread. OFFSCREENCANVAS_SUPPORT enables worker rendering, while
+# OFFSCREENCANVASES_TO_PTHREAD explicitly transfers the exact canvas used by
+# FromScratch instead of leaving SDL with an unattached black surface.
+export EMCC_CFLAGS="--js-library=/builddeps/node_modules/xterm-pty/emscripten-pty.js -sOFFSCREENCANVAS_SUPPORT=1 -sOFFSCREENCANVASES_TO_PTHREAD=#qemu64Canvas"
 
 command -v emconfigure
 command -v emmake
@@ -104,7 +106,7 @@ emconfigure /qemu/configure \
   --disable-opengl \
   --with-coroutine=fiber
 
-echo "QEMU configure completed with target GLib, SDL2 and OffscreenCanvas support."
+echo "QEMU configure completed with target GLib, SDL2 and transferred OffscreenCanvas support."
 echo "Building the Meson default target set through Ninja..."
 emmake ninja -C /build -j"$(nproc)"
 
@@ -135,6 +137,10 @@ ls -lh "$JS_FILE" "$WASM_FILE" "$WORKER_FILE"
 
 grep -q 'OffscreenCanvas' "$JS_FILE" || {
   echo "Generated QEMU launcher does not contain OffscreenCanvas support." >&2
+  exit 1
+}
+grep -q 'qemu64Canvas' "$JS_FILE" || {
+  echo "Generated QEMU launcher does not contain the qemu64Canvas pthread transfer target." >&2
   exit 1
 }
 
