@@ -34,6 +34,25 @@ grep -q 'host_os=emscripten' "$WORK/qemu/configure" || {
   exit 1
 }
 
+# QEMU's generic SafeStack probe assumes Clang supports
+# -fno-sanitize=safe-stack. Emscripten does not expose that switch, and its
+# WebAssembly target is not using SafeStack here. Skip only this toggle for the
+# Emscripten host while preserving the original check for every other target.
+python3 - "$WORK/qemu/meson.build" <<'PY'
+from pathlib import Path
+import sys
+
+path = Path(sys.argv[1])
+text = path.read_text()
+old = "if get_option('safe_stack') != not cc.compiles(safe_stack_probe)\n"
+new = "if host_os != 'emscripten' and get_option('safe_stack') != not cc.compiles(safe_stack_probe)\n"
+if old not in text:
+    raise SystemExit('Could not locate QEMU SafeStack probe')
+text = text.replace(old, new, 1)
+path.write_text(text)
+print('Patched QEMU SafeStack probe for Emscripten')
+PY
+
 # zlib.net returns an HTML response in GitHub Actions. Use the same zlib release
 # from its official GitHub tag while leaving the upstream dependency image intact.
 python3 - "$QEMU_DOCKERFILE" <<'PY'
@@ -139,7 +158,7 @@ for path in sorted(root.iterdir()):
 
 (root / 'runtime.json').write_text(json.dumps({
     'format': 'fromscratch-qemu64-runtime',
-    'version': 13,
+    'version': 14,
     'available': True,
     'gui': True,
     'displayBackend': 'sdl2-canvas',
