@@ -124,12 +124,23 @@ ENTRYPOINT ["/usr/local/bin/fromscratch-build-qemu"]
 DOCKER
 
 echo "Building official Emscripten dependency image..."
-docker build --progress=plain \
-  -t fromscratch-qemu-wasm-base \
-  -f "$QEMU_DOCKERFILE" \
-  "$WORK/qemu"
+if [[ "${GITHUB_ACTIONS:-}" == "true" ]] && docker buildx version >/dev/null 2>&1; then
+  docker buildx build --progress=plain --load \
+    --cache-from type=gha,scope=fromscratch-qemu-wasm-base \
+    --cache-to type=gha,mode=max,scope=fromscratch-qemu-wasm-base \
+    -t fromscratch-qemu-wasm-base \
+    -f "$QEMU_DOCKERFILE" \
+    "$WORK/qemu"
+else
+  docker build --progress=plain \
+    -t fromscratch-qemu-wasm-base \
+    -f "$QEMU_DOCKERFILE" \
+    "$WORK/qemu"
+fi
 
 echo "Adding SDL2 browser display support..."
+# Build this small child image with the regular Docker daemon so it can consume
+# the base image loaded by Buildx without requiring a registry push.
 docker build --progress=plain \
   -t fromscratch-qemu-wasm-gui \
   "$WORK"
