@@ -1,0 +1,87 @@
+[
+  {
+    "type": "os_start",
+    "tooltip": "Stops execution with the x86 HLT instruction. The machine remains halted until an interrupt or reset, depending on interrupt state.",
+    "file_en": "os_start.md"
+  },
+  {
+    "type": "os_wait_interrupt",
+    "tooltip": "Puts the processor into a low-work wait state until an interrupt arrives.",
+    "file_en": "os_wait_interrupt.md"
+  },
+  {
+    "type": "os_print_text",
+    "tooltip": "Draws a string using the built-in framebuffer console and then advances to a new line.",
+    "file_en": "os_print_text.md"
+  },
+  {
+    "type": "os_print_number",
+    "tooltip": "Converts a signed integer to decimal characters and prints it.",
+    "file_en": "os_print_number.md"
+  },
+  {
+    "type": "os_clear_screen",
+    "tooltip": "Fills the complete framebuffer with one RGB colour and resets the text cursor.",
+    "file_en": "os_clear_screen.md"
+  },
+  {
+    "type": "os_set_pixel",
+    "tooltip": "Writes one pixel after checking the framebuffer boundaries and active clipping rectangle.",
+    "file_en": "os_set_pixel.md"
+  },
+  {
+    "type": "os_colour",
+    "tooltip": "Copies two strings into a rotating runtime buffer and returns the combined text.",
+    "file_en": "os_colour.md"
+  },
+  {
+    "type": "os_text_equals_ignore_case",
+    "tooltip": "Compares ASCII letters without treating uppercase and lowercase as different.",
+    "file_en": "os_text_equals_ignore_case.md"
+  },
+  {
+    "type": "os_input_line_available",
+    "tooltip": "Polls the serial input queue and reports whether a complete newline-terminated command is ready.",
+    "file_en": "os_input_line_available.md"
+  },
+  {
+    "type": "os_read_input_line",
+    "tooltip": "Returns the latest completed serial line and marks it as consumed.",
+    "file_en": "os_read_input_line.md"
+  },
+  {
+    "type": "os_number",
+    "tooltip": "Returns the number of files GRUB loaded as Multiboot modules.",
+    "file_en": "os_number.md"
+  },
+  {
+    "type": "os_asset_name",
+    "tooltip": "Returns the boot-module command-line name for an uploaded file.",
+    "file_en": "os_asset_name.md"
+  },
+  {
+    "type": "os_asset_size",
+    "tooltip": "Returns an uploaded file size in bytes.",
+    "file_en": "os_asset_size.md"
+  },
+  {
+    "type": "os_print_asset_text",
+    "tooltip": "Prints an uploaded file as text. Binary files may contain unreadable bytes or embedded zeroes.",
+    "file_en": "os_print_asset_text.md"
+  },
+  {
+    "type": "os_function_def",
+    "tooltip": "Runs the x86 IN instruction. Reading the wrong port can return meaningless data or interfere with hardware.",
+    "file_en": "os_function_def.md"
+  },
+  {
+    "type": "os_port_write8",
+    "tooltip": "Runs the x86 OUT instruction. Incorrect writes can freeze the VM or place devices into an unexpected state.",
+    "file_en": "os_port_write8.md"
+  },
+  {
+    "type": "os_comment",
+    "tooltip": "Adds a C comment for people reading the generated source. It has no runtime effect.",
+    "file_en": "os_comment.md"
+  }
+]

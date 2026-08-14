@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FromScratch — Interactive Blocks Manual</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
+  <style>
+    :root{--bg:#0f1720;--panel:#0b1220;--text:#e6eef8;--muted:#9fb0c8;--sidebar-width:340px}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:Inter,Segoe UI,Helvetica,Arial;color:var(--text);background:linear-gradient(180deg,#061021,#07142a);overflow:hidden}
+    .app{display:flex;height:100vh;width:100vw;min-width:0}
+    .sidebar{flex:0 0 var(--sidebar-width);width:var(--sidebar-width);max-width:40vw;min-width:260px;background:var(--panel);border-right:1px solid rgba(255,255,255,.02);padding:16px;overflow:auto;flex-shrink:0}
+    .main{flex:1 1 auto;display:flex;flex-direction:column;min-width:0;min-height:0}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent);flex-wrap:wrap}
+    header h1{font-size:16px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    input[type=search]{width:220px;max-width:100%;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,.04);background:transparent;color:var(--text)}
+    select{padding:8px;border-radius:6px}
+    .list{margin-top:12px}
+    .block-item{padding:8px;border-radius:6px;margin-bottom:6px;cursor:pointer;background:transparent}
+    .block-item:hover{background:rgba(255,255,255,.02)}
+    .block-item.selected{background:rgba(18,115,245,.18);border:1px solid rgba(18,115,245,.6)}
+    .block-item.empty{cursor:default;opacity:.8}
+    .block-item .meta{font-size:12px;color:var(--muted)}
+    .content{padding:18px;overflow:auto;min-width:0;min-height:0}
+    .md{background:transparent;color:var(--text);line-height:1.5;min-width:0}
+    pre{background:#071428;padding:12px;border-radius:6px;overflow:auto}
+    button{padding:8px 10px;border-radius:6px;border:0;background:#1273f5;color:white;cursor:pointer}
+    .topbar-actions{display:flex;gap:8px}
+
+    @media (max-width: 860px){
+      .app{flex-direction:column;height:100vh}
+      .sidebar{flex-basis:auto;width:100%;max-width:none;min-width:0;border-right:none;border-bottom:1px solid rgba(255,255,255,.02);max-height:42vh}
+      .main{min-height:0}
+      header{align-items:flex-start}
+      input[type=search]{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <h2 id="sidebarTitle" style="margin:0 0 8px 0">Block Manual (FromScratch)</h2>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="search" type="search" placeholder="Search blocks..." />
+        <select id="lang">
+          <option value="auto">Auto</option>
+          <option value="en">English</option>
+          <option value="it">Italiano</option>
+        </select>
+      </div>
+      <div class="list" id="blocksList"></div>
+    </aside>
+    <section class="main">
+      <header>
+        <h1 id="pageTitle">FromScratch — Interactive Block Manual</h1>
+        <div class="controls topbar-actions">
+          <button id="refresh">Refresh</button>
+          <button id="download">Download HTML</button>
+        </div>
+      </header>
+      <div class="content">
+        <div id="detail">
+          <p class="meta" id="detailMeta">Seleziona un blocco per vedere i dettagli.</p>
+          <div id="markdown" class="md"></div>
+          <h3 id="jsonTitle" style="display:none">Definizione JSON</h3>
+          <pre id="jsonView" style="display:none"><code class="json"></code></pre>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    function escapeHtml(value) {
+      return value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function renderMarkdown(markdown) {
+      if (!markdown) return '<p>Documento non disponibile.</p>';
+
+      const lines = markdown.replace(/\r\n/g, '\n').split('\n');
+      const html = [];
+      let inCode = false;
+      let codeBuffer = [];
+      let inList = false;
+
+      function flushList() {
+        if (!inList) return;
+        html.push('</ul>');
+        inList = false;
+      }
+
+      function flushCode() {
+        if (!inCode) return;
+        html.push('<pre><code>' + escapeHtml(codeBuffer.join('\n')) + '</code></pre>');
+        codeBuffer = [];
+        inCode = false;
+      }
+
+      for (const rawLine of lines) {
+        const line = rawLine.replace(/\t/g, '  ');
+
+        if (line.trim().startsWith('```')) {
+          if (inCode) {
+            flushCode();
+          } else {
+            flushList();
+            inCode = true;
+          }
+          continue;
+        }
+
+        if (inCode) {
+          codeBuffer.push(line);
+          continue;
+        }
+
+        if (/^\s*[-*]\s+/.test(line)) {
+          if (!inList) {
+            flushCode();
+            html.push('<ul>');
+            inList = true;
+          }
+          html.push('<li>' + escapeHtml(line.replace(/^\s*[-*]\s+/, '')) + '</li>');
+          continue;
+        }
+
+        if (inList) {
+          flushList();
+        }
+
+        if (/^#{1,6}\s+/.test(line)) {
+          const level = line.match(/^#+/)[0].length;
+          const text = line.replace(/^#+\s+/, '');
+          html.push(`<h${level}>${escapeHtml(text)}</h${level}>`);
+          continue;
+        }
+
+        if (!line.trim()) {
+          if (html.length && html[html.length - 1] !== '<p>') {
+            html.push('<p></p>');
+          }
+          continue;
+        }
+
+        let rendered = escapeHtml(line);
+        rendered = rendered.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        rendered = rendered.replace(/\*(.+?)\*/g, '<em>$1</em>');
+        rendered = rendered.replace(/`([^`]+)`/g, '<code>$1</code>');
+        rendered = rendered.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
+        html.push('<p>' + rendered + '</p>');
+      }
+
+      flushCode();
+      flushList();
+      return html.join('');
+    }
+
+    // Known markdown files detected in workspace (relative to this HTML)
+    const knownMd = [
+      './guida-unix-os.md',
+      './link.md',
+      './Doc2.md',
+      './guida-blockos.md',
+      './Doc1.md',
+      './THIRD_PARTY_NOTICES.md',
+      './README.md'
+    ];
+
+    // docs index produced by generator (type -> file metadata)
+    let docsIndex = null;
+
+    const blockJsFiles = [
+      './src/blocks/event-blocks.js',
+      './src/blocks/os-blocks.js',
+      './src/blocks/text-style-blocks.js',
+      './src/blocks/block-catalog.js',
+      './src/custom-blocks.js'
+    ];
+
+    const i18n = {
+      en: {
+        sidebarTitle: 'Block Manual (FromScratch)',
+        pageTitle: 'FromScratch — Interactive Block Manual',
+        search: 'Search blocks...',
+        selectLang: 'Language',
+        refresh: 'Refresh',
+        download: 'Download HTML',
+        blockLabel: 'Block',
+        noDoc: 'No Markdown documentation found for this block.',
+        fallback: 'Showing the JSON definition as fallback.',
+        noSelection: 'Select a block to view details.',
+        auto: 'Auto',
+        noResults: 'No blocks match this filter.',
+      },
+      it: {
+        sidebarTitle: 'Manuale Blocchi (FromScratch)',
+        pageTitle: 'FromScratch — Manuale interattivo',
+        search: 'Cerca blocchi...',
+        selectLang: 'Lingua',
+        refresh: 'Aggiorna',
+        download: 'Scarica HTML',
+        blockLabel: 'Blocco',
+        noDoc: 'Nessuna documentazione Markdown trovata per questo blocco.',
+        fallback: 'Visualizzo la definizione JSON come fallback.',
+        noSelection: 'Seleziona un blocco per vedere i dettagli.',
+        auto: 'Auto',
+        noResults: 'Nessun blocco trovato.',
+      }
+    };
+
+    let blocks = [];
+    let activeLang = 'en';
+    let selectedBlockType = null;
+
+    function setUIText(lang){
+      const targetLang = lang === 'it' ? 'it' : 'en';
+      activeLang = targetLang;
+      const strings = i18n[targetLang];
+      const el = document.getElementById('search');
+      el.placeholder = strings.search;
+      document.getElementById('sidebarTitle').textContent = strings.sidebarTitle;
+      document.getElementById('pageTitle').textContent = strings.pageTitle;
+      document.getElementById('refresh').textContent = strings.refresh;
+      document.getElementById('download').textContent = strings.download;
+      const detailMeta = document.getElementById('detailMeta');
+      if (selectedBlockType) {
+        detailMeta.textContent = `${strings.blockLabel}: ${selectedBlockType}`;
+      } else {
+        detailMeta.textContent = strings.noSelection;
+      }
+    }
+
+    async function fetchText(path){
+      try{const r=await fetch(path); if(!r.ok) throw 0; return await r.text();}catch(e){return null}
+    }
+
+    function extractJsonArrays(js){
+      const arr = [];
+      const re = /Blockly\.defineBlocksWithJsonArray\s*\(\s*(\[([\s\S]*?)\])\s*\)/g;
+      let m; while((m=re.exec(js))){ try{ const obj = Function('return '+m[1])(); if(Array.isArray(obj)) arr.push(...obj);}catch(e){}}
+      return arr;
+    }
+
+    // Build a quick lookup table from "type" -> display label using the
+    // `message0` template. The `message0` string uses `%1`, `%2`, ... to mark
+    // input slots — strip them so the sidebar shows a clean human-readable name.
+    function labelFromMessage0(message0) {
+      if (!message0) return '';
+      return String(message0)
+        .replace(/%\d+/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function extractAssignedBlocks(js){
+      const out = [];
+      const re = /Blockly\.Blocks\[['"]([^'"\]]+)['"]\]\s*=\s*(\{[\s\S]*?\});/g;
+      let m; while((m=re.exec(js))){ try{ const obj = Function('return '+m[2])(); obj.type = m[1]; out.push(obj);}catch(e){} }
+      return out;
+    }
+
+   function extractCatalogBlocks(js){
+      const out = [];
+      const seen = new Set();
+      const re = /"type"\s*:\s*"([^"]+)"\s*,\s*"cName"\s*:\s*"[^"]+"\s*,\s*"label"\s*:\s*"([^"]+)"/g;
+      let m;
+      while ((m = re.exec(js))) {
+        const type = m[1];
+        const label = m[2];
+        if (!type || seen.has(type)) continue;
+        seen.add(type);
+        out.push({ type, label, def: { type, tooltip: '', message0: label } });
+      }
+      return out;
+    }
+
+    async function loadBlocks(){
+      blocks = [];
+      for(const p of blockJsFiles){
+        const txt = await fetchText(p);
+        if(!txt) continue;
+        const jsonArrays = extractJsonArrays(txt);
+        jsonArrays.forEach(o=>{ if(o.type) blocks.push({type:o.type, def:o}); else blocks.push({type:o.message0||o.type||o.name||'(unknown)', def:o})});
+        const assigned = extractAssignedBlocks(txt);
+        assigned.forEach(o=>blocks.push({type:o.type||o.name||'(assigned)', def:o}));
+        const catalogBlocks = extractCatalogBlocks(txt);
+        catalogBlocks.forEach(o=>blocks.push({type:o.type, def:{...o.def, tooltip:o.label}}));
+      }
+      // normalize types, build a friendly label, then sort alphabetically by label
+      blocks = blocks.map((b,i)=>{
+        const def = b.def || {};
+        const label = labelFromMessage0(def.message0) || def.label || b.type;
+        return {id:i, type:(b.type||('block_'+i)), label, def};
+      }).sort((a,b)=>a.label.localeCompare(b.label));
+    }
+
+    async function loadMdIndex(){
+      const files = [];
+      for(const p of knownMd){
+        const t = await fetchText(p);
+        if(t!==null) files.push({path:p, content:t});
+      }
+      // try to load docs/blocks-index.json (generated by tools)
+      const idxText = await fetchText('./docs/blocks-index.json');
+      if(idxText){
+        try{ docsIndex = JSON.parse(idxText); }catch(e){ docsIndex = null; }
+      }
+      return files;
+    }
+
+    async function findMdForBlock(blockType, mdIndex, lang = activeLang){
+      const candidates = [];
+      const directName = `${blockType}.md`;
+      const directLangCandidates = [
+        `./docs/${lang}/${directName}`,
+        `./docs/en/${directName}`,
+        `./docs/it/${directName}`,
+      ];
+      for (const candidate of directLangCandidates) {
+        candidates.push(candidate);
+      }
+
+      for (const candidate of candidates) {
+        const text = await fetchText(candidate);
+        if (text !== null) return text;
+      }
+
+      if (docsIndex) {
+        for (const entry of docsIndex) {
+          if (entry.type !== blockType) continue;
+          const fileName = entry.file || entry.file_en || entry.file_it || '';
+          if (!fileName) continue;
+          const docCandidates = [
+            `./docs/${lang}/${fileName}`,
+            `./docs/en/${fileName}`,
+            `./docs/it/${fileName}`,
+          ];
+          for (const candidate of docCandidates) {
+            const text = await fetchText(candidate);
+            if (text !== null) return text;
+          }
+        }
+      }
+
+      const name = blockType.replace(/[:\/\s]/g,'_').toLowerCase();
+      for (const md of mdIndex) {
+        const base = md.path.split('/').pop().toLowerCase();
+        if (base.startsWith(name) || base.includes(name)) return md.content;
+      }
+      return null;
+    }
+
+    function renderList(filter=''){
+      const container = document.getElementById('blocksList');
+      container.innerHTML='';
+      const f = (filter || '').trim().toLowerCase();
+      const matches = [];
+
+      for(const b of blocks){
+        if(!f || b.label.toLowerCase().includes(f) || b.type.toLowerCase().includes(f)) matches.push(b);
+      }
+
+      if (!matches.length) {
+        const empty = document.createElement('div');
+        empty.className = 'block-item empty';
+        empty.innerHTML = `<div class="meta">${i18n[activeLang].noResults}</div>`;
+        container.appendChild(empty);
+        return;
+      }
+
+      for(const b of matches){
+        const el = document.createElement('div');
+        el.className = 'block-item' + (selectedBlockType === b.type ? ' selected' : '');
+        el.dataset.type = b.type;
+        el.innerHTML = `<strong>${escapeHtml(b.label)}</strong><div class="meta">${escapeHtml(b.type)} — ${escapeHtml(b.def.tooltip||'')}</div>`;
+        el.onclick = ()=>showDetail(b);
+        container.appendChild(el);
+      }
+    }
+
+    let mdIndex = [];
+
+    async function showDetail(b){
+      selectedBlockType = b.type;
+      const strings = i18n[activeLang];
+      document.getElementById('detailMeta').textContent = `${strings.blockLabel}: ${b.label} (${b.type})`;
+
+      const items = document.querySelectorAll('.block-item');
+      items.forEach(item => {
+        const isSelected = item.dataset.type === b.type;
+        item.classList.toggle('selected', isSelected);
+      });
+
+      const mdDiv = document.getElementById('markdown');
+      const md = await findMdForBlock(b.type, mdIndex, activeLang);
+      if(md){ mdDiv.innerHTML = renderMarkdown(md); }
+      else {
+        mdDiv.innerHTML = '<em>' + strings.noDoc + '</em>' +
+          '<p>' + strings.fallback + '</p>';
+      }
+      const jsonView = document.getElementById('jsonView');
+      jsonView.style.display='block';
+      document.getElementById('jsonTitle').style.display='block';
+      jsonView.querySelector('code').textContent = JSON.stringify(b.def, null, 2);
+    }
+
+    async function boot(){
+      const langSel = document.getElementById('lang');
+      const preferredLang = navigator.language && navigator.language.toLowerCase().startsWith('it') ? 'it' : 'en';
+      langSel.value = preferredLang;
+      setUIText(preferredLang);
+      mdIndex = await loadMdIndex();
+      await loadBlocks();
+      renderList();
+      document.getElementById('search').addEventListener('input',(e)=>renderList(e.target.value));
+      document.getElementById('refresh').addEventListener('click',async()=>{ mdIndex = await loadMdIndex(); await loadBlocks(); renderList(document.getElementById('search').value); });
+      document.getElementById('download').addEventListener('click',()=>{
+        const a = document.createElement('a');
+        a.href = 'data:text/html;charset=utf-8,'+encodeURIComponent(document.documentElement.outerHTML);
+        a.download = 'fromscratch-blocks-manual.html'; a.click();
+      });
+      langSel.addEventListener('change',()=> {
+        const rawValue = langSel.value;
+        const newLang = rawValue === 'it' ? 'it' : rawValue === 'auto' ? (navigator.language && navigator.language.toLowerCase().startsWith('it') ? 'it' : 'en') : 'en';
+        langSel.value = newLang;
+        setUIText(newLang);
+        renderList(document.getElementById('search').value);
+        if (selectedBlockType) {
+          const selectedBlock = blocks.find(b => b.type === selectedBlockType);
+          if (selectedBlock) showDetail(selectedBlock);
+        }
+      });
+    }
+
+    boot();
+  </script>
+</body>
+</html>

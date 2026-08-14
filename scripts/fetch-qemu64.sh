@@ -117,8 +117,10 @@ for path in sorted(root.iterdir()):
     })
 metadata = {
     'format': 'fromscratch-qemu64-runtime',
-    'version': 2,
+    'version': 16,
     'available': True,
+    'gui': True,
+    'displayBackend': 'sdl2-canvas',
     'source': sys.argv[2],
     'files': files,
 }

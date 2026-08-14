@@ -1,0 +1,10 @@
+{
+  "format": "fromscratch-iso-template",
+  "version": 3,
+  "kernelOffset": 14139392,
+  "kernelSlotSize": 4194304,
+  "templateBytes": 19085312,
+  "sha256": "8fa35571c65e3b925f209c158e31097253f411f2f1bd40fb36443dab407161f7",
+  "bootTarget": "x86_64-multiboot2",
+  "serialConsole": "COM1 115200 8N1"
+}

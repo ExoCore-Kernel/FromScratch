@@ -11,6 +11,7 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
+    "kill": "pkill -f \"vite --host 0.0.0.0\" || true; pkill -f \"python3 -m http.server\" || true; pkill -f \"node .*vite\" || true; echo \"FromScratch servers stopped.\"",
     "check": "node --check src/main.js && node --check src/browser-vm.js && node --check src/browser-compiler.js && node --check src/browser-qemu64.js && node --check src/qemu64-page.js && node --check src/blocks/os-blocks.js && node --check src/blocks/event-blocks.js && node --check src/blocks/block-catalog.js && node --check src/generator/c-generator.js && node --check src/toolbox.js && node --check src/custom-blocks.js && node --check src/learning-content.js && node --check src/toolbox-learning.js && node --check src/learn.js && node --check public/compiler-worker.js && node --check public/mobile-interface.js && node --check public/coi-serviceworker.js"
   },
   "dependencies": {

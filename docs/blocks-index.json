@@ -1,0 +1,1767 @@
+[
+  {
+    "type": "os_asset_count",
+    "tooltip": "(auto-generated)",
+    "file": "os_asset_count.md"
+  },
+  {
+    "type": "os_asset_name",
+    "tooltip": "(auto-generated)",
+    "file": "os_asset_name.md"
+  },
+  {
+    "type": "os_asset_size",
+    "tooltip": "(auto-generated)",
+    "file": "os_asset_size.md"
+  },
+  {
+    "type": "os_boolean",
+    "tooltip": "(auto-generated)",
+    "file": "os_boolean.md"
+  },
+  {
+    "type": "os_clear_screen",
+    "tooltip": "(auto-generated)",
+    "file": "os_clear_screen.md"
+  },
+  {
+    "type": "os_colour",
+    "tooltip": "(auto-generated)",
+    "file": "os_colour.md"
+  },
+  {
+    "type": "os_comment",
+    "tooltip": "(auto-generated)",
+    "file": "os_comment.md"
+  },
+  {
+    "type": "os_compare",
+    "tooltip": "(auto-generated)",
+    "file": "os_compare.md"
+  },
+  {
+    "type": "os_forever",
+    "tooltip": "(auto-generated)",
+    "file": "os_forever.md"
+  },
+  {
+    "type": "os_function_call",
+    "tooltip": "(auto-generated)",
+    "file": "os_function_call.md"
+  },
+  {
+    "type": "os_function_def",
+    "tooltip": "(auto-generated)",
+    "file": "os_function_def.md"
+  },
+  {
+    "type": "os_halt",
+    "tooltip": "(auto-generated)",
+    "file": "os_halt.md"
+  },
+  {
+    "type": "os_if",
+    "tooltip": "(auto-generated)",
+    "file": "os_if.md"
+  },
+  {
+    "type": "os_input_line_available",
+    "tooltip": "(auto-generated)",
+    "file": "os_input_line_available.md"
+  },
+  {
+    "type": "os_join_text",
+    "tooltip": "(auto-generated)",
+    "file": "os_join_text.md"
+  },
+  {
+    "type": "os_logic",
+    "tooltip": "(auto-generated)",
+    "file": "os_logic.md"
+  },
+  {
+    "type": "os_math",
+    "tooltip": "(auto-generated)",
+    "file": "os_math.md"
+  },
+  {
+    "type": "os_not",
+    "tooltip": "(auto-generated)",
+    "file": "os_not.md"
+  },
+  {
+    "type": "os_number",
+    "tooltip": "(auto-generated)",
+    "file": "os_number.md"
+  },
+  {
+    "type": "os_port_read8",
+    "tooltip": "(auto-generated)",
+    "file": "os_port_read8.md"
+  },
+  {
+    "type": "os_port_write8",
+    "tooltip": "(auto-generated)",
+    "file": "os_port_write8.md"
+  },
+  {
+    "type": "os_print_asset_text",
+    "tooltip": "(auto-generated)",
+    "file": "os_print_asset_text.md"
+  },
+  {
+    "type": "os_print_number",
+    "tooltip": "(auto-generated)",
+    "file": "os_print_number.md"
+  },
+  {
+    "type": "os_print_text",
+    "tooltip": "(auto-generated)",
+    "file": "os_print_text.md"
+  },
+  {
+    "type": "os_read_input_line",
+    "tooltip": "(auto-generated)",
+    "file": "os_read_input_line.md"
+  },
+  {
+    "type": "os_repeat",
+    "tooltip": "(auto-generated)",
+    "file": "os_repeat.md"
+  },
+  {
+    "type": "os_set_pixel",
+    "tooltip": "(auto-generated)",
+    "file": "os_set_pixel.md"
+  },
+  {
+    "type": "os_set_text_colour",
+    "tooltip": "(auto-generated)",
+    "file": "os_set_text_colour.md"
+  },
+  {
+    "type": "os_set_text_font",
+    "tooltip": "(auto-generated)",
+    "file": "os_set_text_font.md"
+  },
+  {
+    "type": "os_set_text_location",
+    "tooltip": "(auto-generated)",
+    "file": "os_set_text_location.md"
+  },
+  {
+    "type": "os_set_text_size",
+    "tooltip": "(auto-generated)",
+    "file": "os_set_text_size.md"
+  },
+  {
+    "type": "os_start",
+    "tooltip": "(auto-generated)",
+    "file": "os_start.md"
+  },
+  {
+    "type": "os_text",
+    "tooltip": "(auto-generated)",
+    "file": "os_text.md"
+  },
+  {
+    "type": "os_text_equals_ignore_case",
+    "tooltip": "(auto-generated)",
+    "file": "os_text_equals_ignore_case.md"
+  },
+  {
+    "type": "os_var_declare",
+    "tooltip": "(auto-generated)",
+    "file": "os_var_declare.md"
+  },
+  {
+    "type": "os_var_get",
+    "tooltip": "(auto-generated)",
+    "file": "os_var_get.md"
+  },
+  {
+    "type": "os_var_set",
+    "tooltip": "(auto-generated)",
+    "file": "os_var_set.md"
+  },
+  {
+    "type": "os_wait_interrupt",
+    "tooltip": "(auto-generated)",
+    "file": "os_wait_interrupt.md"
+  },
+  {
+    "type": "os_while",
+    "tooltip": "(auto-generated)",
+    "file": "os_while.md"
+  },
+  {
+    "type": "osx_audio_audio_buffer_space_available",
+    "tooltip": "(auto-generated)",
+    "file": "osx_audio_audio_buffer_space_available.md"
+  },
+  {
+    "type": "osx_audio_audio_is_muted",
+    "tooltip": "(auto-generated)",
+    "file": "osx_audio_audio_is_muted.md"
+  },
+  {
+    "type": "osx_audio_get_audio_device_count",
+    "tooltip": "(auto-generated)",
+    "file": "osx_audio_get_audio_device_count.md"
+  },
+  {
+    "type": "osx_audio_get_audio_playback_position",
+    "tooltip": "(auto-generated)",
+    "file": "osx_audio_get_audio_playback_position.md"
+  },
+  {
+    "type": "osx_audio_get_audio_sample_rate",
+    "tooltip": "(auto-generated)",
+    "file": "osx_audio_get_audio_sample_rate.md"
+  },
+  {
+    "type": "osx_audio_get_master_volume",
+    "tooltip": "(auto-generated)",
+    "file": "osx_audio_get_master_volume.md"
+  },
+  {
+    "type": "osx_audio_initialize_audio_subsystem",
+    "tooltip": "(auto-generated)",
+    "file": "osx_audio_initialize_audio_subsystem.md"
+  },
+  {
+    "type": "osx_audio_pause_audio_playback",
+    "tooltip": "(auto-generated)",
+    "file": "osx_audio_pause_audio_playback.md"
+  },
+  {
+    "type": "osx_audio_play_audio_tone",
+    "tooltip": "(auto-generated)",
+    "file": "osx_audio_play_audio_tone.md"
+  },
+  {
+    "type": "osx_audio_resume_audio_playback",
+    "tooltip": "(auto-generated)",
+    "file": "osx_audio_resume_audio_playback.md"
+  },
+  {
+    "type": "osx_audio_set_audio_muted",
+    "tooltip": "(auto-generated)",
+    "file": "osx_audio_set_audio_muted.md"
+  },
+  {
+    "type": "osx_audio_set_audio_sample_rate",
+    "tooltip": "(auto-generated)",
+    "file": "osx_audio_set_audio_sample_rate.md"
+  },
+  {
+    "type": "osx_audio_set_master_volume",
+    "tooltip": "(auto-generated)",
+    "file": "osx_audio_set_master_volume.md"
+  },
+  {
+    "type": "osx_audio_stop_audio_tone",
+    "tooltip": "(auto-generated)",
+    "file": "osx_audio_stop_audio_tone.md"
+  },
+  {
+    "type": "osx_audio_submit_audio_buffer",
+    "tooltip": "(auto-generated)",
+    "file": "osx_audio_submit_audio_buffer.md"
+  },
+  {
+    "type": "osx_cpu_cpu_interrupts_enabled",
+    "tooltip": "(auto-generated)",
+    "file": "osx_cpu_cpu_interrupts_enabled.md"
+  },
+  {
+    "type": "osx_cpu_disable_cpu_interrupts",
+    "tooltip": "(auto-generated)",
+    "file": "osx_cpu_disable_cpu_interrupts.md"
+  },
+  {
+    "type": "osx_cpu_enable_cpu_interrupts",
+    "tooltip": "(auto-generated)",
+    "file": "osx_cpu_enable_cpu_interrupts.md"
+  },
+  {
+    "type": "osx_cpu_execute_cpu_memory_fence",
+    "tooltip": "(auto-generated)",
+    "file": "osx_cpu_execute_cpu_memory_fence.md"
+  },
+  {
+    "type": "osx_cpu_flush_cache_line",
+    "tooltip": "(auto-generated)",
+    "file": "osx_cpu_flush_cache_line.md"
+  },
+  {
+    "type": "osx_cpu_get_cpu_brand",
+    "tooltip": "(auto-generated)",
+    "file": "osx_cpu_get_cpu_brand.md"
+  },
+  {
+    "type": "osx_cpu_get_cpu_frequency_khz",
+    "tooltip": "(auto-generated)",
+    "file": "osx_cpu_get_cpu_frequency_khz.md"
+  },
+  {
+    "type": "osx_cpu_get_cpu_vendor",
+    "tooltip": "(auto-generated)",
+    "file": "osx_cpu_get_cpu_vendor.md"
+  },
+  {
+    "type": "osx_cpu_get_current_cpu_number",
+    "tooltip": "(auto-generated)",
+    "file": "osx_cpu_get_current_cpu_number.md"
+  },
+  {
+    "type": "osx_cpu_get_logical_processor_count",
+    "tooltip": "(auto-generated)",
+    "file": "osx_cpu_get_logical_processor_count.md"
+  },
+  {
+    "type": "osx_cpu_invalidate_cpu_cache",
+    "tooltip": "(auto-generated)",
+    "file": "osx_cpu_invalidate_cpu_cache.md"
+  },
+  {
+    "type": "osx_cpu_pause_cpu_briefly",
+    "tooltip": "(auto-generated)",
+    "file": "osx_cpu_pause_cpu_briefly.md"
+  },
+  {
+    "type": "osx_cpu_read_control_register",
+    "tooltip": "(auto-generated)",
+    "file": "osx_cpu_read_control_register.md"
+  },
+  {
+    "type": "osx_cpu_read_timestamp_counter",
+    "tooltip": "(auto-generated)",
+    "file": "osx_cpu_read_timestamp_counter.md"
+  },
+  {
+    "type": "osx_cpu_write_control_register",
+    "tooltip": "(auto-generated)",
+    "file": "osx_cpu_write_control_register.md"
+  },
+  {
+    "type": "osx_debug_and_information_assert_condition",
+    "tooltip": "(auto-generated)",
+    "file": "osx_debug_and_information_assert_condition.md"
+  },
+  {
+    "type": "osx_debug_and_information_begin_trace_event",
+    "tooltip": "(auto-generated)",
+    "file": "osx_debug_and_information_begin_trace_event.md"
+  },
+  {
+    "type": "osx_debug_and_information_clear_last_error",
+    "tooltip": "(auto-generated)",
+    "file": "osx_debug_and_information_clear_last_error.md"
+  },
+  {
+    "type": "osx_debug_and_information_dump_system_state",
+    "tooltip": "(auto-generated)",
+    "file": "osx_debug_and_information_dump_system_state.md"
+  },
+  {
+    "type": "osx_debug_and_information_end_trace_event",
+    "tooltip": "(auto-generated)",
+    "file": "osx_debug_and_information_end_trace_event.md"
+  },
+  {
+    "type": "osx_debug_and_information_get_architecture_name",
+    "tooltip": "(auto-generated)",
+    "file": "osx_debug_and_information_get_architecture_name.md"
+  },
+  {
+    "type": "osx_debug_and_information_get_compiler_name",
+    "tooltip": "(auto-generated)",
+    "file": "osx_debug_and_information_get_compiler_name.md"
+  },
+  {
+    "type": "osx_debug_and_information_get_debug_log_level",
+    "tooltip": "(auto-generated)",
+    "file": "osx_debug_and_information_get_debug_log_level.md"
+  },
+  {
+    "type": "osx_debug_and_information_get_kernel_build_number",
+    "tooltip": "(auto-generated)",
+    "file": "osx_debug_and_information_get_kernel_build_number.md"
+  },
+  {
+    "type": "osx_debug_and_information_get_last_error_code",
+    "tooltip": "(auto-generated)",
+    "file": "osx_debug_and_information_get_last_error_code.md"
+  },
+  {
+    "type": "osx_debug_and_information_get_runtime_version",
+    "tooltip": "(auto-generated)",
+    "file": "osx_debug_and_information_get_runtime_version.md"
+  },
+  {
+    "type": "osx_debug_and_information_set_debug_log_level",
+    "tooltip": "(auto-generated)",
+    "file": "osx_debug_and_information_set_debug_log_level.md"
+  },
+  {
+    "type": "osx_debug_and_information_trigger_debugger_breakpoint",
+    "tooltip": "(auto-generated)",
+    "file": "osx_debug_and_information_trigger_debugger_breakpoint.md"
+  },
+  {
+    "type": "osx_debug_and_information_write_debug_number",
+    "tooltip": "(auto-generated)",
+    "file": "osx_debug_and_information_write_debug_number.md"
+  },
+  {
+    "type": "osx_debug_and_information_write_debug_text",
+    "tooltip": "(auto-generated)",
+    "file": "osx_debug_and_information_write_debug_text.md"
+  },
+  {
+    "type": "osx_filesystems_close_file",
+    "tooltip": "(auto-generated)",
+    "file": "osx_filesystems_close_file.md"
+  },
+  {
+    "type": "osx_filesystems_create_directory",
+    "tooltip": "(auto-generated)",
+    "file": "osx_filesystems_create_directory.md"
+  },
+  {
+    "type": "osx_filesystems_file_exists",
+    "tooltip": "(auto-generated)",
+    "file": "osx_filesystems_file_exists.md"
+  },
+  {
+    "type": "osx_filesystems_filesystem_is_mounted",
+    "tooltip": "(auto-generated)",
+    "file": "osx_filesystems_filesystem_is_mounted.md"
+  },
+  {
+    "type": "osx_filesystems_get_directory_entry_count",
+    "tooltip": "(auto-generated)",
+    "file": "osx_filesystems_get_directory_entry_count.md"
+  },
+  {
+    "type": "osx_filesystems_get_directory_entry_name",
+    "tooltip": "(auto-generated)",
+    "file": "osx_filesystems_get_directory_entry_name.md"
+  },
+  {
+    "type": "osx_filesystems_get_file_size",
+    "tooltip": "(auto-generated)",
+    "file": "osx_filesystems_get_file_size.md"
+  },
+  {
+    "type": "osx_filesystems_mount_filesystem",
+    "tooltip": "(auto-generated)",
+    "file": "osx_filesystems_mount_filesystem.md"
+  },
+  {
+    "type": "osx_filesystems_open_file",
+    "tooltip": "(auto-generated)",
+    "file": "osx_filesystems_open_file.md"
+  },
+  {
+    "type": "osx_filesystems_read_file_bytes",
+    "tooltip": "(auto-generated)",
+    "file": "osx_filesystems_read_file_bytes.md"
+  },
+  {
+    "type": "osx_filesystems_remove_file",
+    "tooltip": "(auto-generated)",
+    "file": "osx_filesystems_remove_file.md"
+  },
+  {
+    "type": "osx_filesystems_seek_file",
+    "tooltip": "(auto-generated)",
+    "file": "osx_filesystems_seek_file.md"
+  },
+  {
+    "type": "osx_filesystems_sync_all_filesystems",
+    "tooltip": "(auto-generated)",
+    "file": "osx_filesystems_sync_all_filesystems.md"
+  },
+  {
+    "type": "osx_filesystems_unmount_filesystem",
+    "tooltip": "(auto-generated)",
+    "file": "osx_filesystems_unmount_filesystem.md"
+  },
+  {
+    "type": "osx_filesystems_write_file_bytes",
+    "tooltip": "(auto-generated)",
+    "file": "osx_filesystems_write_file_bytes.md"
+  },
+  {
+    "type": "osx_graphics_clear_clipping_rectangle",
+    "tooltip": "(auto-generated)",
+    "file": "osx_graphics_clear_clipping_rectangle.md"
+  },
+  {
+    "type": "osx_graphics_copy_screen_region",
+    "tooltip": "(auto-generated)",
+    "file": "osx_graphics_copy_screen_region.md"
+  },
+  {
+    "type": "osx_graphics_draw_bitmap",
+    "tooltip": "(auto-generated)",
+    "file": "osx_graphics_draw_bitmap.md"
+  },
+  {
+    "type": "osx_graphics_draw_circle_outline",
+    "tooltip": "(auto-generated)",
+    "file": "osx_graphics_draw_circle_outline.md"
+  },
+  {
+    "type": "osx_graphics_draw_fast_mouse_cursor",
+    "tooltip": "(auto-generated)",
+    "file": "osx_graphics_draw_fast_mouse_cursor.md"
+  },
+  {
+    "type": "osx_graphics_draw_horizontal_line",
+    "tooltip": "(auto-generated)",
+    "file": "osx_graphics_draw_horizontal_line.md"
+  },
+  {
+    "type": "osx_graphics_draw_pixel_line_fast",
+    "tooltip": "(auto-generated)",
+    "file": "osx_graphics_draw_pixel_line_fast.md"
+  },
+  {
+    "type": "osx_graphics_draw_rectangle_outline",
+    "tooltip": "(auto-generated)",
+    "file": "osx_graphics_draw_rectangle_outline.md"
+  },
+  {
+    "type": "osx_graphics_draw_transparent_sprite",
+    "tooltip": "(auto-generated)",
+    "file": "osx_graphics_draw_transparent_sprite.md"
+  },
+  {
+    "type": "osx_graphics_draw_vertical_line",
+    "tooltip": "(auto-generated)",
+    "file": "osx_graphics_draw_vertical_line.md"
+  },
+  {
+    "type": "osx_graphics_enable_back_buffer",
+    "tooltip": "(auto-generated)",
+    "file": "osx_graphics_enable_back_buffer.md"
+  },
+  {
+    "type": "osx_graphics_fill_circle",
+    "tooltip": "(auto-generated)",
+    "file": "osx_graphics_fill_circle.md"
+  },
+  {
+    "type": "osx_graphics_fill_rectangle",
+    "tooltip": "(auto-generated)",
+    "file": "osx_graphics_fill_rectangle.md"
+  },
+  {
+    "type": "osx_graphics_get_framebuffer_bits_per_pixel",
+    "tooltip": "(auto-generated)",
+    "file": "osx_graphics_get_framebuffer_bits_per_pixel.md"
+  },
+  {
+    "type": "osx_graphics_get_framebuffer_pitch",
+    "tooltip": "(auto-generated)",
+    "file": "osx_graphics_get_framebuffer_pitch.md"
+  },
+  {
+    "type": "osx_graphics_get_screen_height",
+    "tooltip": "(auto-generated)",
+    "file": "osx_graphics_get_screen_height.md"
+  },
+  {
+    "type": "osx_graphics_get_screen_width",
+    "tooltip": "(auto-generated)",
+    "file": "osx_graphics_get_screen_width.md"
+  },
+  {
+    "type": "osx_graphics_initialize_framebuffer",
+    "tooltip": "(auto-generated)",
+    "file": "osx_graphics_initialize_framebuffer.md"
+  },
+  {
+    "type": "osx_graphics_present_changed_rectangle",
+    "tooltip": "(auto-generated)",
+    "file": "osx_graphics_present_changed_rectangle.md"
+  },
+  {
+    "type": "osx_graphics_present_full_frame",
+    "tooltip": "(auto-generated)",
+    "file": "osx_graphics_present_full_frame.md"
+  },
+  {
+    "type": "osx_graphics_restore_screen_region",
+    "tooltip": "(auto-generated)",
+    "file": "osx_graphics_restore_screen_region.md"
+  },
+  {
+    "type": "osx_graphics_save_screen_region",
+    "tooltip": "(auto-generated)",
+    "file": "osx_graphics_save_screen_region.md"
+  },
+  {
+    "type": "osx_graphics_set_clipping_rectangle",
+    "tooltip": "(auto-generated)",
+    "file": "osx_graphics_set_clipping_rectangle.md"
+  },
+  {
+    "type": "osx_graphics_swap_graphics_buffers",
+    "tooltip": "(auto-generated)",
+    "file": "osx_graphics_swap_graphics_buffers.md"
+  },
+  {
+    "type": "osx_interrupts_allocate_interrupt_vector",
+    "tooltip": "(auto-generated)",
+    "file": "osx_interrupts_allocate_interrupt_vector.md"
+  },
+  {
+    "type": "osx_interrupts_disable_non_maskable_interrupts",
+    "tooltip": "(auto-generated)",
+    "file": "osx_interrupts_disable_non_maskable_interrupts.md"
+  },
+  {
+    "type": "osx_interrupts_enable_non_maskable_interrupts",
+    "tooltip": "(auto-generated)",
+    "file": "osx_interrupts_enable_non_maskable_interrupts.md"
+  },
+  {
+    "type": "osx_interrupts_get_interrupt_count",
+    "tooltip": "(auto-generated)",
+    "file": "osx_interrupts_get_interrupt_count.md"
+  },
+  {
+    "type": "osx_interrupts_get_last_interrupt_vector",
+    "tooltip": "(auto-generated)",
+    "file": "osx_interrupts_get_last_interrupt_vector.md"
+  },
+  {
+    "type": "osx_interrupts_hardware_irq_is_masked",
+    "tooltip": "(auto-generated)",
+    "file": "osx_interrupts_hardware_irq_is_masked.md"
+  },
+  {
+    "type": "osx_interrupts_install_interrupt_table",
+    "tooltip": "(auto-generated)",
+    "file": "osx_interrupts_install_interrupt_table.md"
+  },
+  {
+    "type": "osx_interrupts_mask_hardware_irq",
+    "tooltip": "(auto-generated)",
+    "file": "osx_interrupts_mask_hardware_irq.md"
+  },
+  {
+    "type": "osx_interrupts_register_interrupt_handler",
+    "tooltip": "(auto-generated)",
+    "file": "osx_interrupts_register_interrupt_handler.md"
+  },
+  {
+    "type": "osx_interrupts_release_interrupt_vector",
+    "tooltip": "(auto-generated)",
+    "file": "osx_interrupts_release_interrupt_vector.md"
+  },
+  {
+    "type": "osx_interrupts_send_end_of_interrupt",
+    "tooltip": "(auto-generated)",
+    "file": "osx_interrupts_send_end_of_interrupt.md"
+  },
+  {
+    "type": "osx_interrupts_set_interrupt_priority",
+    "tooltip": "(auto-generated)",
+    "file": "osx_interrupts_set_interrupt_priority.md"
+  },
+  {
+    "type": "osx_interrupts_trigger_software_interrupt",
+    "tooltip": "(auto-generated)",
+    "file": "osx_interrupts_trigger_software_interrupt.md"
+  },
+  {
+    "type": "osx_interrupts_unmask_hardware_irq",
+    "tooltip": "(auto-generated)",
+    "file": "osx_interrupts_unmask_hardware_irq.md"
+  },
+  {
+    "type": "osx_interrupts_unregister_interrupt_handler",
+    "tooltip": "(auto-generated)",
+    "file": "osx_interrupts_unregister_interrupt_handler.md"
+  },
+  {
+    "type": "osx_kernel_heap_allocate_from_memory_pool",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_heap_allocate_from_memory_pool.md"
+  },
+  {
+    "type": "osx_kernel_heap_allocate_heap_bytes",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_heap_allocate_heap_bytes.md"
+  },
+  {
+    "type": "osx_kernel_heap_allocate_zeroed_items",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_heap_allocate_zeroed_items.md"
+  },
+  {
+    "type": "osx_kernel_heap_compact_kernel_heap",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_heap_compact_kernel_heap.md"
+  },
+  {
+    "type": "osx_kernel_heap_create_memory_pool",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_heap_create_memory_pool.md"
+  },
+  {
+    "type": "osx_kernel_heap_destroy_memory_pool",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_heap_destroy_memory_pool.md"
+  },
+  {
+    "type": "osx_kernel_heap_dump_kernel_heap",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_heap_dump_kernel_heap.md"
+  },
+  {
+    "type": "osx_kernel_heap_free_heap_allocation",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_heap_free_heap_allocation.md"
+  },
+  {
+    "type": "osx_kernel_heap_free_to_memory_pool",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_heap_free_to_memory_pool.md"
+  },
+  {
+    "type": "osx_kernel_heap_get_allocation_size",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_heap_get_allocation_size.md"
+  },
+  {
+    "type": "osx_kernel_heap_get_heap_bytes_free",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_heap_get_heap_bytes_free.md"
+  },
+  {
+    "type": "osx_kernel_heap_get_heap_bytes_used",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_heap_get_heap_bytes_used.md"
+  },
+  {
+    "type": "osx_kernel_heap_initialize_kernel_heap",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_heap_initialize_kernel_heap.md"
+  },
+  {
+    "type": "osx_kernel_heap_resize_heap_allocation",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_heap_resize_heap_allocation.md"
+  },
+  {
+    "type": "osx_kernel_heap_validate_kernel_heap",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_heap_validate_kernel_heap.md"
+  },
+  {
+    "type": "osx_kernel_services_get_boot_command_line",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_services_get_boot_command_line.md"
+  },
+  {
+    "type": "osx_kernel_services_get_boot_stage",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_services_get_boot_stage.md"
+  },
+  {
+    "type": "osx_kernel_services_get_bootloader_name",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_services_get_bootloader_name.md"
+  },
+  {
+    "type": "osx_kernel_services_get_kernel_status_code",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_services_get_kernel_status_code.md"
+  },
+  {
+    "type": "osx_kernel_services_get_kernel_uptime_ticks",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_services_get_kernel_uptime_ticks.md"
+  },
+  {
+    "type": "osx_kernel_services_get_system_hostname",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_services_get_system_hostname.md"
+  },
+  {
+    "type": "osx_kernel_services_register_panic_message",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_services_register_panic_message.md"
+  },
+  {
+    "type": "osx_kernel_services_request_system_restart",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_services_request_system_restart.md"
+  },
+  {
+    "type": "osx_kernel_services_request_system_shutdown",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_services_request_system_shutdown.md"
+  },
+  {
+    "type": "osx_kernel_services_safe_mode_enabled",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_services_safe_mode_enabled.md"
+  },
+  {
+    "type": "osx_kernel_services_set_boot_stage",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_services_set_boot_stage.md"
+  },
+  {
+    "type": "osx_kernel_services_set_kernel_status_code",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_services_set_kernel_status_code.md"
+  },
+  {
+    "type": "osx_kernel_services_set_safe_mode",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_services_set_safe_mode.md"
+  },
+  {
+    "type": "osx_kernel_services_set_system_hostname",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_services_set_system_hostname.md"
+  },
+  {
+    "type": "osx_kernel_services_trigger_kernel_panic",
+    "tooltip": "(auto-generated)",
+    "file": "osx_kernel_services_trigger_kernel_panic.md"
+  },
+  {
+    "type": "osx_keyboard_and_mouse_clear_input_queue",
+    "tooltip": "(auto-generated)",
+    "file": "osx_keyboard_and_mouse_clear_input_queue.md"
+  },
+  {
+    "type": "osx_keyboard_and_mouse_get_mouse_button_mask",
+    "tooltip": "(auto-generated)",
+    "file": "osx_keyboard_and_mouse_get_mouse_button_mask.md"
+  },
+  {
+    "type": "osx_keyboard_and_mouse_get_mouse_scroll_delta",
+    "tooltip": "(auto-generated)",
+    "file": "osx_keyboard_and_mouse_get_mouse_scroll_delta.md"
+  },
+  {
+    "type": "osx_keyboard_and_mouse_get_mouse_x",
+    "tooltip": "(auto-generated)",
+    "file": "osx_keyboard_and_mouse_get_mouse_x.md"
+  },
+  {
+    "type": "osx_keyboard_and_mouse_get_mouse_y",
+    "tooltip": "(auto-generated)",
+    "file": "osx_keyboard_and_mouse_get_mouse_y.md"
+  },
+  {
+    "type": "osx_keyboard_and_mouse_initialize_keyboard",
+    "tooltip": "(auto-generated)",
+    "file": "osx_keyboard_and_mouse_initialize_keyboard.md"
+  },
+  {
+    "type": "osx_keyboard_and_mouse_initialize_mouse",
+    "tooltip": "(auto-generated)",
+    "file": "osx_keyboard_and_mouse_initialize_mouse.md"
+  },
+  {
+    "type": "osx_keyboard_and_mouse_keyboard_key_available",
+    "tooltip": "(auto-generated)",
+    "file": "osx_keyboard_and_mouse_keyboard_key_available.md"
+  },
+  {
+    "type": "osx_keyboard_and_mouse_keyboard_key_is_pressed",
+    "tooltip": "(auto-generated)",
+    "file": "osx_keyboard_and_mouse_keyboard_key_is_pressed.md"
+  },
+  {
+    "type": "osx_keyboard_and_mouse_mouse_button_is_pressed",
+    "tooltip": "(auto-generated)",
+    "file": "osx_keyboard_and_mouse_mouse_button_is_pressed.md"
+  },
+  {
+    "type": "osx_keyboard_and_mouse_mouse_cursor_is_visible",
+    "tooltip": "(auto-generated)",
+    "file": "osx_keyboard_and_mouse_mouse_cursor_is_visible.md"
+  },
+  {
+    "type": "osx_keyboard_and_mouse_read_keyboard_character",
+    "tooltip": "(auto-generated)",
+    "file": "osx_keyboard_and_mouse_read_keyboard_character.md"
+  },
+  {
+    "type": "osx_keyboard_and_mouse_read_keyboard_key_code",
+    "tooltip": "(auto-generated)",
+    "file": "osx_keyboard_and_mouse_read_keyboard_key_code.md"
+  },
+  {
+    "type": "osx_keyboard_and_mouse_set_mouse_cursor_visible",
+    "tooltip": "(auto-generated)",
+    "file": "osx_keyboard_and_mouse_set_mouse_cursor_visible.md"
+  },
+  {
+    "type": "osx_keyboard_and_mouse_set_mouse_position",
+    "tooltip": "(auto-generated)",
+    "file": "osx_keyboard_and_mouse_set_mouse_position.md"
+  },
+  {
+    "type": "osx_networking_bring_network_interface_down",
+    "tooltip": "(auto-generated)",
+    "file": "osx_networking_bring_network_interface_down.md"
+  },
+  {
+    "type": "osx_networking_bring_network_interface_up",
+    "tooltip": "(auto-generated)",
+    "file": "osx_networking_bring_network_interface_up.md"
+  },
+  {
+    "type": "osx_networking_close_network_socket",
+    "tooltip": "(auto-generated)",
+    "file": "osx_networking_close_network_socket.md"
+  },
+  {
+    "type": "osx_networking_get_ipv4_address",
+    "tooltip": "(auto-generated)",
+    "file": "osx_networking_get_ipv4_address.md"
+  },
+  {
+    "type": "osx_networking_get_network_interface_count",
+    "tooltip": "(auto-generated)",
+    "file": "osx_networking_get_network_interface_count.md"
+  },
+  {
+    "type": "osx_networking_initialize_network_stack",
+    "tooltip": "(auto-generated)",
+    "file": "osx_networking_initialize_network_stack.md"
+  },
+  {
+    "type": "osx_networking_network_interface_is_up",
+    "tooltip": "(auto-generated)",
+    "file": "osx_networking_network_interface_is_up.md"
+  },
+  {
+    "type": "osx_networking_open_udp_socket",
+    "tooltip": "(auto-generated)",
+    "file": "osx_networking_open_udp_socket.md"
+  },
+  {
+    "type": "osx_networking_receive_ethernet_frame",
+    "tooltip": "(auto-generated)",
+    "file": "osx_networking_receive_ethernet_frame.md"
+  },
+  {
+    "type": "osx_networking_receive_udp_packet",
+    "tooltip": "(auto-generated)",
+    "file": "osx_networking_receive_udp_packet.md"
+  },
+  {
+    "type": "osx_networking_send_ethernet_frame",
+    "tooltip": "(auto-generated)",
+    "file": "osx_networking_send_ethernet_frame.md"
+  },
+  {
+    "type": "osx_networking_send_udp_packet",
+    "tooltip": "(auto-generated)",
+    "file": "osx_networking_send_udp_packet.md"
+  },
+  {
+    "type": "osx_networking_set_ipv4_address",
+    "tooltip": "(auto-generated)",
+    "file": "osx_networking_set_ipv4_address.md"
+  },
+  {
+    "type": "osx_networking_set_ipv4_gateway",
+    "tooltip": "(auto-generated)",
+    "file": "osx_networking_set_ipv4_gateway.md"
+  },
+  {
+    "type": "osx_networking_set_ipv4_subnet_mask",
+    "tooltip": "(auto-generated)",
+    "file": "osx_networking_set_ipv4_subnet_mask.md"
+  },
+  {
+    "type": "osx_pci_and_devices_enable_pci_bus_mastering",
+    "tooltip": "(auto-generated)",
+    "file": "osx_pci_and_devices_enable_pci_bus_mastering.md"
+  },
+  {
+    "type": "osx_pci_and_devices_get_pci_bus_number",
+    "tooltip": "(auto-generated)",
+    "file": "osx_pci_and_devices_get_pci_bus_number.md"
+  },
+  {
+    "type": "osx_pci_and_devices_get_pci_class_code",
+    "tooltip": "(auto-generated)",
+    "file": "osx_pci_and_devices_get_pci_class_code.md"
+  },
+  {
+    "type": "osx_pci_and_devices_get_pci_device_count",
+    "tooltip": "(auto-generated)",
+    "file": "osx_pci_and_devices_get_pci_device_count.md"
+  },
+  {
+    "type": "osx_pci_and_devices_get_pci_device_id",
+    "tooltip": "(auto-generated)",
+    "file": "osx_pci_and_devices_get_pci_device_id.md"
+  },
+  {
+    "type": "osx_pci_and_devices_get_pci_function_number",
+    "tooltip": "(auto-generated)",
+    "file": "osx_pci_and_devices_get_pci_function_number.md"
+  },
+  {
+    "type": "osx_pci_and_devices_get_pci_slot_number",
+    "tooltip": "(auto-generated)",
+    "file": "osx_pci_and_devices_get_pci_slot_number.md"
+  },
+  {
+    "type": "osx_pci_and_devices_get_pci_vendor_id",
+    "tooltip": "(auto-generated)",
+    "file": "osx_pci_and_devices_get_pci_vendor_id.md"
+  },
+  {
+    "type": "osx_pci_and_devices_read_pci_config_byte",
+    "tooltip": "(auto-generated)",
+    "file": "osx_pci_and_devices_read_pci_config_byte.md"
+  },
+  {
+    "type": "osx_pci_and_devices_read_pci_config_dword",
+    "tooltip": "(auto-generated)",
+    "file": "osx_pci_and_devices_read_pci_config_dword.md"
+  },
+  {
+    "type": "osx_pci_and_devices_read_pci_config_word",
+    "tooltip": "(auto-generated)",
+    "file": "osx_pci_and_devices_read_pci_config_word.md"
+  },
+  {
+    "type": "osx_pci_and_devices_scan_pci_bus",
+    "tooltip": "(auto-generated)",
+    "file": "osx_pci_and_devices_scan_pci_bus.md"
+  },
+  {
+    "type": "osx_pci_and_devices_write_pci_config_byte",
+    "tooltip": "(auto-generated)",
+    "file": "osx_pci_and_devices_write_pci_config_byte.md"
+  },
+  {
+    "type": "osx_pci_and_devices_write_pci_config_dword",
+    "tooltip": "(auto-generated)",
+    "file": "osx_pci_and_devices_write_pci_config_dword.md"
+  },
+  {
+    "type": "osx_pci_and_devices_write_pci_config_word",
+    "tooltip": "(auto-generated)",
+    "file": "osx_pci_and_devices_write_pci_config_word.md"
+  },
+  {
+    "type": "osx_physical_memory_allocate_contiguous_physical_pages",
+    "tooltip": "(auto-generated)",
+    "file": "osx_physical_memory_allocate_contiguous_physical_pages.md"
+  },
+  {
+    "type": "osx_physical_memory_allocate_physical_page",
+    "tooltip": "(auto-generated)",
+    "file": "osx_physical_memory_allocate_physical_page.md"
+  },
+  {
+    "type": "osx_physical_memory_copy_physical_page",
+    "tooltip": "(auto-generated)",
+    "file": "osx_physical_memory_copy_physical_page.md"
+  },
+  {
+    "type": "osx_physical_memory_free_physical_page",
+    "tooltip": "(auto-generated)",
+    "file": "osx_physical_memory_free_physical_page.md"
+  },
+  {
+    "type": "osx_physical_memory_get_free_physical_memory_bytes",
+    "tooltip": "(auto-generated)",
+    "file": "osx_physical_memory_get_free_physical_memory_bytes.md"
+  },
+  {
+    "type": "osx_physical_memory_get_memory_map_entry_count",
+    "tooltip": "(auto-generated)",
+    "file": "osx_physical_memory_get_memory_map_entry_count.md"
+  },
+  {
+    "type": "osx_physical_memory_get_memory_map_entry_length",
+    "tooltip": "(auto-generated)",
+    "file": "osx_physical_memory_get_memory_map_entry_length.md"
+  },
+  {
+    "type": "osx_physical_memory_get_memory_map_entry_start",
+    "tooltip": "(auto-generated)",
+    "file": "osx_physical_memory_get_memory_map_entry_start.md"
+  },
+  {
+    "type": "osx_physical_memory_get_memory_map_entry_type",
+    "tooltip": "(auto-generated)",
+    "file": "osx_physical_memory_get_memory_map_entry_type.md"
+  },
+  {
+    "type": "osx_physical_memory_get_physical_page_size",
+    "tooltip": "(auto-generated)",
+    "file": "osx_physical_memory_get_physical_page_size.md"
+  },
+  {
+    "type": "osx_physical_memory_get_total_physical_memory_bytes",
+    "tooltip": "(auto-generated)",
+    "file": "osx_physical_memory_get_total_physical_memory_bytes.md"
+  },
+  {
+    "type": "osx_physical_memory_physical_page_is_allocated",
+    "tooltip": "(auto-generated)",
+    "file": "osx_physical_memory_physical_page_is_allocated.md"
+  },
+  {
+    "type": "osx_physical_memory_release_physical_range",
+    "tooltip": "(auto-generated)",
+    "file": "osx_physical_memory_release_physical_range.md"
+  },
+  {
+    "type": "osx_physical_memory_reserve_physical_range",
+    "tooltip": "(auto-generated)",
+    "file": "osx_physical_memory_reserve_physical_range.md"
+  },
+  {
+    "type": "osx_physical_memory_zero_physical_page",
+    "tooltip": "(auto-generated)",
+    "file": "osx_physical_memory_zero_physical_page.md"
+  },
+  {
+    "type": "osx_processes_create_process",
+    "tooltip": "(auto-generated)",
+    "file": "osx_processes_create_process.md"
+  },
+  {
+    "type": "osx_processes_get_current_process_id",
+    "tooltip": "(auto-generated)",
+    "file": "osx_processes_get_current_process_id.md"
+  },
+  {
+    "type": "osx_processes_get_process_count",
+    "tooltip": "(auto-generated)",
+    "file": "osx_processes_get_process_count.md"
+  },
+  {
+    "type": "osx_processes_get_process_exit_code",
+    "tooltip": "(auto-generated)",
+    "file": "osx_processes_get_process_exit_code.md"
+  },
+  {
+    "type": "osx_processes_get_process_name",
+    "tooltip": "(auto-generated)",
+    "file": "osx_processes_get_process_name.md"
+  },
+  {
+    "type": "osx_processes_get_process_priority",
+    "tooltip": "(auto-generated)",
+    "file": "osx_processes_get_process_priority.md"
+  },
+  {
+    "type": "osx_processes_process_exists",
+    "tooltip": "(auto-generated)",
+    "file": "osx_processes_process_exists.md"
+  },
+  {
+    "type": "osx_processes_process_is_suspended",
+    "tooltip": "(auto-generated)",
+    "file": "osx_processes_process_is_suspended.md"
+  },
+  {
+    "type": "osx_processes_resume_process",
+    "tooltip": "(auto-generated)",
+    "file": "osx_processes_resume_process.md"
+  },
+  {
+    "type": "osx_processes_send_process_signal",
+    "tooltip": "(auto-generated)",
+    "file": "osx_processes_send_process_signal.md"
+  },
+  {
+    "type": "osx_processes_set_process_name",
+    "tooltip": "(auto-generated)",
+    "file": "osx_processes_set_process_name.md"
+  },
+  {
+    "type": "osx_processes_set_process_priority",
+    "tooltip": "(auto-generated)",
+    "file": "osx_processes_set_process_priority.md"
+  },
+  {
+    "type": "osx_processes_suspend_process",
+    "tooltip": "(auto-generated)",
+    "file": "osx_processes_suspend_process.md"
+  },
+  {
+    "type": "osx_processes_terminate_process",
+    "tooltip": "(auto-generated)",
+    "file": "osx_processes_terminate_process.md"
+  },
+  {
+    "type": "osx_processes_wait_for_process",
+    "tooltip": "(auto-generated)",
+    "file": "osx_processes_wait_for_process.md"
+  },
+  {
+    "type": "osx_storage_devices_cancel_block_request",
+    "tooltip": "(auto-generated)",
+    "file": "osx_storage_devices_cancel_block_request.md"
+  },
+  {
+    "type": "osx_storage_devices_create_block_request",
+    "tooltip": "(auto-generated)",
+    "file": "osx_storage_devices_create_block_request.md"
+  },
+  {
+    "type": "osx_storage_devices_disk_is_present",
+    "tooltip": "(auto-generated)",
+    "file": "osx_storage_devices_disk_is_present.md"
+  },
+  {
+    "type": "osx_storage_devices_disk_is_read_only",
+    "tooltip": "(auto-generated)",
+    "file": "osx_storage_devices_disk_is_read_only.md"
+  },
+  {
+    "type": "osx_storage_devices_flush_disk_cache",
+    "tooltip": "(auto-generated)",
+    "file": "osx_storage_devices_flush_disk_cache.md"
+  },
+  {
+    "type": "osx_storage_devices_get_block_request_status",
+    "tooltip": "(auto-generated)",
+    "file": "osx_storage_devices_get_block_request_status.md"
+  },
+  {
+    "type": "osx_storage_devices_get_disk_count",
+    "tooltip": "(auto-generated)",
+    "file": "osx_storage_devices_get_disk_count.md"
+  },
+  {
+    "type": "osx_storage_devices_get_disk_sector_size",
+    "tooltip": "(auto-generated)",
+    "file": "osx_storage_devices_get_disk_sector_size.md"
+  },
+  {
+    "type": "osx_storage_devices_get_disk_size_bytes",
+    "tooltip": "(auto-generated)",
+    "file": "osx_storage_devices_get_disk_size_bytes.md"
+  },
+  {
+    "type": "osx_storage_devices_get_partition_count",
+    "tooltip": "(auto-generated)",
+    "file": "osx_storage_devices_get_partition_count.md"
+  },
+  {
+    "type": "osx_storage_devices_get_partition_size_sectors",
+    "tooltip": "(auto-generated)",
+    "file": "osx_storage_devices_get_partition_size_sectors.md"
+  },
+  {
+    "type": "osx_storage_devices_get_partition_start_lba",
+    "tooltip": "(auto-generated)",
+    "file": "osx_storage_devices_get_partition_start_lba.md"
+  },
+  {
+    "type": "osx_storage_devices_read_disk_sectors",
+    "tooltip": "(auto-generated)",
+    "file": "osx_storage_devices_read_disk_sectors.md"
+  },
+  {
+    "type": "osx_storage_devices_wait_for_block_request",
+    "tooltip": "(auto-generated)",
+    "file": "osx_storage_devices_wait_for_block_request.md"
+  },
+  {
+    "type": "osx_storage_devices_write_disk_sectors",
+    "tooltip": "(auto-generated)",
+    "file": "osx_storage_devices_write_disk_sectors.md"
+  },
+  {
+    "type": "osx_synchronization_create_event",
+    "tooltip": "(auto-generated)",
+    "file": "osx_synchronization_create_event.md"
+  },
+  {
+    "type": "osx_synchronization_create_mutex",
+    "tooltip": "(auto-generated)",
+    "file": "osx_synchronization_create_mutex.md"
+  },
+  {
+    "type": "osx_synchronization_create_semaphore",
+    "tooltip": "(auto-generated)",
+    "file": "osx_synchronization_create_semaphore.md"
+  },
+  {
+    "type": "osx_synchronization_create_spinlock",
+    "tooltip": "(auto-generated)",
+    "file": "osx_synchronization_create_spinlock.md"
+  },
+  {
+    "type": "osx_synchronization_destroy_mutex",
+    "tooltip": "(auto-generated)",
+    "file": "osx_synchronization_destroy_mutex.md"
+  },
+  {
+    "type": "osx_synchronization_destroy_semaphore",
+    "tooltip": "(auto-generated)",
+    "file": "osx_synchronization_destroy_semaphore.md"
+  },
+  {
+    "type": "osx_synchronization_lock_mutex",
+    "tooltip": "(auto-generated)",
+    "file": "osx_synchronization_lock_mutex.md"
+  },
+  {
+    "type": "osx_synchronization_lock_spinlock",
+    "tooltip": "(auto-generated)",
+    "file": "osx_synchronization_lock_spinlock.md"
+  },
+  {
+    "type": "osx_synchronization_set_event",
+    "tooltip": "(auto-generated)",
+    "file": "osx_synchronization_set_event.md"
+  },
+  {
+    "type": "osx_synchronization_signal_semaphore",
+    "tooltip": "(auto-generated)",
+    "file": "osx_synchronization_signal_semaphore.md"
+  },
+  {
+    "type": "osx_synchronization_try_lock_mutex",
+    "tooltip": "(auto-generated)",
+    "file": "osx_synchronization_try_lock_mutex.md"
+  },
+  {
+    "type": "osx_synchronization_try_wait_semaphore",
+    "tooltip": "(auto-generated)",
+    "file": "osx_synchronization_try_wait_semaphore.md"
+  },
+  {
+    "type": "osx_synchronization_unlock_mutex",
+    "tooltip": "(auto-generated)",
+    "file": "osx_synchronization_unlock_mutex.md"
+  },
+  {
+    "type": "osx_synchronization_unlock_spinlock",
+    "tooltip": "(auto-generated)",
+    "file": "osx_synchronization_unlock_spinlock.md"
+  },
+  {
+    "type": "osx_synchronization_wait_semaphore",
+    "tooltip": "(auto-generated)",
+    "file": "osx_synchronization_wait_semaphore.md"
+  },
+  {
+    "type": "osx_text_and_windows_create_window",
+    "tooltip": "(auto-generated)",
+    "file": "osx_text_and_windows_create_window.md"
+  },
+  {
+    "type": "osx_text_and_windows_destroy_window",
+    "tooltip": "(auto-generated)",
+    "file": "osx_text_and_windows_destroy_window.md"
+  },
+  {
+    "type": "osx_text_and_windows_draw_text_at_position",
+    "tooltip": "(auto-generated)",
+    "file": "osx_text_and_windows_draw_text_at_position.md"
+  },
+  {
+    "type": "osx_text_and_windows_get_text_cursor_x",
+    "tooltip": "(auto-generated)",
+    "file": "osx_text_and_windows_get_text_cursor_x.md"
+  },
+  {
+    "type": "osx_text_and_windows_get_text_cursor_y",
+    "tooltip": "(auto-generated)",
+    "file": "osx_text_and_windows_get_text_cursor_y.md"
+  },
+  {
+    "type": "osx_text_and_windows_measure_text_height",
+    "tooltip": "(auto-generated)",
+    "file": "osx_text_and_windows_measure_text_height.md"
+  },
+  {
+    "type": "osx_text_and_windows_measure_text_width",
+    "tooltip": "(auto-generated)",
+    "file": "osx_text_and_windows_measure_text_width.md"
+  },
+  {
+    "type": "osx_text_and_windows_move_window",
+    "tooltip": "(auto-generated)",
+    "file": "osx_text_and_windows_move_window.md"
+  },
+  {
+    "type": "osx_text_and_windows_print_hexadecimal_number",
+    "tooltip": "(auto-generated)",
+    "file": "osx_text_and_windows_print_hexadecimal_number.md"
+  },
+  {
+    "type": "osx_text_and_windows_print_line",
+    "tooltip": "(auto-generated)",
+    "file": "osx_text_and_windows_print_line.md"
+  },
+  {
+    "type": "osx_text_and_windows_resize_window",
+    "tooltip": "(auto-generated)",
+    "file": "osx_text_and_windows_resize_window.md"
+  },
+  {
+    "type": "osx_text_and_windows_set_text_colours",
+    "tooltip": "(auto-generated)",
+    "file": "osx_text_and_windows_set_text_colours.md"
+  },
+  {
+    "type": "osx_text_and_windows_set_text_cursor_position",
+    "tooltip": "(auto-generated)",
+    "file": "osx_text_and_windows_set_text_cursor_position.md"
+  },
+  {
+    "type": "osx_text_and_windows_show_window",
+    "tooltip": "(auto-generated)",
+    "file": "osx_text_and_windows_show_window.md"
+  },
+  {
+    "type": "osx_text_and_windows_window_is_visible",
+    "tooltip": "(auto-generated)",
+    "file": "osx_text_and_windows_window_is_visible.md"
+  },
+  {
+    "type": "osx_threads_create_thread",
+    "tooltip": "(auto-generated)",
+    "file": "osx_threads_create_thread.md"
+  },
+  {
+    "type": "osx_threads_exit_current_thread",
+    "tooltip": "(auto-generated)",
+    "file": "osx_threads_exit_current_thread.md"
+  },
+  {
+    "type": "osx_threads_get_current_thread_id",
+    "tooltip": "(auto-generated)",
+    "file": "osx_threads_get_current_thread_id.md"
+  },
+  {
+    "type": "osx_threads_get_thread_affinity",
+    "tooltip": "(auto-generated)",
+    "file": "osx_threads_get_thread_affinity.md"
+  },
+  {
+    "type": "osx_threads_get_thread_priority",
+    "tooltip": "(auto-generated)",
+    "file": "osx_threads_get_thread_priority.md"
+  },
+  {
+    "type": "osx_threads_get_thread_state",
+    "tooltip": "(auto-generated)",
+    "file": "osx_threads_get_thread_state.md"
+  },
+  {
+    "type": "osx_threads_join_thread",
+    "tooltip": "(auto-generated)",
+    "file": "osx_threads_join_thread.md"
+  },
+  {
+    "type": "osx_threads_resume_thread",
+    "tooltip": "(auto-generated)",
+    "file": "osx_threads_resume_thread.md"
+  },
+  {
+    "type": "osx_threads_set_thread_affinity",
+    "tooltip": "(auto-generated)",
+    "file": "osx_threads_set_thread_affinity.md"
+  },
+  {
+    "type": "osx_threads_set_thread_priority",
+    "tooltip": "(auto-generated)",
+    "file": "osx_threads_set_thread_priority.md"
+  },
+  {
+    "type": "osx_threads_sleep_thread_ticks",
+    "tooltip": "(auto-generated)",
+    "file": "osx_threads_sleep_thread_ticks.md"
+  },
+  {
+    "type": "osx_threads_suspend_thread",
+    "tooltip": "(auto-generated)",
+    "file": "osx_threads_suspend_thread.md"
+  },
+  {
+    "type": "osx_threads_thread_exists",
+    "tooltip": "(auto-generated)",
+    "file": "osx_threads_thread_exists.md"
+  },
+  {
+    "type": "osx_threads_wake_thread",
+    "tooltip": "(auto-generated)",
+    "file": "osx_threads_wake_thread.md"
+  },
+  {
+    "type": "osx_threads_yield_current_thread",
+    "tooltip": "(auto-generated)",
+    "file": "osx_threads_yield_current_thread.md"
+  },
+  {
+    "type": "osx_timers_and_clock_cancel_timer",
+    "tooltip": "(auto-generated)",
+    "file": "osx_timers_and_clock_cancel_timer.md"
+  },
+  {
+    "type": "osx_timers_and_clock_convert_milliseconds_to_ticks",
+    "tooltip": "(auto-generated)",
+    "file": "osx_timers_and_clock_convert_milliseconds_to_ticks.md"
+  },
+  {
+    "type": "osx_timers_and_clock_convert_ticks_to_milliseconds",
+    "tooltip": "(auto-generated)",
+    "file": "osx_timers_and_clock_convert_ticks_to_milliseconds.md"
+  },
+  {
+    "type": "osx_timers_and_clock_create_one_shot_timer",
+    "tooltip": "(auto-generated)",
+    "file": "osx_timers_and_clock_create_one_shot_timer.md"
+  },
+  {
+    "type": "osx_timers_and_clock_create_repeating_timer",
+    "tooltip": "(auto-generated)",
+    "file": "osx_timers_and_clock_create_repeating_timer.md"
+  },
+  {
+    "type": "osx_timers_and_clock_get_monotonic_nanoseconds",
+    "tooltip": "(auto-generated)",
+    "file": "osx_timers_and_clock_get_monotonic_nanoseconds.md"
+  },
+  {
+    "type": "osx_timers_and_clock_get_monotonic_ticks",
+    "tooltip": "(auto-generated)",
+    "file": "osx_timers_and_clock_get_monotonic_ticks.md"
+  },
+  {
+    "type": "osx_timers_and_clock_get_timer_frequency",
+    "tooltip": "(auto-generated)",
+    "file": "osx_timers_and_clock_get_timer_frequency.md"
+  },
+  {
+    "type": "osx_timers_and_clock_get_timer_remaining_ticks",
+    "tooltip": "(auto-generated)",
+    "file": "osx_timers_and_clock_get_timer_remaining_ticks.md"
+  },
+  {
+    "type": "osx_timers_and_clock_get_wall_clock_seconds",
+    "tooltip": "(auto-generated)",
+    "file": "osx_timers_and_clock_get_wall_clock_seconds.md"
+  },
+  {
+    "type": "osx_timers_and_clock_initialize_system_timer",
+    "tooltip": "(auto-generated)",
+    "file": "osx_timers_and_clock_initialize_system_timer.md"
+  },
+  {
+    "type": "osx_timers_and_clock_reset_timer",
+    "tooltip": "(auto-generated)",
+    "file": "osx_timers_and_clock_reset_timer.md"
+  },
+  {
+    "type": "osx_timers_and_clock_set_wall_clock_seconds",
+    "tooltip": "(auto-generated)",
+    "file": "osx_timers_and_clock_set_wall_clock_seconds.md"
+  },
+  {
+    "type": "osx_timers_and_clock_sleep_milliseconds",
+    "tooltip": "(auto-generated)",
+    "file": "osx_timers_and_clock_sleep_milliseconds.md"
+  },
+  {
+    "type": "osx_timers_and_clock_timer_is_active",
+    "tooltip": "(auto-generated)",
+    "file": "osx_timers_and_clock_timer_is_active.md"
+  },
+  {
+    "type": "osx_usb_cancel_usb_transfer",
+    "tooltip": "(auto-generated)",
+    "file": "osx_usb_cancel_usb_transfer.md"
+  },
+  {
+    "type": "osx_usb_configure_usb_device",
+    "tooltip": "(auto-generated)",
+    "file": "osx_usb_configure_usb_device.md"
+  },
+  {
+    "type": "osx_usb_get_usb_address",
+    "tooltip": "(auto-generated)",
+    "file": "osx_usb_get_usb_address.md"
+  },
+  {
+    "type": "osx_usb_get_usb_class_code",
+    "tooltip": "(auto-generated)",
+    "file": "osx_usb_get_usb_class_code.md"
+  },
+  {
+    "type": "osx_usb_get_usb_controller_count",
+    "tooltip": "(auto-generated)",
+    "file": "osx_usb_get_usb_controller_count.md"
+  },
+  {
+    "type": "osx_usb_get_usb_device_count",
+    "tooltip": "(auto-generated)",
+    "file": "osx_usb_get_usb_device_count.md"
+  },
+  {
+    "type": "osx_usb_get_usb_product_id",
+    "tooltip": "(auto-generated)",
+    "file": "osx_usb_get_usb_product_id.md"
+  },
+  {
+    "type": "osx_usb_get_usb_transfer_byte_count",
+    "tooltip": "(auto-generated)",
+    "file": "osx_usb_get_usb_transfer_byte_count.md"
+  },
+  {
+    "type": "osx_usb_get_usb_vendor_id",
+    "tooltip": "(auto-generated)",
+    "file": "osx_usb_get_usb_vendor_id.md"
+  },
+  {
+    "type": "osx_usb_initialize_usb_subsystem",
+    "tooltip": "(auto-generated)",
+    "file": "osx_usb_initialize_usb_subsystem.md"
+  },
+  {
+    "type": "osx_usb_reset_usb_device",
+    "tooltip": "(auto-generated)",
+    "file": "osx_usb_reset_usb_device.md"
+  },
+  {
+    "type": "osx_usb_submit_usb_bulk_transfer",
+    "tooltip": "(auto-generated)",
+    "file": "osx_usb_submit_usb_bulk_transfer.md"
+  },
+  {
+    "type": "osx_usb_submit_usb_control_transfer",
+    "tooltip": "(auto-generated)",
+    "file": "osx_usb_submit_usb_control_transfer.md"
+  },
+  {
+    "type": "osx_usb_usb_device_is_connected",
+    "tooltip": "(auto-generated)",
+    "file": "osx_usb_usb_device_is_connected.md"
+  },
+  {
+    "type": "osx_usb_wait_for_usb_transfer",
+    "tooltip": "(auto-generated)",
+    "file": "osx_usb_wait_for_usb_transfer.md"
+  },
+  {
+    "type": "osx_virtual_memory_clone_address_space",
+    "tooltip": "(auto-generated)",
+    "file": "osx_virtual_memory_clone_address_space.md"
+  },
+  {
+    "type": "osx_virtual_memory_create_address_space",
+    "tooltip": "(auto-generated)",
+    "file": "osx_virtual_memory_create_address_space.md"
+  },
+  {
+    "type": "osx_virtual_memory_destroy_address_space",
+    "tooltip": "(auto-generated)",
+    "file": "osx_virtual_memory_destroy_address_space.md"
+  },
+  {
+    "type": "osx_virtual_memory_flush_entire_tlb",
+    "tooltip": "(auto-generated)",
+    "file": "osx_virtual_memory_flush_entire_tlb.md"
+  },
+  {
+    "type": "osx_virtual_memory_flush_tlb_page",
+    "tooltip": "(auto-generated)",
+    "file": "osx_virtual_memory_flush_tlb_page.md"
+  },
+  {
+    "type": "osx_virtual_memory_get_current_address_space",
+    "tooltip": "(auto-generated)",
+    "file": "osx_virtual_memory_get_current_address_space.md"
+  },
+  {
+    "type": "osx_virtual_memory_get_virtual_page_flags",
+    "tooltip": "(auto-generated)",
+    "file": "osx_virtual_memory_get_virtual_page_flags.md"
+  },
+  {
+    "type": "osx_virtual_memory_map_virtual_page",
+    "tooltip": "(auto-generated)",
+    "file": "osx_virtual_memory_map_virtual_page.md"
+  },
+  {
+    "type": "osx_virtual_memory_map_virtual_range",
+    "tooltip": "(auto-generated)",
+    "file": "osx_virtual_memory_map_virtual_range.md"
+  },
+  {
+    "type": "osx_virtual_memory_set_virtual_page_flags",
+    "tooltip": "(auto-generated)",
+    "file": "osx_virtual_memory_set_virtual_page_flags.md"
+  },
+  {
+    "type": "osx_virtual_memory_switch_address_space",
+    "tooltip": "(auto-generated)",
+    "file": "osx_virtual_memory_switch_address_space.md"
+  },
+  {
+    "type": "osx_virtual_memory_translate_virtual_address",
+    "tooltip": "(auto-generated)",
+    "file": "osx_virtual_memory_translate_virtual_address.md"
+  },
+  {
+    "type": "osx_virtual_memory_unmap_virtual_page",
+    "tooltip": "(auto-generated)",
+    "file": "osx_virtual_memory_unmap_virtual_page.md"
+  },
+  {
+    "type": "osx_virtual_memory_unmap_virtual_range",
+    "tooltip": "(auto-generated)",
+    "file": "osx_virtual_memory_unmap_virtual_range.md"
+  },
+  {
+    "type": "osx_virtual_memory_virtual_page_is_mapped",
+    "tooltip": "(auto-generated)",
+    "file": "osx_virtual_memory_virtual_page_is_mapped.md"
+  },
+  {
+    "type": "os_wait_until",
+    "tooltip": "(auto-generated)",
+    "file": "os_wait_until.md"
+  },
+  {
+    "type": "os_when_condition",
+    "tooltip": "(auto-generated)",
+    "file": "os_when_condition.md"
+  },
+  {
+    "type": "os_when_input_line",
+    "tooltip": "(auto-generated)",
+    "file": "os_when_input_line.md"
+  },
+  {
+    "type": "os_when_interrupt",
+    "tooltip": "(auto-generated)",
+    "file": "os_when_interrupt.md"
+  },
+  {
+    "type": "os_when_timer_tick",
+    "tooltip": "(auto-generated)",
+    "file": "os_when_timer_tick.md"
+  }
+]

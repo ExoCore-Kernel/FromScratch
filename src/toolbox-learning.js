@@ -8,11 +8,10 @@ import {
 } from './learning-content.js';
 
 export function openLearningTopic(topic = '', blockType = '') {
-  const parameters = new URLSearchParams();
-  if (topic) parameters.set('topic', normalizeCategoryName(topic));
-  if (blockType) parameters.set('block', blockType);
-  const suffix = parameters.size ? `?${parameters.toString()}` : '';
-  window.open(`/learn.html${suffix}`, 'blockos-learning');
+  const url = new URL('./blocks-manual.html', window.location.href);
+  if (topic) url.searchParams.set('topic', normalizeCategoryName(topic));
+  if (blockType) url.searchParams.set('block', blockType);
+  window.open(url.toString(), 'blockos-learning');
 }
 
 function decorateToolboxRows() {

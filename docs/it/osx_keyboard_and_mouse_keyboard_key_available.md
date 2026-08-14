@@ -1,0 +1,37 @@
+<!-- auto-generated -->
+# osx_keyboard_and_mouse_keyboard_key_available
+
+**Type:** `osx_keyboard_and_mouse_keyboard_key_available`
+
+**Etichetta visualizzata:** keyboard key available
+
+**Tipo blocco:** booleano
+
+**Categoria:** Keyboard and mouse
+
+## Espressione C generata
+
+```c
+(bool) blockos_ext_keyboard_and_mouse_keyboard_key_available()
+```
+
+## Prototipo runtime
+
+```c
+bool blockos_ext_keyboard_and_mouse_keyboard_key_available(void);
+```
+
+## Esempio di composizione
+
+```c
+void kernel_main(void) {
+    uint64_t result = blockos_ext_keyboard_and_mouse_keyboard_key_available();
+    (void)result;
+}
+```
+
+## Note
+
+- Questo blocco fa parte dello strato di funzionalità del runtime BlockOS x86_64.
+- Il runtime è fornito come kernel di partenza; alcune funzionalità mappano dispositivi virtuali in QEMU.
+- L'etichetta visualizzata è generata dal template `message0` del blocco.

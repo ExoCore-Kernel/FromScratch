@@ -84,6 +84,7 @@ const workspace = Blockly.inject('blocklyDiv', {
   renderer: 'zelos',
   trashcan: true,
   sounds: true,
+  media: './media/',
   move: {scrollbars: true, drag: true, wheel: true},
   zoom: {controls: true, wheel: true, startScale: 0.88, maxScale: 1.6, minScale: 0.35, scaleSpeed: 1.12},
   grid: {spacing: 24, length: 3, colour: '#d4dbea', snap: true},

@@ -62,9 +62,10 @@ export const compileX86_64Assembly = buildX86_64Elf;
 
 export async function createBootableIso(elf) {
   const base = import.meta.env.BASE_URL;
+  const templateVersion = `v=${encodeURIComponent(COMPILER_WORKER_VERSION)}`;
   const [templateResponse, metadataResponse] = await Promise.all([
-    fetch(`${base}browser-kernel/fromscratch-template.iso`, {cache: 'force-cache'}),
-    fetch(`${base}browser-kernel/iso-template.json`, {cache: 'force-cache'}),
+    fetch(`${base}browser-kernel/fromscratch-template.iso?${templateVersion}`, {cache: 'no-store'}),
+    fetch(`${base}browser-kernel/iso-template.json?${templateVersion}`, {cache: 'no-store'}),
   ]);
   if (!templateResponse.ok) throw new Error(`ISO template is unavailable (HTTP ${templateResponse.status}).`);
   if (!metadataResponse.ok) throw new Error(`ISO metadata is unavailable (HTTP ${metadataResponse.status}).`);

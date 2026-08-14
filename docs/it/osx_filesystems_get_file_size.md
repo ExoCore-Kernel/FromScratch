@@ -1,0 +1,41 @@
+<!-- auto-generated -->
+# osx_filesystems_get_file_size
+
+**Type:** `osx_filesystems_get_file_size`
+
+**Etichetta visualizzata:** get file size path
+
+**Tipo blocco:** numero
+
+**Categoria:** Filesystems
+
+## Argomenti
+
+- **path** (stringa) — slot di input 1
+
+## Espressione C generata
+
+```c
+(uint64_t) blockos_ext_filesystems_get_file_size(/* path */)
+```
+
+## Prototipo runtime
+
+```c
+uint64_t blockos_ext_filesystems_get_file_size(const char *);
+```
+
+## Esempio di composizione
+
+```c
+void kernel_main(void) {
+    uint64_t result = blockos_ext_filesystems_get_file_size(0);
+    (void)result;
+}
+```
+
+## Note
+
+- Questo blocco fa parte dello strato di funzionalità del runtime BlockOS x86_64.
+- Il runtime è fornito come kernel di partenza; alcune funzionalità mappano dispositivi virtuali in QEMU.
+- L'etichetta visualizzata è generata dal template `message0` del blocco.

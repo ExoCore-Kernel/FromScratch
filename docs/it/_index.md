@@ -1,0 +1,354 @@
+# Indice — Blocchi (Italiano)
+
+> Documentazione generata automaticamente. Le etichette corrispondono a quelle mostrate nell'editor.
+
+- **allocate contiguous physical pages page count** — [osx_physical_memory_allocate_contiguous_physical_pages](./it/osx_physical_memory_allocate_contiguous_physical_pages.md) _(Physical memory)_
+- **allocate from memory pool pool** — [osx_kernel_heap_allocate_from_memory_pool](./it/osx_kernel_heap_allocate_from_memory_pool.md) _(Kernel heap)_
+- **allocate heap bytes size** — [osx_kernel_heap_allocate_heap_bytes](./it/osx_kernel_heap_allocate_heap_bytes.md) _(Kernel heap)_
+- **allocate interrupt vector** — [osx_interrupts_allocate_interrupt_vector](./it/osx_interrupts_allocate_interrupt_vector.md) _(Interrupts)_
+- **allocate physical page** — [osx_physical_memory_allocate_physical_page](./it/osx_physical_memory_allocate_physical_page.md) _(Physical memory)_
+- **allocate zeroed items count item size** — [osx_kernel_heap_allocate_zeroed_items](./it/osx_kernel_heap_allocate_zeroed_items.md) _(Kernel heap)_
+- **assert condition condition message** — [osx_debug_and_information_assert_condition](./it/osx_debug_and_information_assert_condition.md) _(Debug and information)_
+- **audio buffer space available** — [osx_audio_audio_buffer_space_available](./it/osx_audio_audio_buffer_space_available.md) _(Audio)_
+- **audio is muted** — [osx_audio_audio_is_muted](./it/osx_audio_audio_is_muted.md) _(Audio)_
+- **begin trace event name** — [osx_debug_and_information_begin_trace_event](./it/osx_debug_and_information_begin_trace_event.md) _(Debug and information)_
+- **bring network interface down interface** — [osx_networking_bring_network_interface_down](./it/osx_networking_bring_network_interface_down.md) _(Networking)_
+- **bring network interface up interface** — [osx_networking_bring_network_interface_up](./it/osx_networking_bring_network_interface_up.md) _(Networking)_
+- **cancel block request request** — [osx_storage_devices_cancel_block_request](./it/osx_storage_devices_cancel_block_request.md) _(Storage devices)_
+- **cancel timer timer id** — [osx_timers_and_clock_cancel_timer](./it/osx_timers_and_clock_cancel_timer.md) _(Timers and clock)_
+- **cancel USB transfer transfer** — [osx_usb_cancel_usb_transfer](./it/osx_usb_cancel_usb_transfer.md) _(USB)_
+- **clear clipping rectangle** — [osx_graphics_clear_clipping_rectangle](./it/osx_graphics_clear_clipping_rectangle.md) _(Graphics)_
+- **clear input queue** — [osx_keyboard_and_mouse_clear_input_queue](./it/osx_keyboard_and_mouse_clear_input_queue.md) _(Keyboard and mouse)_
+- **clear last error** — [osx_debug_and_information_clear_last_error](./it/osx_debug_and_information_clear_last_error.md) _(Debug and information)_
+- **clear screen with colour** — [os_clear_screen](./it/os_clear_screen.md)
+- **clone address space source** — [osx_virtual_memory_clone_address_space](./it/osx_virtual_memory_clone_address_space.md) _(Virtual memory)_
+- **close file handle** — [osx_filesystems_close_file](./it/osx_filesystems_close_file.md) _(Filesystems)_
+- **close network socket socket** — [osx_networking_close_network_socket](./it/osx_networking_close_network_socket.md) _(Networking)_
+- **colour** — [os_colour](./it/os_colour.md)
+- **compact kernel heap** — [osx_kernel_heap_compact_kernel_heap](./it/osx_kernel_heap_compact_kernel_heap.md) _(Kernel heap)_
+- **configure USB device device** — [osx_usb_configure_usb_device](./it/osx_usb_configure_usb_device.md) _(USB)_
+- **convert milliseconds to ticks milliseconds** — [osx_timers_and_clock_convert_milliseconds_to_ticks](./it/osx_timers_and_clock_convert_milliseconds_to_ticks.md) _(Timers and clock)_
+- **convert ticks to milliseconds ticks** — [osx_timers_and_clock_convert_ticks_to_milliseconds](./it/osx_timers_and_clock_convert_ticks_to_milliseconds.md) _(Timers and clock)_
+- **copy physical page destination source** — [osx_physical_memory_copy_physical_page](./it/osx_physical_memory_copy_physical_page.md) _(Physical memory)_
+- **copy screen region source x source y destination x destination y width height** — [osx_graphics_copy_screen_region](./it/osx_graphics_copy_screen_region.md) _(Graphics)_
+- **CPU interrupts enabled** — [osx_cpu_cpu_interrupts_enabled](./it/osx_cpu_cpu_interrupts_enabled.md) _(CPU)_
+- **create address space** — [osx_virtual_memory_create_address_space](./it/osx_virtual_memory_create_address_space.md) _(Virtual memory)_
+- **create block request disk lba count buffer** — [osx_storage_devices_create_block_request](./it/osx_storage_devices_create_block_request.md) _(Storage devices)_
+- **create directory path** — [osx_filesystems_create_directory](./it/osx_filesystems_create_directory.md) _(Filesystems)_
+- **create event** — [osx_synchronization_create_event](./it/osx_synchronization_create_event.md) _(Synchronization)_
+- **create memory pool item size item count** — [osx_kernel_heap_create_memory_pool](./it/osx_kernel_heap_create_memory_pool.md) _(Kernel heap)_
+- **create mutex** — [osx_synchronization_create_mutex](./it/osx_synchronization_create_mutex.md) _(Synchronization)_
+- **create one shot timer delay callback address** — [osx_timers_and_clock_create_one_shot_timer](./it/osx_timers_and_clock_create_one_shot_timer.md) _(Timers and clock)_
+- **create process name entry address** — [osx_processes_create_process](./it/osx_processes_create_process.md) _(Processes)_
+- **create repeating timer period callback address** — [osx_timers_and_clock_create_repeating_timer](./it/osx_timers_and_clock_create_repeating_timer.md) _(Timers and clock)_
+- **create semaphore initial value** — [osx_synchronization_create_semaphore](./it/osx_synchronization_create_semaphore.md) _(Synchronization)_
+- **create spinlock** — [osx_synchronization_create_spinlock](./it/osx_synchronization_create_spinlock.md) _(Synchronization)_
+- **create thread entry address argument** — [osx_threads_create_thread](./it/osx_threads_create_thread.md) _(Threads)_
+- **create variable starting at** — [os_var_declare](./it/os_var_declare.md)
+- **create window title x y width height** — [osx_text_and_windows_create_window](./it/osx_text_and_windows_create_window.md) _(Text and windows)_
+- **define custom block** — [os_function_def](./it/os_function_def.md)
+- **destroy address space address space** — [osx_virtual_memory_destroy_address_space](./it/osx_virtual_memory_destroy_address_space.md) _(Virtual memory)_
+- **destroy memory pool pool** — [osx_kernel_heap_destroy_memory_pool](./it/osx_kernel_heap_destroy_memory_pool.md) _(Kernel heap)_
+- **destroy mutex mutex** — [osx_synchronization_destroy_mutex](./it/osx_synchronization_destroy_mutex.md) _(Synchronization)_
+- **destroy semaphore semaphore** — [osx_synchronization_destroy_semaphore](./it/osx_synchronization_destroy_semaphore.md) _(Synchronization)_
+- **destroy window window** — [osx_text_and_windows_destroy_window](./it/osx_text_and_windows_destroy_window.md) _(Text and windows)_
+- **disable CPU interrupts** — [osx_cpu_disable_cpu_interrupts](./it/osx_cpu_disable_cpu_interrupts.md) _(CPU)_
+- **disable non-maskable interrupts** — [osx_interrupts_disable_non_maskable_interrupts](./it/osx_interrupts_disable_non_maskable_interrupts.md) _(Interrupts)_
+- **disk is present disk** — [osx_storage_devices_disk_is_present](./it/osx_storage_devices_disk_is_present.md) _(Storage devices)_
+- **disk is read only disk** — [osx_storage_devices_disk_is_read_only](./it/osx_storage_devices_disk_is_read_only.md) _(Storage devices)_
+- **draw bitmap x y address width height** — [osx_graphics_draw_bitmap](./it/osx_graphics_draw_bitmap.md) _(Graphics)_
+- **draw circle outline x y radius colour** — [osx_graphics_draw_circle_outline](./it/osx_graphics_draw_circle_outline.md) _(Graphics)_
+- **draw fast mouse cursor x y** — [osx_graphics_draw_fast_mouse_cursor](./it/osx_graphics_draw_fast_mouse_cursor.md) _(Graphics)_
+- **draw fast pixel line x1 y1 x2 y2 colour** — [osx_graphics_draw_pixel_line_fast](./it/osx_graphics_draw_pixel_line_fast.md) _(Graphics)_
+- **draw horizontal line x y length colour** — [osx_graphics_draw_horizontal_line](./it/osx_graphics_draw_horizontal_line.md) _(Graphics)_
+- **draw rectangle outline x y width height colour** — [osx_graphics_draw_rectangle_outline](./it/osx_graphics_draw_rectangle_outline.md) _(Graphics)_
+- **draw text at position x y text colour** — [osx_text_and_windows_draw_text_at_position](./it/osx_text_and_windows_draw_text_at_position.md) _(Text and windows)_
+- **draw transparent 32-bit sprite x y address width height transparent colour** — [osx_graphics_draw_transparent_sprite](./it/osx_graphics_draw_transparent_sprite.md) _(Graphics)_
+- **draw vertical line x y length colour** — [osx_graphics_draw_vertical_line](./it/osx_graphics_draw_vertical_line.md) _(Graphics)_
+- **dump kernel heap** — [osx_kernel_heap_dump_kernel_heap](./it/osx_kernel_heap_dump_kernel_heap.md) _(Kernel heap)_
+- **dump system state** — [osx_debug_and_information_dump_system_state](./it/osx_debug_and_information_dump_system_state.md) _(Debug and information)_
+- **enable CPU interrupts** — [osx_cpu_enable_cpu_interrupts](./it/osx_cpu_enable_cpu_interrupts.md) _(CPU)_
+- **enable graphics back buffer enabled** — [osx_graphics_enable_back_buffer](./it/osx_graphics_enable_back_buffer.md) _(Graphics)_
+- **enable non-maskable interrupts** — [osx_interrupts_enable_non_maskable_interrupts](./it/osx_interrupts_enable_non_maskable_interrupts.md) _(Interrupts)_
+- **enable PCI bus mastering device index** — [osx_pci_and_devices_enable_pci_bus_mastering](./it/osx_pci_and_devices_enable_pci_bus_mastering.md) _(PCI and devices)_
+- **end trace event name** — [osx_debug_and_information_end_trace_event](./it/osx_debug_and_information_end_trace_event.md) _(Debug and information)_
+- **execute CPU memory fence** — [osx_cpu_execute_cpu_memory_fence](./it/osx_cpu_execute_cpu_memory_fence.md) _(CPU)_
+- **exit current thread exit code** — [osx_threads_exit_current_thread](./it/osx_threads_exit_current_thread.md) _(Threads)_
+- **file exists path** — [osx_filesystems_file_exists](./it/osx_filesystems_file_exists.md) _(Filesystems)_
+- **filesystem is mounted path** — [osx_filesystems_filesystem_is_mounted](./it/osx_filesystems_filesystem_is_mounted.md) _(Filesystems)_
+- **fill circle x y radius colour** — [osx_graphics_fill_circle](./it/osx_graphics_fill_circle.md) _(Graphics)_
+- **fill rectangle x y width height colour** — [osx_graphics_fill_rectangle](./it/osx_graphics_fill_rectangle.md) _(Graphics)_
+- **flush cache line address** — [osx_cpu_flush_cache_line](./it/osx_cpu_flush_cache_line.md) _(CPU)_
+- **flush disk cache disk** — [osx_storage_devices_flush_disk_cache](./it/osx_storage_devices_flush_disk_cache.md) _(Storage devices)_
+- **flush entire TLB** — [osx_virtual_memory_flush_entire_tlb](./it/osx_virtual_memory_flush_entire_tlb.md) _(Virtual memory)_
+- **flush TLB page virtual** — [osx_virtual_memory_flush_tlb_page](./it/osx_virtual_memory_flush_tlb_page.md) _(Virtual memory)_
+- **forever** — [os_forever](./it/os_forever.md)
+- **free heap allocation address** — [osx_kernel_heap_free_heap_allocation](./it/osx_kernel_heap_free_heap_allocation.md) _(Kernel heap)_
+- **free physical page address** — [osx_physical_memory_free_physical_page](./it/osx_physical_memory_free_physical_page.md) _(Physical memory)_
+- **free to memory pool pool address** — [osx_kernel_heap_free_to_memory_pool](./it/osx_kernel_heap_free_to_memory_pool.md) _(Kernel heap)_
+- **get allocation size address** — [osx_kernel_heap_get_allocation_size](./it/osx_kernel_heap_get_allocation_size.md) _(Kernel heap)_
+- **get architecture name** — [osx_debug_and_information_get_architecture_name](./it/osx_debug_and_information_get_architecture_name.md) _(Debug and information)_
+- **get audio device count** — [osx_audio_get_audio_device_count](./it/osx_audio_get_audio_device_count.md) _(Audio)_
+- **get audio playback position** — [osx_audio_get_audio_playback_position](./it/osx_audio_get_audio_playback_position.md) _(Audio)_
+- **get audio sample rate** — [osx_audio_get_audio_sample_rate](./it/osx_audio_get_audio_sample_rate.md) _(Audio)_
+- **get block request status request** — [osx_storage_devices_get_block_request_status](./it/osx_storage_devices_get_block_request_status.md) _(Storage devices)_
+- **get boot command line** — [osx_kernel_services_get_boot_command_line](./it/osx_kernel_services_get_boot_command_line.md) _(Kernel services)_
+- **get boot stage** — [osx_kernel_services_get_boot_stage](./it/osx_kernel_services_get_boot_stage.md) _(Kernel services)_
+- **get bootloader name** — [osx_kernel_services_get_bootloader_name](./it/osx_kernel_services_get_bootloader_name.md) _(Kernel services)_
+- **get compiler name** — [osx_debug_and_information_get_compiler_name](./it/osx_debug_and_information_get_compiler_name.md) _(Debug and information)_
+- **get CPU brand** — [osx_cpu_get_cpu_brand](./it/osx_cpu_get_cpu_brand.md) _(CPU)_
+- **get CPU frequency kHz** — [osx_cpu_get_cpu_frequency_khz](./it/osx_cpu_get_cpu_frequency_khz.md) _(CPU)_
+- **get CPU vendor** — [osx_cpu_get_cpu_vendor](./it/osx_cpu_get_cpu_vendor.md) _(CPU)_
+- **get current address space** — [osx_virtual_memory_get_current_address_space](./it/osx_virtual_memory_get_current_address_space.md) _(Virtual memory)_
+- **get current CPU number** — [osx_cpu_get_current_cpu_number](./it/osx_cpu_get_current_cpu_number.md) _(CPU)_
+- **get current process id** — [osx_processes_get_current_process_id](./it/osx_processes_get_current_process_id.md) _(Processes)_
+- **get current thread id** — [osx_threads_get_current_thread_id](./it/osx_threads_get_current_thread_id.md) _(Threads)_
+- **get debug log level** — [osx_debug_and_information_get_debug_log_level](./it/osx_debug_and_information_get_debug_log_level.md) _(Debug and information)_
+- **get directory entry count path** — [osx_filesystems_get_directory_entry_count](./it/osx_filesystems_get_directory_entry_count.md) _(Filesystems)_
+- **get directory entry name path index** — [osx_filesystems_get_directory_entry_name](./it/osx_filesystems_get_directory_entry_name.md) _(Filesystems)_
+- **get disk count** — [osx_storage_devices_get_disk_count](./it/osx_storage_devices_get_disk_count.md) _(Storage devices)_
+- **get disk sector size disk** — [osx_storage_devices_get_disk_sector_size](./it/osx_storage_devices_get_disk_sector_size.md) _(Storage devices)_
+- **get disk size bytes disk** — [osx_storage_devices_get_disk_size_bytes](./it/osx_storage_devices_get_disk_size_bytes.md) _(Storage devices)_
+- **get file size path** — [osx_filesystems_get_file_size](./it/osx_filesystems_get_file_size.md) _(Filesystems)_
+- **get framebuffer bits per pixel** — [osx_graphics_get_framebuffer_bits_per_pixel](./it/osx_graphics_get_framebuffer_bits_per_pixel.md) _(Graphics)_
+- **get framebuffer pitch** — [osx_graphics_get_framebuffer_pitch](./it/osx_graphics_get_framebuffer_pitch.md) _(Graphics)_
+- **get free physical memory bytes** — [osx_physical_memory_get_free_physical_memory_bytes](./it/osx_physical_memory_get_free_physical_memory_bytes.md) _(Physical memory)_
+- **get heap bytes free** — [osx_kernel_heap_get_heap_bytes_free](./it/osx_kernel_heap_get_heap_bytes_free.md) _(Kernel heap)_
+- **get heap bytes used** — [osx_kernel_heap_get_heap_bytes_used](./it/osx_kernel_heap_get_heap_bytes_used.md) _(Kernel heap)_
+- **get interrupt count vector** — [osx_interrupts_get_interrupt_count](./it/osx_interrupts_get_interrupt_count.md) _(Interrupts)_
+- **get IPv4 address interface** — [osx_networking_get_ipv4_address](./it/osx_networking_get_ipv4_address.md) _(Networking)_
+- **get kernel build number** — [osx_debug_and_information_get_kernel_build_number](./it/osx_debug_and_information_get_kernel_build_number.md) _(Debug and information)_
+- **get kernel status code** — [osx_kernel_services_get_kernel_status_code](./it/osx_kernel_services_get_kernel_status_code.md) _(Kernel services)_
+- **get kernel uptime ticks** — [osx_kernel_services_get_kernel_uptime_ticks](./it/osx_kernel_services_get_kernel_uptime_ticks.md) _(Kernel services)_
+- **get last error code** — [osx_debug_and_information_get_last_error_code](./it/osx_debug_and_information_get_last_error_code.md) _(Debug and information)_
+- **get last interrupt vector** — [osx_interrupts_get_last_interrupt_vector](./it/osx_interrupts_get_last_interrupt_vector.md) _(Interrupts)_
+- **get logical processor count** — [osx_cpu_get_logical_processor_count](./it/osx_cpu_get_logical_processor_count.md) _(CPU)_
+- **get master volume** — [osx_audio_get_master_volume](./it/osx_audio_get_master_volume.md) _(Audio)_
+- **get memory map entry count** — [osx_physical_memory_get_memory_map_entry_count](./it/osx_physical_memory_get_memory_map_entry_count.md) _(Physical memory)_
+- **get memory map entry length index** — [osx_physical_memory_get_memory_map_entry_length](./it/osx_physical_memory_get_memory_map_entry_length.md) _(Physical memory)_
+- **get memory map entry start index** — [osx_physical_memory_get_memory_map_entry_start](./it/osx_physical_memory_get_memory_map_entry_start.md) _(Physical memory)_
+- **get memory map entry type index** — [osx_physical_memory_get_memory_map_entry_type](./it/osx_physical_memory_get_memory_map_entry_type.md) _(Physical memory)_
+- **get monotonic nanoseconds** — [osx_timers_and_clock_get_monotonic_nanoseconds](./it/osx_timers_and_clock_get_monotonic_nanoseconds.md) _(Timers and clock)_
+- **get monotonic ticks** — [osx_timers_and_clock_get_monotonic_ticks](./it/osx_timers_and_clock_get_monotonic_ticks.md) _(Timers and clock)_
+- **get mouse button mask** — [osx_keyboard_and_mouse_get_mouse_button_mask](./it/osx_keyboard_and_mouse_get_mouse_button_mask.md) _(Keyboard and mouse)_
+- **get mouse scroll delta** — [osx_keyboard_and_mouse_get_mouse_scroll_delta](./it/osx_keyboard_and_mouse_get_mouse_scroll_delta.md) _(Keyboard and mouse)_
+- **get mouse x** — [osx_keyboard_and_mouse_get_mouse_x](./it/osx_keyboard_and_mouse_get_mouse_x.md) _(Keyboard and mouse)_
+- **get mouse y** — [osx_keyboard_and_mouse_get_mouse_y](./it/osx_keyboard_and_mouse_get_mouse_y.md) _(Keyboard and mouse)_
+- **get network interface count** — [osx_networking_get_network_interface_count](./it/osx_networking_get_network_interface_count.md) _(Networking)_
+- **get partition count disk** — [osx_storage_devices_get_partition_count](./it/osx_storage_devices_get_partition_count.md) _(Storage devices)_
+- **get partition size sectors disk partition** — [osx_storage_devices_get_partition_size_sectors](./it/osx_storage_devices_get_partition_size_sectors.md) _(Storage devices)_
+- **get partition start lba disk partition** — [osx_storage_devices_get_partition_start_lba](./it/osx_storage_devices_get_partition_start_lba.md) _(Storage devices)_
+- **get PCI bus number device index** — [osx_pci_and_devices_get_pci_bus_number](./it/osx_pci_and_devices_get_pci_bus_number.md) _(PCI and devices)_
+- **get PCI class code device index** — [osx_pci_and_devices_get_pci_class_code](./it/osx_pci_and_devices_get_pci_class_code.md) _(PCI and devices)_
+- **get PCI device count** — [osx_pci_and_devices_get_pci_device_count](./it/osx_pci_and_devices_get_pci_device_count.md) _(PCI and devices)_
+- **get PCI device id device index** — [osx_pci_and_devices_get_pci_device_id](./it/osx_pci_and_devices_get_pci_device_id.md) _(PCI and devices)_
+- **get PCI function number device index** — [osx_pci_and_devices_get_pci_function_number](./it/osx_pci_and_devices_get_pci_function_number.md) _(PCI and devices)_
+- **get PCI slot number device index** — [osx_pci_and_devices_get_pci_slot_number](./it/osx_pci_and_devices_get_pci_slot_number.md) _(PCI and devices)_
+- **get PCI vendor id device index** — [osx_pci_and_devices_get_pci_vendor_id](./it/osx_pci_and_devices_get_pci_vendor_id.md) _(PCI and devices)_
+- **get physical page size** — [osx_physical_memory_get_physical_page_size](./it/osx_physical_memory_get_physical_page_size.md) _(Physical memory)_
+- **get process count** — [osx_processes_get_process_count](./it/osx_processes_get_process_count.md) _(Processes)_
+- **get process exit code process id** — [osx_processes_get_process_exit_code](./it/osx_processes_get_process_exit_code.md) _(Processes)_
+- **get process name process id** — [osx_processes_get_process_name](./it/osx_processes_get_process_name.md) _(Processes)_
+- **get process priority process id** — [osx_processes_get_process_priority](./it/osx_processes_get_process_priority.md) _(Processes)_
+- **get runtime version** — [osx_debug_and_information_get_runtime_version](./it/osx_debug_and_information_get_runtime_version.md) _(Debug and information)_
+- **get screen height** — [osx_graphics_get_screen_height](./it/osx_graphics_get_screen_height.md) _(Graphics)_
+- **get screen width** — [osx_graphics_get_screen_width](./it/osx_graphics_get_screen_width.md) _(Graphics)_
+- **get system hostname** — [osx_kernel_services_get_system_hostname](./it/osx_kernel_services_get_system_hostname.md) _(Kernel services)_
+- **get text cursor x** — [osx_text_and_windows_get_text_cursor_x](./it/osx_text_and_windows_get_text_cursor_x.md) _(Text and windows)_
+- **get text cursor y** — [osx_text_and_windows_get_text_cursor_y](./it/osx_text_and_windows_get_text_cursor_y.md) _(Text and windows)_
+- **get thread affinity thread id** — [osx_threads_get_thread_affinity](./it/osx_threads_get_thread_affinity.md) _(Threads)_
+- **get thread priority thread id** — [osx_threads_get_thread_priority](./it/osx_threads_get_thread_priority.md) _(Threads)_
+- **get thread state thread id** — [osx_threads_get_thread_state](./it/osx_threads_get_thread_state.md) _(Threads)_
+- **get timer frequency** — [osx_timers_and_clock_get_timer_frequency](./it/osx_timers_and_clock_get_timer_frequency.md) _(Timers and clock)_
+- **get timer remaining ticks timer id** — [osx_timers_and_clock_get_timer_remaining_ticks](./it/osx_timers_and_clock_get_timer_remaining_ticks.md) _(Timers and clock)_
+- **get total physical memory bytes** — [osx_physical_memory_get_total_physical_memory_bytes](./it/osx_physical_memory_get_total_physical_memory_bytes.md) _(Physical memory)_
+- **get USB address device** — [osx_usb_get_usb_address](./it/osx_usb_get_usb_address.md) _(USB)_
+- **get USB class code device** — [osx_usb_get_usb_class_code](./it/osx_usb_get_usb_class_code.md) _(USB)_
+- **get USB controller count** — [osx_usb_get_usb_controller_count](./it/osx_usb_get_usb_controller_count.md) _(USB)_
+- **get USB device count** — [osx_usb_get_usb_device_count](./it/osx_usb_get_usb_device_count.md) _(USB)_
+- **get USB product id device** — [osx_usb_get_usb_product_id](./it/osx_usb_get_usb_product_id.md) _(USB)_
+- **get USB transfer byte count transfer** — [osx_usb_get_usb_transfer_byte_count](./it/osx_usb_get_usb_transfer_byte_count.md) _(USB)_
+- **get USB vendor id device** — [osx_usb_get_usb_vendor_id](./it/osx_usb_get_usb_vendor_id.md) _(USB)_
+- **get virtual page flags virtual** — [osx_virtual_memory_get_virtual_page_flags](./it/osx_virtual_memory_get_virtual_page_flags.md) _(Virtual memory)_
+- **get wall clock seconds** — [osx_timers_and_clock_get_wall_clock_seconds](./it/osx_timers_and_clock_get_wall_clock_seconds.md) _(Timers and clock)_
+- **halt CPU** — [os_halt](./it/os_halt.md)
+- **hardware IRQ is masked irq** — [osx_interrupts_hardware_irq_is_masked](./it/osx_interrupts_hardware_irq_is_masked.md) _(Interrupts)_
+- **if then** — [os_if](./it/os_if.md)
+- **initialize audio subsystem** — [osx_audio_initialize_audio_subsystem](./it/osx_audio_initialize_audio_subsystem.md) _(Audio)_
+- **initialize framebuffer** — [osx_graphics_initialize_framebuffer](./it/osx_graphics_initialize_framebuffer.md) _(Graphics)_
+- **initialize kernel heap start size** — [osx_kernel_heap_initialize_kernel_heap](./it/osx_kernel_heap_initialize_kernel_heap.md) _(Kernel heap)_
+- **initialize keyboard** — [osx_keyboard_and_mouse_initialize_keyboard](./it/osx_keyboard_and_mouse_initialize_keyboard.md) _(Keyboard and mouse)_
+- **initialize mouse** — [osx_keyboard_and_mouse_initialize_mouse](./it/osx_keyboard_and_mouse_initialize_mouse.md) _(Keyboard and mouse)_
+- **initialize network stack** — [osx_networking_initialize_network_stack](./it/osx_networking_initialize_network_stack.md) _(Networking)_
+- **initialize system timer frequency** — [osx_timers_and_clock_initialize_system_timer](./it/osx_timers_and_clock_initialize_system_timer.md) _(Timers and clock)_
+- **initialize USB subsystem** — [osx_usb_initialize_usb_subsystem](./it/osx_usb_initialize_usb_subsystem.md) _(USB)_
+- **input command line available** — [os_input_line_available](./it/os_input_line_available.md)
+- **install interrupt table** — [osx_interrupts_install_interrupt_table](./it/osx_interrupts_install_interrupt_table.md) _(Interrupts)_
+- **invalidate CPU cache** — [osx_cpu_invalidate_cpu_cache](./it/osx_cpu_invalidate_cpu_cache.md) _(CPU)_
+- **join text with** — [os_join_text](./it/os_join_text.md)
+- **join thread thread id** — [osx_threads_join_thread](./it/osx_threads_join_thread.md) _(Threads)_
+- **keyboard key available** — [osx_keyboard_and_mouse_keyboard_key_available](./it/osx_keyboard_and_mouse_keyboard_key_available.md) _(Keyboard and mouse)_
+- **keyboard key is pressed key code** — [osx_keyboard_and_mouse_keyboard_key_is_pressed](./it/osx_keyboard_and_mouse_keyboard_key_is_pressed.md) _(Keyboard and mouse)_
+- **lock mutex mutex** — [osx_synchronization_lock_mutex](./it/osx_synchronization_lock_mutex.md) _(Synchronization)_
+- **lock spinlock spinlock** — [osx_synchronization_lock_spinlock](./it/osx_synchronization_lock_spinlock.md) _(Synchronization)_
+- **map virtual page virtual physical flags** — [osx_virtual_memory_map_virtual_page](./it/osx_virtual_memory_map_virtual_page.md) _(Virtual memory)_
+- **map virtual range virtual physical pages** — [osx_virtual_memory_map_virtual_range](./it/osx_virtual_memory_map_virtual_range.md) _(Virtual memory)_
+- **mask hardware IRQ irq** — [osx_interrupts_mask_hardware_irq](./it/osx_interrupts_mask_hardware_irq.md) _(Interrupts)_
+- **measure text height text** — [osx_text_and_windows_measure_text_height](./it/osx_text_and_windows_measure_text_height.md) _(Text and windows)_
+- **measure text width text** — [osx_text_and_windows_measure_text_width](./it/osx_text_and_windows_measure_text_width.md) _(Text and windows)_
+- **mount filesystem device path type** — [osx_filesystems_mount_filesystem](./it/osx_filesystems_mount_filesystem.md) _(Filesystems)_
+- **mouse button is pressed button** — [osx_keyboard_and_mouse_mouse_button_is_pressed](./it/osx_keyboard_and_mouse_mouse_button_is_pressed.md) _(Keyboard and mouse)_
+- **mouse cursor is visible** — [osx_keyboard_and_mouse_mouse_cursor_is_visible](./it/osx_keyboard_and_mouse_mouse_cursor_is_visible.md) _(Keyboard and mouse)_
+- **move window window x y** — [osx_text_and_windows_move_window](./it/osx_text_and_windows_move_window.md) _(Text and windows)_
+- **network interface is up interface** — [osx_networking_network_interface_is_up](./it/osx_networking_network_interface_is_up.md) _(Networking)_
+- **not** — [os_not](./it/os_not.md)
+- **note** — [os_comment](./it/os_comment.md)
+- **number** — [os_number](./it/os_number.md)
+- **open file path flags** — [osx_filesystems_open_file](./it/osx_filesystems_open_file.md) _(Filesystems)_
+- **open UDP socket port** — [osx_networking_open_udp_socket](./it/osx_networking_open_udp_socket.md) _(Networking)_
+- **os_boolean** — [os_boolean](./it/os_boolean.md)
+- **os_compare** — [os_compare](./it/os_compare.md)
+- **os_logic** — [os_logic](./it/os_logic.md)
+- **os_math** — [os_math](./it/os_math.md)
+- **pause audio playback** — [osx_audio_pause_audio_playback](./it/osx_audio_pause_audio_playback.md) _(Audio)_
+- **pause CPU briefly** — [osx_cpu_pause_cpu_briefly](./it/osx_cpu_pause_cpu_briefly.md) _(CPU)_
+- **physical page is allocated address** — [osx_physical_memory_physical_page_is_allocated](./it/osx_physical_memory_physical_page_is_allocated.md) _(Physical memory)_
+- **play audio tone frequency duration ms** — [osx_audio_play_audio_tone](./it/osx_audio_play_audio_tone.md) _(Audio)_
+- **present changed rectangle x y width height** — [osx_graphics_present_changed_rectangle](./it/osx_graphics_present_changed_rectangle.md) _(Graphics)_
+- **present full graphics frame** — [osx_graphics_present_full_frame](./it/osx_graphics_present_full_frame.md) _(Graphics)_
+- **print hexadecimal number value** — [osx_text_and_windows_print_hexadecimal_number](./it/osx_text_and_windows_print_hexadecimal_number.md) _(Text and windows)_
+- **print line text** — [osx_text_and_windows_print_line](./it/osx_text_and_windows_print_line.md) _(Text and windows)_
+- **print number** — [os_print_number](./it/os_print_number.md)
+- **print text** — [os_print_text](./it/os_print_text.md)
+- **print uploaded text file at index** — [os_print_asset_text](./it/os_print_asset_text.md)
+- **process exists process id** — [osx_processes_process_exists](./it/osx_processes_process_exists.md) _(Processes)_
+- **process is suspended process id** — [osx_processes_process_is_suspended](./it/osx_processes_process_is_suspended.md) _(Processes)_
+- **read 8-bit hardware port** — [os_port_read8](./it/os_port_read8.md)
+- **read control register register** — [osx_cpu_read_control_register](./it/osx_cpu_read_control_register.md) _(CPU)_
+- **read disk sectors disk lba buffer count** — [osx_storage_devices_read_disk_sectors](./it/osx_storage_devices_read_disk_sectors.md) _(Storage devices)_
+- **read file bytes handle buffer length** — [osx_filesystems_read_file_bytes](./it/osx_filesystems_read_file_bytes.md) _(Filesystems)_
+- **read input command line** — [os_read_input_line](./it/os_read_input_line.md)
+- **read keyboard character** — [osx_keyboard_and_mouse_read_keyboard_character](./it/osx_keyboard_and_mouse_read_keyboard_character.md) _(Keyboard and mouse)_
+- **read keyboard key code** — [osx_keyboard_and_mouse_read_keyboard_key_code](./it/osx_keyboard_and_mouse_read_keyboard_key_code.md) _(Keyboard and mouse)_
+- **read PCI config byte device index offset** — [osx_pci_and_devices_read_pci_config_byte](./it/osx_pci_and_devices_read_pci_config_byte.md) _(PCI and devices)_
+- **read PCI config dword device index offset** — [osx_pci_and_devices_read_pci_config_dword](./it/osx_pci_and_devices_read_pci_config_dword.md) _(PCI and devices)_
+- **read PCI config word device index offset** — [osx_pci_and_devices_read_pci_config_word](./it/osx_pci_and_devices_read_pci_config_word.md) _(PCI and devices)_
+- **read timestamp counter** — [osx_cpu_read_timestamp_counter](./it/osx_cpu_read_timestamp_counter.md) _(CPU)_
+- **receive ethernet frame interface buffer maximum** — [osx_networking_receive_ethernet_frame](./it/osx_networking_receive_ethernet_frame.md) _(Networking)_
+- **receive UDP packet socket buffer maximum** — [osx_networking_receive_udp_packet](./it/osx_networking_receive_udp_packet.md) _(Networking)_
+- **register interrupt handler vector handler address** — [osx_interrupts_register_interrupt_handler](./it/osx_interrupts_register_interrupt_handler.md) _(Interrupts)_
+- **register panic message message** — [osx_kernel_services_register_panic_message](./it/osx_kernel_services_register_panic_message.md) _(Kernel services)_
+- **release interrupt vector vector** — [osx_interrupts_release_interrupt_vector](./it/osx_interrupts_release_interrupt_vector.md) _(Interrupts)_
+- **release physical range start length** — [osx_physical_memory_release_physical_range](./it/osx_physical_memory_release_physical_range.md) _(Physical memory)_
+- **remove file path** — [osx_filesystems_remove_file](./it/osx_filesystems_remove_file.md) _(Filesystems)_
+- **repeat times** — [os_repeat](./it/os_repeat.md)
+- **request system restart** — [osx_kernel_services_request_system_restart](./it/osx_kernel_services_request_system_restart.md) _(Kernel services)_
+- **request system shutdown** — [osx_kernel_services_request_system_shutdown](./it/osx_kernel_services_request_system_shutdown.md) _(Kernel services)_
+- **reserve physical range start length** — [osx_physical_memory_reserve_physical_range](./it/osx_physical_memory_reserve_physical_range.md) _(Physical memory)_
+- **reset timer timer id delay** — [osx_timers_and_clock_reset_timer](./it/osx_timers_and_clock_reset_timer.md) _(Timers and clock)_
+- **reset USB device device** — [osx_usb_reset_usb_device](./it/osx_usb_reset_usb_device.md) _(USB)_
+- **resize heap allocation address new size** — [osx_kernel_heap_resize_heap_allocation](./it/osx_kernel_heap_resize_heap_allocation.md) _(Kernel heap)_
+- **resize window window width height** — [osx_text_and_windows_resize_window](./it/osx_text_and_windows_resize_window.md) _(Text and windows)_
+- **restore saved screen region slot 0-7 x y** — [osx_graphics_restore_screen_region](./it/osx_graphics_restore_screen_region.md) _(Graphics)_
+- **resume audio playback** — [osx_audio_resume_audio_playback](./it/osx_audio_resume_audio_playback.md) _(Audio)_
+- **resume process process id** — [osx_processes_resume_process](./it/osx_processes_resume_process.md) _(Processes)_
+- **resume thread thread id** — [osx_threads_resume_thread](./it/osx_threads_resume_thread.md) _(Threads)_
+- **run custom block** — [os_function_call](./it/os_function_call.md)
+- **safe mode enabled** — [osx_kernel_services_safe_mode_enabled](./it/osx_kernel_services_safe_mode_enabled.md) _(Kernel services)_
+- **save screen region slot 0-7 x y width max 64 height max 64** — [osx_graphics_save_screen_region](./it/osx_graphics_save_screen_region.md) _(Graphics)_
+- **scan PCI bus** — [osx_pci_and_devices_scan_pci_bus](./it/osx_pci_and_devices_scan_pci_bus.md) _(PCI and devices)_
+- **seek file handle offset mode** — [osx_filesystems_seek_file](./it/osx_filesystems_seek_file.md) _(Filesystems)_
+- **send end of interrupt irq** — [osx_interrupts_send_end_of_interrupt](./it/osx_interrupts_send_end_of_interrupt.md) _(Interrupts)_
+- **send ethernet frame interface buffer length** — [osx_networking_send_ethernet_frame](./it/osx_networking_send_ethernet_frame.md) _(Networking)_
+- **send process signal process id signal** — [osx_processes_send_process_signal](./it/osx_processes_send_process_signal.md) _(Processes)_
+- **send UDP packet socket address port buffer length** — [osx_networking_send_udp_packet](./it/osx_networking_send_udp_packet.md) _(Networking)_
+- **set audio muted muted** — [osx_audio_set_audio_muted](./it/osx_audio_set_audio_muted.md) _(Audio)_
+- **set audio sample rate sample rate** — [osx_audio_set_audio_sample_rate](./it/osx_audio_set_audio_sample_rate.md) _(Audio)_
+- **set boot stage stage** — [osx_kernel_services_set_boot_stage](./it/osx_kernel_services_set_boot_stage.md) _(Kernel services)_
+- **set clipping rectangle x y width height** — [osx_graphics_set_clipping_rectangle](./it/osx_graphics_set_clipping_rectangle.md) _(Graphics)_
+- **set debug log level level** — [osx_debug_and_information_set_debug_log_level](./it/osx_debug_and_information_set_debug_log_level.md) _(Debug and information)_
+- **set event event** — [osx_synchronization_set_event](./it/osx_synchronization_set_event.md) _(Synchronization)_
+- **set interrupt priority vector priority** — [osx_interrupts_set_interrupt_priority](./it/osx_interrupts_set_interrupt_priority.md) _(Interrupts)_
+- **set IPv4 address interface address** — [osx_networking_set_ipv4_address](./it/osx_networking_set_ipv4_address.md) _(Networking)_
+- **set IPv4 gateway interface gateway** — [osx_networking_set_ipv4_gateway](./it/osx_networking_set_ipv4_gateway.md) _(Networking)_
+- **set IPv4 subnet mask interface mask** — [osx_networking_set_ipv4_subnet_mask](./it/osx_networking_set_ipv4_subnet_mask.md) _(Networking)_
+- **set kernel status code code** — [osx_kernel_services_set_kernel_status_code](./it/osx_kernel_services_set_kernel_status_code.md) _(Kernel services)_
+- **set master volume volume** — [osx_audio_set_master_volume](./it/osx_audio_set_master_volume.md) _(Audio)_
+- **set mouse cursor visible visible** — [osx_keyboard_and_mouse_set_mouse_cursor_visible](./it/osx_keyboard_and_mouse_set_mouse_cursor_visible.md) _(Keyboard and mouse)_
+- **set mouse position x y** — [osx_keyboard_and_mouse_set_mouse_position](./it/osx_keyboard_and_mouse_set_mouse_position.md) _(Keyboard and mouse)_
+- **set pixel x y colour** — [os_set_pixel](./it/os_set_pixel.md)
+- **set process name process id name** — [osx_processes_set_process_name](./it/osx_processes_set_process_name.md) _(Processes)_
+- **set process priority process id priority** — [osx_processes_set_process_priority](./it/osx_processes_set_process_priority.md) _(Processes)_
+- **set safe mode enabled** — [osx_kernel_services_set_safe_mode](./it/osx_kernel_services_set_safe_mode.md) _(Kernel services)_
+- **set system hostname hostname** — [osx_kernel_services_set_system_hostname](./it/osx_kernel_services_set_system_hostname.md) _(Kernel services)_
+- **set text colour** — [os_set_text_colour](./it/os_set_text_colour.md)
+- **set text colours foreground background** — [osx_text_and_windows_set_text_colours](./it/osx_text_and_windows_set_text_colours.md) _(Text and windows)_
+- **set text cursor position x y** — [osx_text_and_windows_set_text_cursor_position](./it/osx_text_and_windows_set_text_cursor_position.md) _(Text and windows)_
+- **set text font** — [os_set_text_font](./it/os_set_text_font.md)
+- **set text location** — [os_set_text_location](./it/os_set_text_location.md)
+- **set text size** — [os_set_text_size](./it/os_set_text_size.md)
+- **set thread affinity thread id cpu** — [osx_threads_set_thread_affinity](./it/osx_threads_set_thread_affinity.md) _(Threads)_
+- **set thread priority thread id priority** — [osx_threads_set_thread_priority](./it/osx_threads_set_thread_priority.md) _(Threads)_
+- **set variable to** — [os_var_set](./it/os_var_set.md)
+- **set virtual page flags virtual flags** — [osx_virtual_memory_set_virtual_page_flags](./it/osx_virtual_memory_set_virtual_page_flags.md) _(Virtual memory)_
+- **set wall clock seconds seconds** — [osx_timers_and_clock_set_wall_clock_seconds](./it/osx_timers_and_clock_set_wall_clock_seconds.md) _(Timers and clock)_
+- **show window window** — [osx_text_and_windows_show_window](./it/osx_text_and_windows_show_window.md) _(Text and windows)_
+- **signal semaphore semaphore** — [osx_synchronization_signal_semaphore](./it/osx_synchronization_signal_semaphore.md) _(Synchronization)_
+- **sleep milliseconds milliseconds** — [osx_timers_and_clock_sleep_milliseconds](./it/osx_timers_and_clock_sleep_milliseconds.md) _(Timers and clock)_
+- **sleep thread ticks ticks** — [osx_threads_sleep_thread_ticks](./it/osx_threads_sleep_thread_ticks.md) _(Threads)_
+- **stop audio tone** — [osx_audio_stop_audio_tone](./it/osx_audio_stop_audio_tone.md) _(Audio)_
+- **submit audio buffer address frames** — [osx_audio_submit_audio_buffer](./it/osx_audio_submit_audio_buffer.md) _(Audio)_
+- **submit USB bulk transfer device endpoint buffer length** — [osx_usb_submit_usb_bulk_transfer](./it/osx_usb_submit_usb_bulk_transfer.md) _(USB)_
+- **submit USB control transfer device request value index length** — [osx_usb_submit_usb_control_transfer](./it/osx_usb_submit_usb_control_transfer.md) _(USB)_
+- **suspend process process id** — [osx_processes_suspend_process](./it/osx_processes_suspend_process.md) _(Processes)_
+- **suspend thread thread id** — [osx_threads_suspend_thread](./it/osx_threads_suspend_thread.md) _(Threads)_
+- **swap graphics buffers** — [osx_graphics_swap_graphics_buffers](./it/osx_graphics_swap_graphics_buffers.md) _(Graphics)_
+- **switch address space address space** — [osx_virtual_memory_switch_address_space](./it/osx_virtual_memory_switch_address_space.md) _(Virtual memory)_
+- **sync all filesystems** — [osx_filesystems_sync_all_filesystems](./it/osx_filesystems_sync_all_filesystems.md) _(Filesystems)_
+- **terminate process process id exit code** — [osx_processes_terminate_process](./it/osx_processes_terminate_process.md) _(Processes)_
+- **text** — [os_text](./it/os_text.md)
+- **text equals ignoring case** — [os_text_equals_ignore_case](./it/os_text_equals_ignore_case.md)
+- **thread exists thread id** — [osx_threads_thread_exists](./it/osx_threads_thread_exists.md) _(Threads)_
+- **timer is active timer id** — [osx_timers_and_clock_timer_is_active](./it/osx_timers_and_clock_timer_is_active.md) _(Timers and clock)_
+- **translate virtual address virtual** — [osx_virtual_memory_translate_virtual_address](./it/osx_virtual_memory_translate_virtual_address.md) _(Virtual memory)_
+- **trigger debugger breakpoint** — [osx_debug_and_information_trigger_debugger_breakpoint](./it/osx_debug_and_information_trigger_debugger_breakpoint.md) _(Debug and information)_
+- **trigger kernel panic message** — [osx_kernel_services_trigger_kernel_panic](./it/osx_kernel_services_trigger_kernel_panic.md) _(Kernel services)_
+- **trigger software interrupt vector** — [osx_interrupts_trigger_software_interrupt](./it/osx_interrupts_trigger_software_interrupt.md) _(Interrupts)_
+- **try lock mutex mutex** — [osx_synchronization_try_lock_mutex](./it/osx_synchronization_try_lock_mutex.md) _(Synchronization)_
+- **try wait semaphore semaphore** — [osx_synchronization_try_wait_semaphore](./it/osx_synchronization_try_wait_semaphore.md) _(Synchronization)_
+- **unlock mutex mutex** — [osx_synchronization_unlock_mutex](./it/osx_synchronization_unlock_mutex.md) _(Synchronization)_
+- **unlock spinlock spinlock** — [osx_synchronization_unlock_spinlock](./it/osx_synchronization_unlock_spinlock.md) _(Synchronization)_
+- **unmap virtual page virtual** — [osx_virtual_memory_unmap_virtual_page](./it/osx_virtual_memory_unmap_virtual_page.md) _(Virtual memory)_
+- **unmap virtual range virtual pages** — [osx_virtual_memory_unmap_virtual_range](./it/osx_virtual_memory_unmap_virtual_range.md) _(Virtual memory)_
+- **unmask hardware IRQ irq** — [osx_interrupts_unmask_hardware_irq](./it/osx_interrupts_unmask_hardware_irq.md) _(Interrupts)_
+- **unmount filesystem path** — [osx_filesystems_unmount_filesystem](./it/osx_filesystems_unmount_filesystem.md) _(Filesystems)_
+- **unregister interrupt handler vector** — [osx_interrupts_unregister_interrupt_handler](./it/osx_interrupts_unregister_interrupt_handler.md) _(Interrupts)_
+- **uploaded file count** — [os_asset_count](./it/os_asset_count.md)
+- **uploaded file name at index** — [os_asset_name](./it/os_asset_name.md)
+- **uploaded file size at index** — [os_asset_size](./it/os_asset_size.md)
+- **USB device is connected device** — [osx_usb_usb_device_is_connected](./it/osx_usb_usb_device_is_connected.md) _(USB)_
+- **validate kernel heap** — [osx_kernel_heap_validate_kernel_heap](./it/osx_kernel_heap_validate_kernel_heap.md) _(Kernel heap)_
+- **variable** — [os_var_get](./it/os_var_get.md)
+- **virtual page is mapped virtual** — [osx_virtual_memory_virtual_page_is_mapped](./it/osx_virtual_memory_virtual_page_is_mapped.md) _(Virtual memory)_
+- **wait for block request request** — [osx_storage_devices_wait_for_block_request](./it/osx_storage_devices_wait_for_block_request.md) _(Storage devices)_
+- **wait for next interrupt** — [os_wait_interrupt](./it/os_wait_interrupt.md)
+- **wait for process process id** — [osx_processes_wait_for_process](./it/osx_processes_wait_for_process.md) _(Processes)_
+- **wait for USB transfer transfer** — [osx_usb_wait_for_usb_transfer](./it/osx_usb_wait_for_usb_transfer.md) _(USB)_
+- **wait semaphore semaphore** — [osx_synchronization_wait_semaphore](./it/osx_synchronization_wait_semaphore.md) _(Synchronization)_
+- **wake thread thread id** — [osx_threads_wake_thread](./it/osx_threads_wake_thread.md) _(Threads)_
+- **when kernel starts** — [os_start](./it/os_start.md)
+- **while do** — [os_while](./it/os_while.md)
+- **window is visible window** — [osx_text_and_windows_window_is_visible](./it/osx_text_and_windows_window_is_visible.md) _(Text and windows)_
+- **write 8-bit value to hardware port** — [os_port_write8](./it/os_port_write8.md)
+- **write control register register value** — [osx_cpu_write_control_register](./it/osx_cpu_write_control_register.md) _(CPU)_
+- **write debug number value** — [osx_debug_and_information_write_debug_number](./it/osx_debug_and_information_write_debug_number.md) _(Debug and information)_
+- **write debug text text** — [osx_debug_and_information_write_debug_text](./it/osx_debug_and_information_write_debug_text.md) _(Debug and information)_
+- **write disk sectors disk lba buffer count** — [osx_storage_devices_write_disk_sectors](./it/osx_storage_devices_write_disk_sectors.md) _(Storage devices)_
+- **write file bytes handle buffer length** — [osx_filesystems_write_file_bytes](./it/osx_filesystems_write_file_bytes.md) _(Filesystems)_
+- **write PCI config byte device index offset value** — [osx_pci_and_devices_write_pci_config_byte](./it/osx_pci_and_devices_write_pci_config_byte.md) _(PCI and devices)_
+- **write PCI config dword device index offset value** — [osx_pci_and_devices_write_pci_config_dword](./it/osx_pci_and_devices_write_pci_config_dword.md) _(PCI and devices)_
+- **write PCI config word device index offset value** — [osx_pci_and_devices_write_pci_config_word](./it/osx_pci_and_devices_write_pci_config_word.md) _(PCI and devices)_
+- **yield current thread** — [osx_threads_yield_current_thread](./it/osx_threads_yield_current_thread.md) _(Threads)_
+- **zero physical page address** — [osx_physical_memory_zero_physical_page](./it/osx_physical_memory_zero_physical_page.md) _(Physical memory)_
+
+> NOTA: traduzione automatica, verificare e adattare gli esempi.
