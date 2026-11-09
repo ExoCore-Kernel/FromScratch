@@ -133,7 +133,8 @@ test('normal Text block adds any number of ordered string and value parts and su
     assert.match(source, /" \| sum again: "/);
     assert.match(source, /" \| name: "/);
     assert.match(source, /" \| end: "/);
-    assert.equal((source.match(/blockos_string_join\(/g) ?? []).length, kinds.length);
+    const kernelBody = source.slice(source.indexOf('void kernel_main(void)'));
+    assert.equal((kernelBody.match(/blockos_string_join\(/g) ?? []).length, kinds.length);
 
     const directory = await mkdtemp(join(tmpdir(), 'blockos-parts-'));
     try {
