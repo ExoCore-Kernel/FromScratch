@@ -11,7 +11,7 @@ const PLUS_ICON = 'data:image/svg+xml,' + encodeURIComponent(
 
 function showTextPartMenu(field) {
   const block = field.getSourceBlock();
-  if (!block || !block.isEditable() || !block.workspace.isMovable()) return;
+  if (!block || !block.isEditable() || block.isInFlyout) return;
 
   Blockly.DropDownDiv.hideWithoutAnimation();
   Blockly.DropDownDiv.clearContent();
