@@ -9,8 +9,9 @@
 #define GLYPH_HEIGHT font_height
 #define CELL_WIDTH ((GLYPH_WIDTH + 1u) * FONT_SCALE)
 #define CELL_HEIGHT ((GLYPH_HEIGHT + 2u) * FONT_SCALE)
-#define BLOCKOS_JOIN_BUFFER_COUNT 8u
-#define BLOCKOS_JOIN_BUFFER_SIZE 256u
+// Allow long multi-part text expressions without overwriting intermediate buffers.
+#define BLOCKOS_JOIN_BUFFER_COUNT 128u
+#define BLOCKOS_JOIN_BUFFER_SIZE 2048u
 #define MAX_ASSETS 64u
 #define BLOCKOS_GRAPHICS_MAX_WIDTH 1024u
 #define BLOCKOS_GRAPHICS_MAX_HEIGHT 768u

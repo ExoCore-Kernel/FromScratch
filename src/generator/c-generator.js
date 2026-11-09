@@ -183,7 +183,16 @@ cGenerator.forBlock.os_repeat = function osRepeat(block, generator) {
 };
 
 cGenerator.forBlock.os_text = function osText(block, generator) {
-  return [cString(block.getFieldValue('TEXT')), generator.ORDER_ATOMIC];
+  let result = cString(block.getFieldValue('TEXT'));
+  // Each extra part is appended in its original order; empty value sockets insert nothing.
+  for (let i = 0; i < (block.textParts_?.length ?? 0); ++i) {
+    const type = block.textParts_[i];
+    const part = type === 'STRING'
+      ? cString(block.getFieldValue('TEXT_' + i))
+      : valueAsText(valueOr(generator, block, 'PART_' + i, generator.ORDER_NONE, '""'));
+    result = `blockos_string_join(${result}, ${part})`;
+  }
+  return [result, generator.ORDER_ATOMIC];
 };
 
 cGenerator.forBlock.os_text_with_value = function osTextWithValue(block, generator) {
