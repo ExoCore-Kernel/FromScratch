@@ -13,6 +13,7 @@
     "setup:runtime": "npm run setup:v64 && npm run setup:compiler",
     "test:os": "node scripts/test-os.mjs",
     "test:fonts": "node --test tests/bitmap-font.test.js",
+    "test:text": "node --test tests/text-output.test.js",
     "build:os": "node scripts/build-os.mjs",
     "predev": "npm run setup:runtime",
     "dev": "vite --host 0.0.0.0",
