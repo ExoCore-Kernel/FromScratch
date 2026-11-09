@@ -40,8 +40,11 @@ try {
   if (!result.status?.includes('Your OS was built and booted')) {
     throw new Error('The browser did not successfully build and boot the starter OS.');
   }
-  // The bootloader may display via VGA before it emits serial data. A successful
-  // emulator-ready event and valid build are required; guest text is informative.
+  // Confirm the guest actually reached kernel_main, not just emulator-ready.
+  await page.waitForFunction(() =>
+    (document.querySelector('#runOutput')?.textContent ?? '').includes('Hello from BlockOS!'),
+  {polling: 1000, timeout: 120000});
+  console.log('Guest kernel emitted the expected Hello from BlockOS! message.');
   console.log('FromScratch browser Build and Run smoke test passed.');
 } finally {
   await browser?.close().catch(() => {});
