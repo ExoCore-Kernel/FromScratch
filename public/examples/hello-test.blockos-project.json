@@ -1,0 +1,120 @@
+{
+  "format": "blockos-project",
+  "formatVersion": 1,
+  "name": "Hello Test OS",
+  "description": "A minimal x86_64 smoke test: screen output, arithmetic (6 × 7 = 42), and a clean halt.",
+  "target": "x86_64",
+  "customBlocks": [],
+  "workspace": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "os_start",
+          "x": 40,
+          "y": 40,
+          "inputs": {
+            "BODY": {
+              "block": {
+                "type": "os_clear_screen",
+                "inputs": {
+                  "COLOUR": {
+                    "block": {
+                      "type": "os_colour",
+                      "fields": {
+                        "COLOUR": "#111827"
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "os_print_text",
+                    "inputs": {
+                      "TEXT": {
+                        "block": {
+                          "type": "os_text",
+                          "fields": {
+                            "TEXT": "FromScratch Test OS"
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "os_print_text",
+                        "inputs": {
+                          "TEXT": {
+                            "block": {
+                              "type": "os_text",
+                              "fields": {
+                                "TEXT": "64-bit kernel booted successfully."
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "os_print_number",
+                            "inputs": {
+                              "VALUE": {
+                                "block": {
+                                  "type": "os_math",
+                                  "fields": {
+                                    "OP": "MULTIPLY"
+                                  },
+                                  "inputs": {
+                                    "A": {
+                                      "block": {
+                                        "type": "os_number",
+                                        "fields": {
+                                          "VALUE": 6
+                                        }
+                                      }
+                                    },
+                                    "B": {
+                                      "block": {
+                                        "type": "os_number",
+                                        "fields": {
+                                          "VALUE": 7
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "os_print_text",
+                                "inputs": {
+                                  "TEXT": {
+                                    "block": {
+                                      "type": "os_text",
+                                      "fields": {
+                                        "TEXT": "\nPASS: arithmetic and output work."
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "os_halt"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

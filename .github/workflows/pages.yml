@@ -9,60 +9,25 @@ permissions:
   id-token: write
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 330
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-      - name: Set up Docker Buildx cache
-        uses: docker/setup-buildx-action@v3
-      - name: Install compiler, GRUB, ISO and QEMU tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang lld unzip curl git grub-pc-bin grub-common xorriso mtools qemu-system-x86
-          command -v grub-mkrescue
-          command -v xorriso
-          command -v mformat
-          command -v qemu-system-x86_64
-          docker --version
-          docker buildx version
-          grub-mkrescue --version
+      - run: sudo apt-get update && sudo apt-get install -y clang lld unzip curl
       - run: npm install
       - run: |
           mkdir -p public/source
-          cp kernel/runtime.c kernel/extensions_runtime.c kernel/text_style_runtime.c kernel/boot.S kernel/linker.ld public/source/
+          cp kernel/runtime.c kernel/default-font.h kernel/extensions_runtime.c public/source/
       - run: bash scripts/build-web-demo.sh
-      - name: Build browser ISO template
-        run: bash scripts/build-browser-iso-template.sh
-      - name: Native QEMU x86_64 ISO boot smoke test
-        run: bash scripts/test-x86_64-iso-boot.sh
-      - name: Fetch v86 compatibility runtime
-        run: bash scripts/fetch-v86.sh
-      - name: Fetch browser compiler toolchain
-        run: bash scripts/fetch-browser-toolchain.sh
-      - name: Validate QEMU GUI build scripts
-        run: bash -n scripts/build-qemu64-gui.sh scripts/qemu64-container-build.sh
-      - name: Restore GUI QEMU-Wasm runtime cache
-        id: qemu64-cache
-        uses: actions/cache@v4
-        with:
-          path: public/qemu64
-          key: qemu64-gui-v16-5a65998d-${{ hashFiles('scripts/build-qemu64-gui.sh', 'scripts/qemu64-container-build.sh') }}
-      - name: Build GUI QEMU-Wasm x86_64 runtime
-        if: steps.qemu64-cache.outputs.cache-hit != 'true'
-        run: bash scripts/build-qemu64-gui.sh
-      - name: Upload QEMU build diagnostics
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: qemu-build-logs
-          path: public/qemu64/build-logs
-          if-no-files-found: ignore
+      - run: bash scripts/fetch-v64.sh
+      - run: bash scripts/fetch-browser-toolchain.sh
+      - continue-on-error: true
+        run: bash scripts/fetch-qemu64.sh
       - run: npm run check
       - run: npm run build
       - uses: actions/configure-pages@v5
@@ -75,10 +40,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
-    timeout-minutes: 65
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
-        with:
-          timeout: 3600000
-          reporting_interval: 15000

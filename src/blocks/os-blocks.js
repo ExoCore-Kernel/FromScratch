@@ -1,5 +1,6 @@
-import * as Blockly from 'blockly/core';
+import * as BlocklyModule from 'blockly/core';
 import {extensionBlocks} from './block-catalog.js';
+const Blockly = 'defineBlocksWithJsonArray' in BlocklyModule ? BlocklyModule : Reflect.get(BlocklyModule, 'default');
 
 export function registerOsBlocks() {
   Blockly.defineBlocksWithJsonArray([

@@ -2,9 +2,10 @@ node_modules/
 dist/
 build/
 public/v86/
+!public/v64/build/
+!public/v64/build/*
 public/compiler/
 public/qemu64/
 public/source/
-public/web-demo.img
 *.log
 .DS_Store

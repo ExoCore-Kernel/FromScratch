@@ -227,7 +227,7 @@ async function buildKernel(code) {
     for (const header of ['stdint.h', 'stddef.h', 'stdbool.h']) {
       await copyFile(path.join(kernelDirectory, 'include', header), path.join(includeDirectory, header));
     }
-    for (const file of ['boot.S', 'runtime.c', 'extensions_runtime.c', 'linker.ld']) {
+    for (const file of ['boot.S', 'runtime.c', 'default-font.h', 'extensions_runtime.c', 'linker.ld']) {
       await copyFile(path.join(kernelDirectory, file), path.join(work, file));
     }
     await writeFile(path.join(work, 'kernel.c'), code, 'utf8');

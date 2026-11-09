@@ -12,23 +12,36 @@
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">B</div>
         <div>
-          <h1>BlockOS Studio <span class="version-badge">v0.9 · browser + x86_64</span></h1>
-          <p>Visual kernel builder · browser compiler · 32-bit v86 and 64-bit QEMU-Wasm</p>
+          <h1>BlockOS Studio <span class="version-badge">x86_64</span></h1>
+          <p>Build small operating systems, visually.</p>
         </div>
       </div>
 
       <nav class="toolbar" aria-label="Project actions">
-        <button id="newButton" class="button button-secondary">New</button>
-        <button id="saveButton" class="button button-secondary">Save</button>
-        <button id="loadButton" class="button button-secondary">Load</button>
-        <button id="projectFileButton" class="button button-secondary">Project file</button>
-        <button id="learnButton" class="button button-learning" title="Open detailed guides for every block group">Learn</button>
+        <details class="toolbar-menu">
+          <summary class="button button-secondary">Project <span aria-hidden="true">⌄</span></summary>
+          <div class="toolbar-menu-panel">
+            <button id="newButton" class="menu-item">New project</button>
+            <button id="saveButton" class="menu-item">Save project</button>
+            <button id="loadButton" class="menu-item">Load saved project</button>
+            <div class="menu-divider"></div>
+            <button id="projectFileButton" class="menu-item">Import, export & examples…</button>
+            <button id="exportIsoButton" class="menu-item">Export build bundle</button>
+          </div>
+        </details>
+        <details class="toolbar-menu">
+          <summary class="button button-secondary">Customize <span aria-hidden="true">⌄</span></summary>
+          <div class="toolbar-menu-panel">
+            <button id="assetsButton" class="menu-item">Fonts & files…</button>
+            <button id="customBlocksButton" class="menu-item">Custom blocks…</button>
+            <div class="menu-divider"></div>
+            <button id="learnButton" class="menu-item">Block guides</button>
+          </div>
+        </details>
         <input id="importProjectInput" type="file" accept=".blockos,.json,.blockos-project.json,application/json" hidden />
-        <button id="customBlocksButton" class="button button-accent">New block</button>
-        <button id="assetsButton" class="button button-accent">Files</button>
-        <button id="exportIsoButton" class="button button-primary">Export build bundle</button>
-        <button id="compileButton" class="button button-primary">Compile x86_64</button>
-        <button id="buildRunButton" class="button button-success">▶ Run Web Demo</button>
+        <span class="toolbar-divider" aria-hidden="true"></span>
+        <button id="compileButton" class="button button-primary" title="Compile the kernel to x86_64 assembly">Compile</button>
+        <button id="buildRunButton" class="button button-success">▶ Run demo</button>
         <input id="bootImageInput" type="file" accept=".iso,.img,.bin,.elf,.mb,.multiboot,application/octet-stream" hidden />
       </nav>
     </header>
@@ -59,17 +72,15 @@
           <pre class="code-view"><code id="codeOutput"></code></pre>
         </section>
 
-        <section id="runView" class="inspector-view" aria-label="QEMU output">
+        <section id="runView" class="inspector-view" aria-label="v64 output">
           <div class="panel-heading">
             <div>
-              <h2>Browser virtual machines</h2>
-              <p id="runStatus">Run the included demo, choose an image, or open the x86_64 laboratory</p>
+              <h2>OS preview</h2>
+              <p id="runStatus">Run the included demo or choose a bootable 32-bit or 64-bit image</p>
             </div>
             <div class="panel-actions">
               <button id="chooseBootImageButton" class="button button-secondary">Choose ISO/IMG</button>
-              <a href="./qemu64.html" class="button button-secondary">64-bit runner</a>
               <button id="stopRunButton" class="button button-secondary" disabled>Stop</button>
-              <button id="runAgainButton" class="button button-success">▶ Run again</button>
             </div>
           </div>
 
@@ -77,10 +88,10 @@
             <div class="display-card">
               <div class="display-card-heading">
                 <strong>OS display</strong>
-                <span>Interactive browser-local emulator · keyboard, mouse and serial</span>
+                <span>v64 · keyboard, mouse & serial</span>
               </div>
               <div id="qemuScreen" class="qemu-screen" tabindex="0">
-                <div class="screen-placeholder">Press Run Web Demo, or choose a bootable image from your device.</div>
+                <div class="screen-placeholder">Run the demo or choose a bootable OS image.</div>
               </div>
             </div>
 
@@ -159,11 +170,12 @@
         </div>
 
         <div class="notice">
-          Project files include all visual blocks and typed custom-block definitions.
+          Project files include all visual blocks, typed custom-block definitions, and your selected bitmap font.
           Uploaded OS dependency files remain under OS files and are managed separately.
         </div>
 
         <div class="dialog-actions project-file-actions">
+          <button type="button" id="loadTestExampleButton" class="button button-secondary">Load test OS</button>
           <button type="button" id="loadShellExampleButton" class="button button-secondary">Load word shell</button>
           <button type="button" id="importProjectFileButton" class="button button-secondary">Import project</button>
           <button type="button" id="exportProjectFileButton" class="button button-primary">Export project</button>
@@ -192,6 +204,29 @@
 
         <div id="assetStatus" class="notice">No files loaded yet.</div>
         <div id="assetList" class="asset-list"></div>
+
+        <section class="font-panel" aria-labelledby="fontHeading">
+          <div><h3 id="fontHeading">OS display font</h3><p id="fontSummary">Classic Console · built in · 8×8</p></div>
+          <label>Import a bitmap font
+            <input id="bitmapFontFile" type="file" accept=".psf,.psfu,.psf2,.png,.bmp,image/png,image/bmp" />
+          </label>
+          <p class="font-help">Choose a PSF console font or a PNG/BMP grid of glyphs. Image sheets use character-code order, left to right. Transparent backgrounds are supported.</p>
+          <a class="font-help" href="./fonts/atlas-template.bmp" download>Download a 16×16 glyph-sheet template</a>
+          <div id="fontImageOptions" hidden>
+            <div class="font-grid-options">
+              <label>Columns<input id="fontColumns" type="number" min="1" max="256" value="16" /></label>
+              <label>Rows<input id="fontRows" type="number" min="1" max="256" value="16" /></label>
+              <label>First character code<input id="fontFirstCode" type="number" min="0" max="255" value="0" /></label>
+            </div>
+            <label class="font-check"><input id="fontDarkGlyphs" type="checkbox" /> Dark letters on a light background</label>
+          </div>
+          <canvas id="fontPreview" class="font-preview" aria-label="Bitmap font preview"></canvas>
+          <p id="fontStatus" class="font-help" aria-live="polite">Fonts are embedded in your next OS build. An already running image keeps its own font.</p>
+          <div class="dialog-actions">
+            <button type="button" id="resetFontButton" class="button button-secondary">Use default</button>
+            <button type="button" id="applyFontButton" class="button button-primary" disabled>Use this font</button>
+          </div>
+        </section>
       </form>
     </dialog>
 

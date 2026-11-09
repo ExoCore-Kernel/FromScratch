@@ -1,5 +1,6 @@
-import * as Blockly from 'blockly/core';
+import * as BlocklyModule from 'blockly/core';
 import {extensionBlocks} from '../blocks/block-catalog.js';
+const Blockly = 'CodeGenerator' in BlocklyModule ? BlocklyModule : Reflect.get(BlocklyModule, 'default');
 
 export const cGenerator = new Blockly.CodeGenerator('BlockOS C');
 
@@ -27,6 +28,7 @@ void screen_print(const char *text);
 void screen_print_line(const char *text);
 void screen_print_i64(int64_t value);
 void screen_set_pixel(int32_t x, int32_t y, uint32_t colour);
+bool screen_set_bitmap_font(const uint8_t *bytes, uint64_t size);
 void cpu_halt(void);
 void cpu_wait_for_interrupt(void);
 uint8_t port_read8(uint16_t port);
@@ -74,6 +76,14 @@ cGenerator.finish = function finish(code) {
   const definitions = Object.values(this.definitions_).join('\n\n');
   const sections = [RUNTIME_HEADER.trimEnd()];
 
+  if (this.bitmapFont?.length) {
+    const rows = [];
+    for (let offset = 0; offset < this.bitmapFont.length; offset += 16) {
+      rows.push(`    ${[...this.bitmapFont.subarray(offset, offset + 16)].map(byte => `0x${byte.toString(16).padStart(2, '0')}`).join(', ')},`);
+    }
+    sections.push(`// Project bitmap font (PSF2)\nstatic const uint8_t blockos_bitmap_font[] = {\n${rows.join('\n')}\n};`);
+  }
+
   if (customTypes) {
     sections.push(`// User-defined custom value types\n${customTypes}`);
   }
@@ -106,7 +116,8 @@ cGenerator.scrub_ = function scrub(block, code, thisOnly) {
 };
 
 cGenerator.forBlock.os_start = function osStart(block, generator) {
-  const body = generator.statementToCode(block, 'BODY') || `${generator.INDENT}// Kernel is empty.\n`;
+  const fontSetup = generator.bitmapFont?.length ? `${generator.INDENT}screen_set_bitmap_font(blockos_bitmap_font, sizeof(blockos_bitmap_font));\n` : '';
+  const body = fontSetup + (generator.statementToCode(block, 'BODY') || `${generator.INDENT}// Kernel is empty.\n`);
   return `void kernel_main(void) {\n${body}}\n`;
 };
 

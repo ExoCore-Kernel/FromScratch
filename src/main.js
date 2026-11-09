@@ -8,6 +8,8 @@ import {toolbox} from './toolbox.js';
 import {installToolboxLearning, openLearningTopic} from './toolbox-learning.js';
 import {bootBrowserVm, stopBrowserVm, sendBrowserSerial} from './browser-vm.js';
 import {compileX86_64Assembly, browserCompilerSupported} from './browser-compiler.js';
+import {parsePsf} from './bitmap-font.js';
+import {installFontPicker} from './font-picker.js';
 import {
   createCustomBlockSpec,
   callType,
@@ -29,6 +31,7 @@ let customBlockSpecs = loadCustomBlockSpecs();
 registerCustomBlockSpecs(customBlockSpecs);
 
 const STORAGE_KEY = 'blockos-studio-workspace-v1';
+const FONT_STORAGE_KEY = 'blockos-studio-bitmap-font-v1';
 const codeOutput = document.querySelector('#codeOutput');
 const statusText = document.querySelector('#statusText');
 const diagnosticsElement = document.querySelector('#diagnostics');
@@ -36,7 +39,6 @@ const runOutput = document.querySelector('#runOutput');
 const runStatus = document.querySelector('#runStatus');
 const runInput = document.querySelector('#runInput');
 const buildRunButton = document.querySelector('#buildRunButton');
-const runAgainButton = document.querySelector('#runAgainButton');
 const stopRunButton = document.querySelector('#stopRunButton');
 const sendInputButton = document.querySelector('#sendInputButton');
 const qemuScreen = document.querySelector('#qemuScreen');
@@ -61,6 +63,18 @@ const mobileButtons = [...document.querySelectorAll('[data-mobile-target]')];
 
 let selectedBootImage = null;
 let browserAssets = [];
+let projectFont = null;
+function decodeProjectFont(value) {
+  if (!value) return null;
+  if (typeof value.dataBase64 !== 'string' || value.dataBase64.length > 3 * 1024 * 1024) throw new Error('Invalid project font.');
+  const bytes = Uint8Array.from(atob(value.dataBase64), character => character.charCodeAt(0));
+  return {...parsePsf(bytes), name: String(value.name || 'Custom font').slice(0, 128)};
+}
+function encodeProjectFont(font = projectFont) {
+  return font ? {name: font.name, dataBase64: bytesToBase64(font.bytes)} : null;
+}
+try { projectFont = decodeProjectFont(JSON.parse(localStorage.getItem(FONT_STORAGE_KEY) || 'null')); } catch {}
+cGenerator.bitmapFont = projectFont?.bytes;
 
 const blockOsTheme = Blockly.Theme.defineTheme('blockOsTheme', {
   base: Blockly.Themes.Classic,
@@ -258,6 +272,7 @@ function exportProjectFile() {
     target: 'x86_64',
     exportedAt: new Date().toISOString(),
     customBlocks: customBlockSpecs,
+    font: encodeProjectFont(),
     workspace: Blockly.serialization.workspaces.save(workspace),
   };
 
@@ -276,6 +291,9 @@ async function applyImportedProject(parsed, displayName) {
   const importedSpecs = isProjectPackage && Array.isArray(parsed.customBlocks)
     ? parsed.customBlocks
     : customBlockSpecs;
+
+  const importedFont = decodeProjectFont(parsed.font);
+  localStorage.setItem(FONT_STORAGE_KEY, JSON.stringify(encodeProjectFont(importedFont)));
 
   saveCustomBlockSpecs(importedSpecs);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(workspaceState));
@@ -301,19 +319,19 @@ async function importProjectFile(file) {
   }
 }
 
-async function loadShellExample() {
+async function loadExample(filename, label) {
   if (workspace.getAllBlocks(false).length > 0
-      && !window.confirm('Replace the current project with the word-command shell example?')) {
+      && !window.confirm(`Replace the current project with the ${label}?`)) {
     return;
   }
 
   try {
-    const response = await fetch(new URL('examples/word-command-shell.blockos-project.json', document.baseURI), {cache: 'no-store'});
+    const response = await fetch(new URL(`examples/${filename}`, document.baseURI), {cache: 'no-store'});
     if (!response.ok) throw new Error(`Server returned HTTP ${response.status}.`);
-    await applyImportedProject(await response.json(), 'word-command shell example');
+    await applyImportedProject(await response.json(), label);
   } catch (error) {
     console.error(error);
-    statusText.textContent = `Could not load shell example: ${error instanceof Error ? error.message : String(error)}`;
+    statusText.textContent = `Could not load ${label}: ${error instanceof Error ? error.message : String(error)}`;
   }
 }
 
@@ -360,9 +378,8 @@ function setRunControls(running) {
   stopRunButton.disabled = !running;
   sendInputButton.disabled = !running;
   runInput.disabled = !running;
-  runAgainButton.disabled = false;
   buildRunButton.disabled = false;
-  buildRunButton.textContent = '▶ Run Web Demo';
+  buildRunButton.textContent = selectedBootImage ? '▶ Run image' : '▶ Run demo';
 }
 
 function formatBytes(bytes) {
@@ -405,7 +422,7 @@ function downloadBlob(name, blob) {
 async function exportBuildBundle() {
   exportIsoButton.disabled = true;
   try {
-    const bundle = {format:'fromscratch-build-bundle',formatVersion:1,target:'x86_64-elf',generatedAt:new Date().toISOString(),generatedC:codeOutput.textContent ?? '',project:Blockly.serialization.workspaces.save(workspace),customBlocks:customBlockSpecs,files:browserAssets.map(a=>({name:a.name,type:a.type,dataBase64:bytesToBase64(a.bytes)})),buildInstructions:'Use the local/Pi toolchain or scripts/build-browser-kernel-runtime.sh to package a bootable image.'};
+    const bundle = {format:'fromscratch-build-bundle',formatVersion:1,target:'x86_64-elf',generatedAt:new Date().toISOString(),generatedC:codeOutput.textContent ?? '',project:Blockly.serialization.workspaces.save(workspace),customBlocks:customBlockSpecs,font:encodeProjectFont(),files:browserAssets.map(a=>({name:a.name,type:a.type,dataBase64:bytesToBase64(a.bytes)})),buildInstructions:'Run npm run build:os -- /path/to/this-bundle.json, then choose build/os/fromscratch-os.iso in the Studio.'};
     downloadBlob('fromscratch-build-bundle.json', new Blob([`${JSON.stringify(bundle, null, 2)}\n`], {type:'application/json'}));
     statusText.textContent = 'Exported complete build bundle';
   } finally { exportIsoButton.disabled = false; }
@@ -423,10 +440,21 @@ async function compileInBrowser() {
 }
 
 async function startBrowserRun() {
-  buildRunButton.disabled = true; runAgainButton.disabled = true; selectInspector('run');
+  buildRunButton.disabled = true; selectInspector('run');
   if (window.matchMedia('(max-width: 1180px)').matches) selectMobilePanel('run');
   try {
-    await bootBrowserVm({...(selectedBootImage ? {file:selectedBootImage} : {demoUrl:'web-demo.img'}),screenContainer:qemuScreen,onStatus(message){runStatus.textContent=message;},onSerial(text){runOutput.textContent=text || '[No serial output yet.]';}});
+    await bootBrowserVm({
+      ...(selectedBootImage ? {file: selectedBootImage} : {demoUrl: 'web-demo.img'}),
+      screenContainer: qemuScreen,
+      onStatus(message) { runStatus.textContent = message; },
+      onSerial(text) { runOutput.textContent = text.replace(/\x1b\[[0-?]*[ -/]*[@-~]/g, '') || '[No serial output yet.]'; },
+      onError(error) {
+        runStatus.textContent = 'Web VM stopped with an error';
+        runOutput.textContent += `\n${error.message}`;
+        stopBrowserVm();
+        setRunControls(false);
+      },
+    });
     setRunControls(true); runInput.focus();
   } catch (error) { runStatus.textContent='Web VM could not start'; runOutput.textContent=error instanceof Error?error.message:String(error); setRunControls(false); }
 }
@@ -569,7 +597,8 @@ document.querySelector('#projectFileButton').addEventListener('click', () => pro
 document.querySelector('#closeProjectFileButton').addEventListener('click', () => projectFileDialog.close());
 document.querySelector('#exportProjectFileButton').addEventListener('click', () => { projectFileDialog.close(); exportProjectFile(); });
 document.querySelector('#importProjectFileButton').addEventListener('click', () => { projectFileDialog.close(); importProjectInput.click(); });
-document.querySelector('#loadShellExampleButton').addEventListener('click', () => { projectFileDialog.close(); loadShellExample(); });
+document.querySelector('#loadShellExampleButton').addEventListener('click', () => { projectFileDialog.close(); loadExample('word-command-shell.blockos-project.json', 'word-command shell example'); });
+document.querySelector('#loadTestExampleButton').addEventListener('click', () => { projectFileDialog.close(); loadExample('hello-test.blockos-project.json', 'test OS example'); });
 importProjectInput.addEventListener('change', () => importProjectFile(importProjectInput.files?.[0]));
 document.querySelector('#customBlocksButton').addEventListener('click', openCustomBlocksDialog);
 document.querySelector('#closeCustomBlocksButton').addEventListener('click', () => customBlocksDialog.close());
@@ -578,7 +607,13 @@ document.querySelector('#addCustomArgumentButton').addEventListener('click', () 
 customBlockForm.addEventListener('submit', createCustomBlockFromForm);
 document.querySelector('#copyButton').addEventListener('click', copyCode);
 document.querySelector('#downloadButton').addEventListener('click', downloadCode);
-document.querySelector('#assetsButton').addEventListener('click', () => { assetsDialog.showModal(); renderAssets(); });
+const fontPicker = installFontPicker({getFont: () => projectFont, onChange(font) {
+  projectFont = font;
+  cGenerator.bitmapFont = font?.bytes;
+  localStorage.setItem(FONT_STORAGE_KEY, JSON.stringify(encodeProjectFont()));
+  updateCode();
+}});
+document.querySelector('#assetsButton').addEventListener('click', () => { assetsDialog.showModal(); renderAssets(); fontPicker.refresh(); });
 document.querySelector('#closeAssetsButton').addEventListener('click', () => assetsDialog.close());
 document.querySelector('#uploadAssetsButton').addEventListener('click', () => uploadAssets().catch((error) => { assetStatus.textContent = error.message; }));
 exportIsoButton.addEventListener('click', exportBuildBundle);
@@ -586,7 +621,6 @@ compileButton.addEventListener('click', compileInBrowser);
 chooseBootImageButton.addEventListener('click', () => bootImageInput.click());
 bootImageInput.addEventListener('change', () => { selectedBootImage = bootImageInput.files?.[0] ?? null; if (selectedBootImage) { runStatus.textContent = `Selected ${selectedBootImage.name}`; startBrowserRun(); } });
 buildRunButton.addEventListener('click', buildAndRun);
-runAgainButton.addEventListener('click', buildAndRun);
 stopRunButton.addEventListener('click', stopCurrentRun);
 sendInputButton.addEventListener('click', sendRunInput);
 runInput.addEventListener('keydown', (event) => {
@@ -597,6 +631,18 @@ runInput.addEventListener('keydown', (event) => {
 });
 for (const tab of inspectorTabs) tab.addEventListener('click', () => selectInspector(tab.dataset.inspector));
 for (const button of mobileButtons) button.addEventListener('click', () => selectMobilePanel(button.dataset.mobileTarget));
+for (const menu of document.querySelectorAll('.toolbar-menu')) {
+  menu.addEventListener('toggle', () => {
+    if (menu.open) for (const other of document.querySelectorAll('.toolbar-menu')) if (other !== menu) other.open = false;
+  });
+  menu.addEventListener('click', event => { if (event.target.closest('button')) menu.open = false; });
+}
+document.addEventListener('click', event => {
+  if (!event.target.closest('.toolbar-menu')) for (const menu of document.querySelectorAll('.toolbar-menu')) menu.open = false;
+});
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') for (const menu of document.querySelectorAll('.toolbar-menu')) menu.open = false;
+});
 
 window.addEventListener('resize', () => Blockly.svgResize(workspace));
 window.addEventListener('beforeunload', () => { stopBrowserVm(); });
