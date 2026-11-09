@@ -2,19 +2,21 @@ let apiPromise;
 let apiScriptLoaded = false;
 let activeId = 0;
 let queue = Promise.resolve();
+let runtimePromise;
 
 function asset(name) {
-  return new URL(`./compiler/${name}`, self.location.href).href;
+  return new URL('./compiler/' + name, self.location.href).href;
 }
-
+function kernelAsset(name) {
+  return new URL('./browser-kernel/' + name, self.location.href).href;
+}
 async function readBuffer(filename) {
   const response = await fetch(filename);
   if (!response.ok || response.headers.get('content-type')?.includes('text/html')) {
-    throw new Error('The browser compiler is missing. Run npm run setup:compiler and try again.');
+    throw new Error('Browser compiler asset missing: ' + filename + '. Run npm run setup:compiler and rebuild the site.');
   }
   return response.arrayBuffer();
 }
-
 function getApi() {
   apiPromise ??= (async () => {
     if (!apiScriptLoaded) {
@@ -25,7 +27,10 @@ function getApi() {
       readBuffer,
       compileStreaming: async filename => WebAssembly.compile(await readBuffer(filename)),
       hostWrite(text) { self.postMessage({type: 'log', id: activeId, text}); },
-      clang: asset('clang'), lld: asset('lld'), memfs: asset('memfs'), sysroot: asset('sysroot.tar'),
+      clang: asset('clang'),
+      lld: asset('lld'),
+      memfs: asset('memfs'),
+      sysroot: asset('sysroot.tar'),
     });
     await api.ready;
     return api;
@@ -36,27 +41,69 @@ function getApi() {
   return apiPromise;
 }
 
-async function compile({id, source}) {
+// The bootloader, kernel runtime and linker script are compiled when the site
+// is built, not for every project. Only the user's generated C changes.
+async function prepareRuntime(api) {
+  runtimePromise ??= (async () => {
+    const objects = ['boot.o', 'runtime.o', 'extensions_runtime.o', 'text_style_runtime.o'];
+    const names = [...objects, 'linker.ld'];
+    const files = await Promise.all(names.map(name => readBuffer(kernelAsset(name))));
+    names.forEach((name, index) => api.memfs.addFile(name, files[index]));
+    return objects;
+  })().catch(error => {
+    runtimePromise = null;
+    throw error;
+  });
+  return runtimePromise;
+}
+
+async function compile({id, type, source}) {
   activeId = id;
   try {
     const api = await getApi();
-    const input = `kernel-${id}.c`;
-    const output = `kernel-${id}.S`;
+    const input = 'kernel-' + id + '.c';
     api.memfs.addFile(input, String(source ?? ''));
     const clang = await api.getModule(asset('clang'));
-    // The upstream assembly helper hardcodes C++; kernels need C symbols and ABI.
-    await api.run(clang, 'clang', '-cc1', '-S', ...api.clangCommonArgs,
+    const args = [
+      'clang', '-cc1', type === 'build-elf' ? '-emit-obj' : '-S',
+      ...api.clangCommonArgs,
       '-triple=x86_64-unknown-none-elf', '-ffreestanding', '-fno-builtin',
-      '-disable-red-zone', '-mrelocation-model', 'static', '-O2', '-o', output, '-x', 'c', input);
-    const bytes = api.memfs.getFileContents(output);
-    if (!bytes?.byteLength) throw new Error('Clang returned no assembly output.');
-    self.postMessage({type: 'done', id, assembly: new TextDecoder().decode(bytes)});
+      '-disable-red-zone', '-mrelocation-model', 'static', '-O2',
+      '-o', 'kernel-' + id + (type === 'build-elf' ? '.o' : '.S'),
+      '-x', 'c', input,
+    ];
+    await api.run(clang, ...args);
+    const output = args[args.indexOf('-o') + 1];
+    const compiled = api.memfs.getFileContents(output);
+    if (!compiled?.byteLength) throw new Error('Clang produced an empty output file.');
+
+    if (type === 'compile') {
+      self.postMessage({type: 'done', id, assembly: new TextDecoder().decode(compiled)});
+      return;
+    }
+
+    const objects = await prepareRuntime(api);
+    const linked = 'kernel-' + id + '.elf';
+    const lld = await api.getModule(asset('lld'));
+    await api.run(lld, 'ld.lld', '-m', 'elf_x86_64', '--build-id=none',
+      '-static', '-z', 'max-page-size=4096', '-T', 'linker.ld',
+      '-o', linked, ...objects, output);
+    const elf = api.memfs.getFileContents(linked);
+    if (!elf?.byteLength) throw new Error('LLD did not produce an ELF executable.');
+    // Copy out of the WASM filesystem before posting/transferring the buffer.
+    const result = new Uint8Array(elf).slice();
+    self.postMessage({type: 'done', id, elf: result.buffer}, [result.buffer]);
   } catch (error) {
-    self.postMessage({type: 'error', id, message: error instanceof Error ? error.message : String(error)});
+    self.postMessage({
+      type: 'error',
+      id,
+      message: error instanceof Error ? error.message : String(error),
+    });
   }
 }
 
 self.onmessage = event => {
-  if (event.data?.type !== 'compile') return;
+  const {type} = event.data ?? {};
+  if (type !== 'compile' && type !== 'build-elf') return;
   queue = queue.then(() => compile(event.data));
 };

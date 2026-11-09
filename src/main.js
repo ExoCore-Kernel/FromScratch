@@ -7,7 +7,7 @@ import {cGenerator} from './generator/c-generator.js';
 import {toolbox} from './toolbox.js';
 import {installToolboxLearning, openLearningTopic} from './toolbox-learning.js';
 import {bootBrowserVm, stopBrowserVm, sendBrowserSerial} from './browser-vm.js';
-import {compileX86_64Assembly, browserCompilerSupported} from './browser-compiler.js';
+import {compileX86_64Assembly, buildBootableIso, browserCompilerSupported} from './browser-compiler.js';
 import {parsePsf} from './bitmap-font.js';
 import {installFontPicker} from './font-picker.js';
 import {
@@ -379,7 +379,7 @@ function setRunControls(running) {
   sendInputButton.disabled = !running;
   runInput.disabled = !running;
   buildRunButton.disabled = false;
-  buildRunButton.textContent = selectedBootImage ? '▶ Run image' : '▶ Run demo';
+  buildRunButton.textContent = '▶ Build and Run';
 }
 
 function formatBytes(bytes) {
@@ -584,7 +584,59 @@ function createCustomBlockFromForm(event) {
   }
 }
 
-async function buildAndRun() { await startBrowserRun(); }
+async function buildAndRun() {
+  buildRunButton.disabled = true;
+  selectInspector('run');
+  if (window.matchMedia('(max-width: 1180px)').matches) selectMobilePanel('run');
+  runOutput.textContent = '';
+  runStatus.textContent = 'Compiling your OS and creating a bootable ISO locally…';
+
+  try {
+    if (!browserCompilerSupported()) throw new Error('This browser needs Web Workers and WebAssembly to build an OS.');
+    if (browserAssets.length) {
+      throw new Error('Browser-built ISOs do not yet include attached OS files. Remove the attachments or export a build bundle for the native builder.');
+    }
+    // A Blockly edit may still be waiting on the debounced code generator.
+    updateCode();
+    const warnings = findDiagnostics();
+    if (warnings.length) throw new Error('Fix the block warnings before building:\n' + warnings.join('\n'));
+
+    const {iso, elf} = await buildBootableIso(codeOutput.textContent ?? '', {
+      onLog(text) {
+        runOutput.textContent += text;
+        runOutput.scrollTop = runOutput.scrollHeight;
+      },
+    });
+    runOutput.textContent += '\nCompiled kernel ELF (' + formatBytes(elf.byteLength)
+      + ') and bootable GRUB ISO (' + formatBytes(iso.byteLength) + ').\n';
+    const buildLog = runOutput.textContent;
+    runStatus.textContent = 'ISO ready. Starting your OS in v64…';
+    await bootBrowserVm({
+      file: new File([iso], 'FromScratch-BlockOS-x86_64.iso', {type: 'application/x-iso9660-image'}),
+      screenContainer: qemuScreen,
+      onStatus(message) { runStatus.textContent = message; },
+      onSerial(text) {
+        const serial = text.replace(/\x1b\[[0-?]*[ -/]*[@-~]/g, '');
+        runOutput.textContent = buildLog + '\n--- Guest serial output ---\n' + (serial || '[No serial output yet.]');
+      },
+      onError(error) {
+        runStatus.textContent = 'Your OS stopped with an error';
+        runOutput.textContent += '\n' + error.message;
+        stopBrowserVm();
+        setRunControls(false);
+      },
+    });
+    setRunControls(true);
+    statusText.textContent = 'Your OS was built and booted in the browser';
+    runInput.focus();
+  } catch (error) {
+    runStatus.textContent = 'Build or boot failed';
+    runOutput.textContent += '\n' + (error instanceof Error ? error.message : String(error));
+    setRunControls(false);
+  } finally {
+    buildRunButton.disabled = false;
+  }
+}
 
 document.querySelector('#learnButton').addEventListener('click', () => openLearningTopic());
 document.querySelector('#newButton').addEventListener('click', () => {

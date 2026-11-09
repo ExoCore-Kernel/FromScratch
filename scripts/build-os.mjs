@@ -23,12 +23,12 @@ export async function buildKernelImage({source, assembly = null, assets = [], di
   if (assets.length > 64) throw new Error('A kernel supports at most 64 attached files.');
   await writeFile(join(build, 'kernel.c'), source);
   for (const [input, output] of [['kernel/boot.S', 'boot.o'], ['kernel/runtime.c', 'runtime.o'],
-    ['kernel/extensions_runtime.c', 'extensions.o'], [assembly || join(build, 'kernel.c'), 'kernel.o']]) {
+    ['kernel/extensions_runtime.c', 'extensions.o'], ['kernel/text_style_runtime.c', 'text-style.o'], [assembly || join(build, 'kernel.c'), 'kernel.o']]) {
     run('clang', [...flags, '-c', input, '-o', join(build, output)]);
   }
   const elf = join(build, 'blockos.elf');
   run('ld.lld', ['-m', 'elf_x86_64', '-nostdlib', '-T', 'kernel/linker.ld', '-o', elf,
-    ...['boot.o', 'runtime.o', 'extensions.o', 'kernel.o'].map(name => join(build, name))]);
+    ...['boot.o', 'runtime.o', 'extensions.o', 'text-style.o', 'kernel.o'].map(name => join(build, name))]);
   const media = await mkdtemp(join(build, '.iso-'));
   try {
     await mkdir(join(media, 'boot/grub'), {recursive: true});

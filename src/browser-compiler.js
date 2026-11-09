@@ -4,7 +4,7 @@ let worker = null;
 let nextId = 1;
 const jobs = new Map();
 
-const COMPILER_WORKER_VERSION = '2026-08-07-styled-text-runtime-1';
+const COMPILER_WORKER_VERSION = '2026-11-09-browser-iso-build-1';
 
 function ensureWorker() {
   if (worker) return worker;
@@ -25,7 +25,9 @@ function ensureWorker() {
     jobs.delete(data.id);
 
     if (data.type === 'done') {
-      job.resolve({elf: new Uint8Array(data.elf)});
+      if (data.elf) job.resolve({elf: new Uint8Array(data.elf)});
+      else if (typeof data.assembly === 'string') job.resolve({assembly: data.assembly});
+      else job.reject(new Error('Compiler returned an unexpected result.'));
     } else {
       job.reject(new Error(data.message || 'Browser kernel build failed.'));
     }
@@ -46,7 +48,7 @@ export function browserCompilerSupported() {
   return typeof Worker !== 'undefined' && typeof WebAssembly !== 'undefined';
 }
 
-export function buildX86_64Elf(source, {onLog} = {}) {
+function sendCompilerJob(type, source, {onLog} = {}) {
   if (!browserCompilerSupported()) {
     throw new Error('Web Workers and WebAssembly are required.');
   }
@@ -54,11 +56,17 @@ export function buildX86_64Elf(source, {onLog} = {}) {
   const id = nextId++;
   return new Promise((resolve, reject) => {
     jobs.set(id, {resolve, reject, onLog});
-    ensureWorker().postMessage({type: 'build-elf', id, source: String(source ?? '')});
+    ensureWorker().postMessage({type, id, source: String(source ?? '')});
   });
 }
 
-export const compileX86_64Assembly = buildX86_64Elf;
+export function buildX86_64Elf(source, options = {}) {
+  return sendCompilerJob('build-elf', source, options);
+}
+
+export function compileX86_64Assembly(source, options = {}) {
+  return sendCompilerJob('compile', source, options);
+}
 
 export async function createBootableIso(elf) {
   const base = import.meta.env.BASE_URL;
@@ -76,12 +84,25 @@ export async function createBootableIso(elf) {
   if (!Number.isSafeInteger(offset) || !Number.isSafeInteger(slotSize) || offset < 0 || slotSize <= 0) {
     throw new Error('The deployed ISO template metadata is invalid.');
   }
+  if (kernel.byteLength < 64 || kernel[0] !== 0x7f || kernel[1] !== 0x45 || kernel[2] !== 0x4c || kernel[3] !== 0x46 ||
+      kernel[4] !== 2 || kernel[5] !== 1 || kernel[16] !== 2 || kernel[18] !== 62) {
+    throw new Error('The compiler did not produce a 64-bit x86 ELF executable.');
+  }
+  if (metadata.format !== 'fromscratch-iso-template' || metadata.templateBytes !== undefined && metadata.templateBytes < offset + slotSize) {
+    throw new Error('The ISO template metadata does not match this build.');
+  }
   if (kernel.byteLength > slotSize) {
     throw new Error(`kernel.elf is ${kernel.byteLength} bytes, larger than the ${slotSize}-byte browser ISO slot.`);
   }
 
   const iso = new Uint8Array(await templateResponse.arrayBuffer());
-  if (offset + slotSize > iso.byteLength) throw new Error('The deployed ISO template is truncated.');
+  if (offset + slotSize > iso.byteLength || (metadata.templateBytes && metadata.templateBytes !== iso.byteLength)) {
+    throw new Error('The deployed ISO template is truncated or mismatched.');
+  }
+  const marker = new TextDecoder().decode(iso.subarray(offset, offset + 32));
+  if (!marker.startsWith('FROMSCRATCH_KERNEL_SLOT_V1_')) {
+    throw new Error('The ISO template kernel slot is missing.');
+  }
   iso.fill(0, offset, offset + slotSize);
   iso.set(kernel, offset);
   return iso;
@@ -99,119 +120,3 @@ export function stopBrowserCompiler() {
   for (const job of jobs.values()) job.reject(new Error('Compilation cancelled.'));
   jobs.clear();
 }
-
-function downloadBytes(name, bytes, type) {
-  const blob = new Blob([bytes], {type});
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = name;
-  document.body.append(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
-}
-
-function formatBytes(bytes) {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KiB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MiB`;
-}
-
-function installIsoPipelineUi() {
-  const codeOutput = document.querySelector('#codeOutput');
-  const compileButton = document.querySelector('#compileButton');
-  const exportButton = document.querySelector('#exportIsoButton');
-  const runButtons = [document.querySelector('#buildRunButton'), document.querySelector('#runAgainButton')].filter(Boolean);
-  const runOutput = document.querySelector('#runOutput');
-  const runStatus = document.querySelector('#runStatus');
-  const statusText = document.querySelector('#statusText');
-  const qemuScreen = document.querySelector('#qemuScreen');
-  const runInput = document.querySelector('#runInput');
-  const stopRunButton = document.querySelector('#stopRunButton');
-  const sendInputButton = document.querySelector('#sendInputButton');
-  if (!codeOutput || !compileButton || !exportButton || !runOutput || !runStatus || !qemuScreen) return;
-
-  async function build() {
-    runOutput.textContent = '';
-    const result = await buildBootableIso(codeOutput.textContent ?? '', {
-      onLog(text) {
-        runOutput.textContent += text;
-        runOutput.scrollTop = runOutput.scrollHeight;
-      },
-    });
-    runOutput.textContent += `\n✔ Linked kernel.elf (${formatBytes(result.elf.byteLength)})`;
-    runOutput.textContent += `\n✔ Created bootable GRUB ISO (${formatBytes(result.iso.byteLength)})\n`;
-    return result;
-  }
-
-  compileButton.addEventListener('click', async (event) => {
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    compileButton.disabled = true;
-    runStatus.textContent = 'Compiling C and linking x86_64 ELF…';
-    try {
-      const {elf} = await buildX86_64Elf(codeOutput.textContent ?? '', {
-        onLog(text) { runOutput.textContent += text; },
-      });
-      downloadBytes('blockos_kernel_x86_64.elf', elf, 'application/x-elf');
-      runStatus.textContent = `Built kernel.elf · ${formatBytes(elf.byteLength)}`;
-      statusText.textContent = 'x86_64 ELF build succeeded';
-    } catch (error) {
-      runStatus.textContent = 'ELF build failed';
-      runOutput.textContent += `\n${error instanceof Error ? error.message : String(error)}`;
-    } finally {
-      compileButton.disabled = false;
-    }
-  }, true);
-
-  exportButton.textContent = 'Export ISO';
-  exportButton.addEventListener('click', async (event) => {
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    exportButton.disabled = true;
-    runStatus.textContent = 'Building bootable ISO entirely in this browser…';
-    try {
-      const {iso} = await build();
-      downloadBytes('FromScratch-BlockOS-x86_64.iso', iso, 'application/x-iso9660-image');
-      runStatus.textContent = `Exported bootable ISO · ${formatBytes(iso.byteLength)}`;
-      statusText.textContent = 'Bootable ISO exported';
-    } catch (error) {
-      runStatus.textContent = 'ISO build failed';
-      runOutput.textContent += `\n${error instanceof Error ? error.message : String(error)}`;
-    } finally {
-      exportButton.disabled = false;
-    }
-  }, true);
-
-  for (const button of runButtons) {
-    button.textContent = '▶ Build ISO & Run';
-    button.addEventListener('click', async (event) => {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      for (const item of runButtons) item.disabled = true;
-      runStatus.textContent = 'Compiling, linking and creating ISO…';
-      try {
-        const {iso} = await build();
-        const file = new File([iso], 'FromScratch-BlockOS-x86_64.iso', {type: 'application/x-iso9660-image'});
-        await bootBrowserVm({
-          file,
-          screenContainer: qemuScreen,
-          onStatus(message) { runStatus.textContent = message; },
-          onSerial(text) { runOutput.textContent = text || '[No serial output yet.]'; },
-        });
-        if (runInput) runInput.disabled = false;
-        if (stopRunButton) stopRunButton.disabled = false;
-        if (sendInputButton) sendInputButton.disabled = false;
-        statusText.textContent = 'Generated ISO is running locally';
-      } catch (error) {
-        runStatus.textContent = 'Build or boot failed';
-        runOutput.textContent += `\n${error instanceof Error ? error.message : String(error)}`;
-      } finally {
-        for (const item of runButtons) item.disabled = false;
-      }
-    }, true);
-  }
-}
-
-if (typeof document !== 'undefined') setTimeout(installIsoPipelineUi, 0);

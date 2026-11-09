@@ -17,7 +17,11 @@ The v64 engine was copied from the local UTM-Web project. Its upstream revision,
 
 ## Build and run an OS
 
-The browser **Compile** action downloads x86_64 assembly. To package your project as a bootable ISO:
+Click **▶ Build and Run** to compile the blocks into a freestanding x86_64 ELF, insert it into the GRUB ISO template, and boot it immediately in the built-in v64 emulator. The Clang/LLD toolchain runs in a Web Worker, so your generated C stays in the browser. The first compiler download is relatively large. **Compile** still downloads assembly; **Choose ISO/IMG** still boots an existing image.
+
+The site deployment must include the compiler and the bootable ISO template. `npm run dev` prepares the compiler; to generate the browser ISO runtime for a local checkout, install Clang, GRUB, xorriso and mtools, then run `bash scripts/build-browser-iso-template.sh`.
+
+Browser-built ISOs currently embed the generated code and selected bitmap font but do not package attached OS files. To include attached files as GRUB modules, use **Project → Export build bundle** and the native toolchain:
 
 1. Choose **Project → Export build bundle**.
 2. Build it with the native toolchain:

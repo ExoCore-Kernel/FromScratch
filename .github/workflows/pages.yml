@@ -18,7 +18,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-      - run: sudo apt-get update && sudo apt-get install -y clang lld unzip curl
+      - run: sudo apt-get update && sudo apt-get install -y clang lld unzip curl grub-common grub-pc-bin xorriso mtools
       - run: npm install
       - run: |
           mkdir -p public/source
@@ -26,6 +26,7 @@ jobs:
       - run: bash scripts/build-web-demo.sh
       - run: bash scripts/fetch-v64.sh
       - run: bash scripts/fetch-browser-toolchain.sh
+      - run: bash scripts/build-browser-iso-template.sh
       - continue-on-error: true
         run: bash scripts/fetch-qemu64.sh
       - run: npm run check

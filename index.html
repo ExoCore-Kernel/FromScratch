@@ -41,7 +41,7 @@
         <input id="importProjectInput" type="file" accept=".blockos,.json,.blockos-project.json,application/json" hidden />
         <span class="toolbar-divider" aria-hidden="true"></span>
         <button id="compileButton" class="button button-primary" title="Compile the kernel to x86_64 assembly">Compile</button>
-        <button id="buildRunButton" class="button button-success">▶ Run demo</button>
+        <button id="buildRunButton" class="button button-success" title="Compile the current blocks, create a bootable ISO and run your OS in the browser">▶ Build and Run</button>
         <input id="bootImageInput" type="file" accept=".iso,.img,.bin,.elf,.mb,.multiboot,application/octet-stream" hidden />
       </nav>
     </header>
@@ -76,7 +76,7 @@
           <div class="panel-heading">
             <div>
               <h2>OS preview</h2>
-              <p id="runStatus">Run the included demo or choose a bootable 32-bit or 64-bit image</p>
+              <p id="runStatus">Press Build and Run to boot your blocks as an OS, or choose an existing ISO/IMG</p>
             </div>
             <div class="panel-actions">
               <button id="chooseBootImageButton" class="button button-secondary">Choose ISO/IMG</button>
@@ -91,7 +91,7 @@
                 <span>v64 · keyboard, mouse & serial</span>
               </div>
               <div id="qemuScreen" class="qemu-screen" tabindex="0">
-                <div class="screen-placeholder">Run the demo or choose a bootable OS image.</div>
+                <div class="screen-placeholder">Press Build and Run to boot your OS here.</div>
               </div>
             </div>
 
