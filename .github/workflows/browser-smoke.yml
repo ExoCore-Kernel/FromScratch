@@ -1,0 +1,22 @@
+name: Test browser Build and Run
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - run: sudo apt-get update && sudo apt-get install -y clang lld grub-common grub-pc-bin xorriso mtools
+      - run: npm install
+      - run: bash scripts/build-browser-iso-template.sh
+      - run: npm run build
+      - run: npm install --no-save puppeteer-core
+      - run: node scripts/test-browser-build.mjs
