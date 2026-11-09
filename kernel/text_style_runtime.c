@@ -4,6 +4,7 @@
 void screen_set_pixel(int32_t x, int32_t y, uint32_t colour);
 uint32_t blockos_framebuffer_width(void);
 uint32_t blockos_framebuffer_height(void);
+void blockos_console_scroll_pixels(uint32_t pixels);
 uint8_t port_read8(uint16_t port);
 void port_write8(uint16_t port, uint8_t value);
 
@@ -16,6 +17,29 @@ static uint32_t text_colour = 0xF8FAFCu;
 static uint32_t text_font = 0u;
 static uint32_t text_location = 0u;
 static uint32_t text_line_offset;
+static char integer_buffers[16][24];
+static uint32_t next_integer_buffer;
+
+const char *blockos_text_identity(const char *value) {
+    return value != NULL ? value : "";
+}
+
+// Preserve the full signed 64-bit range, including INT64_MIN.
+const char *blockos_i64_to_text(int64_t value) {
+    char *output = integer_buffers[next_integer_buffer++ % 16u];
+    char reversed[24];
+    uint32_t count = 0u;
+    uint32_t position = 0u;
+    uint64_t magnitude = value < 0 ? (uint64_t)(-(value + 1)) + 1u : (uint64_t)value;
+    if (value < 0) output[position++] = '-';
+    do {
+        reversed[count++] = (char)('0' + magnitude % 10u);
+        magnitude /= 10u;
+    } while (magnitude != 0u);
+    while (count != 0u) output[position++] = reversed[--count];
+    output[position] = '\0';
+    return output;
+}
 
 static void serial_char(char value) {
     while ((port_read8(COM1 + 5u) & 0x20u) == 0u) __asm__ volatile("pause");
@@ -146,6 +170,21 @@ void blockos_text_set_location(uint32_t location) {
     text_line_offset = 0u;
 }
 
+void blockos_text_reset_cursor(void) {
+    text_line_offset = 0u;
+}
+
+static void keep_line_visible(uint32_t *y) {
+    uint32_t height = blockos_framebuffer_height();
+    uint32_t step = cell_height();
+    if (step == 0u || height < step) return;
+    while (*y > height - step) {
+        blockos_console_scroll_pixels(step);
+        *y = *y >= step ? *y - step : 0u;
+        text_line_offset = text_line_offset >= step ? text_line_offset - step : 0u;
+    }
+}
+
 void blockos_text_print_line(const char *text) {
     if (text == NULL) return;
     uint32_t x = 0u;
@@ -154,11 +193,21 @@ void blockos_text_print_line(const char *text) {
 
     const char *cursor = text;
     uint32_t draw_x = x;
+    uint32_t lines = 1u;
+    keep_line_visible(&y);
     while (*cursor != '\0') {
         if (*cursor == '\n') {
             y += cell_height();
+            keep_line_visible(&y);
             draw_x = x;
+            ++lines;
         } else {
+            if (draw_x + cell_width() > blockos_framebuffer_width()) {
+                y += cell_height();
+                keep_line_visible(&y);
+                draw_x = x;
+                ++lines;
+            }
             draw_character(draw_x, y, *cursor);
             draw_x += cell_width();
         }
@@ -167,5 +216,9 @@ void blockos_text_print_line(const char *text) {
 
     serial_text(text);
     serial_char('\n');
-    text_line_offset += cell_height();
+    text_line_offset += lines * cell_height();
+}
+
+void blockos_text_print_number(int64_t value) {
+    blockos_text_print_line(blockos_i64_to_text(value));
 }
