@@ -27,6 +27,9 @@ void screen_clear(uint32_t colour);
 void screen_print(const char *text);
 void screen_print_line(const char *text);
 void screen_print_i64(int64_t value);
+void blockos_text_print_number(int64_t value);
+const char *blockos_i64_to_text(int64_t value);
+const char *blockos_text_identity(const char *value);
 void screen_set_pixel(int32_t x, int32_t y, uint32_t colour);
 bool screen_set_bitmap_font(const uint8_t *bytes, uint64_t size);
 void cpu_halt(void);
@@ -56,6 +59,11 @@ function cString(value) {
   return JSON.stringify(String(value ?? ''))
     .replace(/\\u2028/g, '\\u2028')
     .replace(/\\u2029/g, '\\u2029');
+}
+
+// C11 type selection allows number/math blocks and text variables in one socket.
+function valueAsText(value) {
+  return `_Generic((${value}), char *: blockos_text_identity, const char *: blockos_text_identity, default: blockos_i64_to_text)((${value}))`;
 }
 
 function valueOr(generator, block, inputName, order, fallback) {
@@ -122,13 +130,14 @@ cGenerator.forBlock.os_start = function osStart(block, generator) {
 };
 
 cGenerator.forBlock.os_print_text = function osPrintText(block, generator) {
+  generator.extensionPrototypes_.add('void blockos_text_print_line(const char *text);');
   const text = valueOr(generator, block, 'TEXT', generator.ORDER_NONE, '\"\"');
-  return `screen_print_line(${text});\n`;
+  return `blockos_text_print_line(${text});\n`;
 };
 
 cGenerator.forBlock.os_print_number = function osPrintNumber(block, generator) {
   const value = valueOr(generator, block, 'VALUE', generator.ORDER_NONE, '0');
-  return `screen_print_i64((int64_t)(${value}));\n`;
+  return `blockos_text_print_number((int64_t)(${value}));\n`;
 };
 
 cGenerator.forBlock.os_clear_screen = function osClearScreen(block, generator) {
@@ -177,10 +186,18 @@ cGenerator.forBlock.os_text = function osText(block, generator) {
   return [cString(block.getFieldValue('TEXT')), generator.ORDER_ATOMIC];
 };
 
+cGenerator.forBlock.os_text_with_value = function osTextWithValue(block, generator) {
+  const prefix = cString(block.getFieldValue('TEXT'));
+  const value = valueOr(generator, block, 'VALUE', generator.ORDER_NONE, '0');
+  const suffix = String(block.getFieldValue('SUFFIX') ?? '');
+  const result = `blockos_string_join(${prefix}, ${valueAsText(value)})`;
+  return [suffix ? `blockos_string_join(${result}, ${cString(suffix)})` : result, generator.ORDER_ATOMIC];
+};
+
 cGenerator.forBlock.os_join_text = function osJoinText(block, generator) {
   const left = valueOr(generator, block, 'LEFT', generator.ORDER_NONE, '""');
   const right = valueOr(generator, block, 'RIGHT', generator.ORDER_NONE, '""');
-  return [`blockos_string_join((const char *)(${left}), (const char *)(${right}))`, generator.ORDER_ATOMIC];
+  return [`blockos_string_join(${valueAsText(left)}, ${valueAsText(right)})`, generator.ORDER_ATOMIC];
 };
 
 cGenerator.forBlock.os_input_line_available = function osInputLineAvailable(_block, generator) {

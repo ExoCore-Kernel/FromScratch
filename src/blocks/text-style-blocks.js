@@ -88,11 +88,3 @@ cGenerator.forBlock.os_set_text_location = function osSetTextLocation(block, gen
   const location = Math.max(0, Math.min(8, Math.trunc(Number(block.getFieldValue('LOCATION')) || 0)));
   return `blockos_text_set_location(${location}u);\n`;
 };
-
-// Make the existing Print Text block use the styled-text renderer, so the four
-// setter blocks genuinely configure Print Text rather than a separate preview.
-cGenerator.forBlock.os_print_text = function osPrintStyledText(block, generator) {
-  addPrototype(generator, 'void blockos_text_print_line(const char *text);');
-  const text = generator.valueToCode(block, 'TEXT', generator.ORDER_NONE) || '""';
-  return `blockos_text_print_line(${text});\n`;
-};

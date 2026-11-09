@@ -67,6 +67,7 @@ export const toolbox = {
       colour: '45',
       contents: [
         {kind: 'block', type: 'os_text'},
+        {kind: 'block', type: 'os_text_with_value'},
         {kind: 'block', type: 'os_join_text'},
         {kind: 'block', type: 'os_text_equals_ignore_case'},
         {kind: 'block', type: 'os_input_line_available'},

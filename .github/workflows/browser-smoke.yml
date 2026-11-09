@@ -16,6 +16,7 @@ jobs:
           node-version: 22
       - run: sudo apt-get update && sudo apt-get install -y clang lld grub-common grub-pc-bin xorriso mtools
       - run: npm install
+      - run: npm run test:text
       - run: bash scripts/build-browser-iso-template.sh
       - run: npm run build
       - run: npm install --no-save puppeteer-core
