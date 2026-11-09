@@ -125,11 +125,25 @@ export function registerOsBlocks() {
       helpUrl: '',
     },
     {
+      type: 'os_text_with_value',
+      message0: 'text %1 value %2 then text %3',
+      args0: [
+        {type: 'field_input', name: 'TEXT', text: '1 + 1 is: '},
+        {type: 'input_value', name: 'VALUE'},
+        {type: 'field_input', name: 'SUFFIX', text: ''},
+      ],
+      inputsInline: true,
+      output: 'String',
+      colour: 45,
+      tooltip: 'Insert a calculation, numeric variable or text variable directly into a message.',
+      helpUrl: '',
+    },
+    {
       type: 'os_join_text',
       message0: 'join text %1 with %2',
       args0: [
-        {type: 'input_value', name: 'LEFT', check: 'String'},
-        {type: 'input_value', name: 'RIGHT', check: 'String'},
+        {type: 'input_value', name: 'LEFT'},
+        {type: 'input_value', name: 'RIGHT'},
       ],
       inputsInline: true,
       output: 'String',
