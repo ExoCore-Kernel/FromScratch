@@ -92,6 +92,7 @@ static bool console_input_ready;
 
 void blockos_unimplemented(const char *name);
 void screen_clear(uint32_t colour);
+void blockos_text_reset_cursor(void);
 
 static inline void out8(uint16_t port, uint8_t value) {
     __asm__ volatile("outb %0, %1" : : "a"(value), "Nd"(port));
@@ -224,16 +225,27 @@ static void draw_character_transparent_at(uint32_t x, uint32_t y, char character
     }
 }
 
-static void scroll_framebuffer(void) {
-    if (framebuffer == NULL || framebuffer_height <= CELL_HEIGHT) return;
-    uint32_t rows_to_copy = framebuffer_height - CELL_HEIGHT;
-    for (uint32_t y = 0; y < rows_to_copy; ++y) {
-        volatile uint32_t *destination = (volatile uint32_t *)((uintptr_t)framebuffer + (uint64_t)y * framebuffer_pitch);
-        volatile uint32_t *source = (volatile uint32_t *)((uintptr_t)framebuffer + (uint64_t)(y + CELL_HEIGHT) * framebuffer_pitch);
+// Scroll actual display pixels and preserve the screen background and graphics state.
+void blockos_console_scroll_pixels(uint32_t pixels) {
+    if (framebuffer == NULL || framebuffer_bpp != 32u || pixels == 0u) return;
+    if (pixels > framebuffer_height) pixels = framebuffer_height;
+    uint32_t remaining = framebuffer_height - pixels;
+    for (uint32_t y = 0; y < remaining; ++y) {
+        volatile uint32_t *destination = graphics_row(y);
+        volatile uint32_t *source = graphics_row(y + pixels);
         for (uint32_t x = 0; x < framebuffer_width; ++x) destination[x] = source[x];
     }
-    fill_rectangle(0, rows_to_copy, framebuffer_width, CELL_HEIGHT, background_colour);
-    cursor_y = rows_to_copy;
+    bool saved_clip = graphics_clip_enabled;
+    graphics_clip_enabled = false;
+    fill_rectangle(0, remaining, framebuffer_width, pixels, background_colour);
+    graphics_clip_enabled = saved_clip;
+    cursor_y = cursor_y >= pixels ? cursor_y - pixels : 0u;
+}
+
+static void scroll_framebuffer(void) {
+    if (framebuffer == NULL || framebuffer_height <= CELL_HEIGHT) return;
+    blockos_console_scroll_pixels(CELL_HEIGHT);
+    cursor_y = framebuffer_height - CELL_HEIGHT;
 }
 
 static void display_character(char character) {
@@ -297,6 +309,7 @@ void screen_clear(uint32_t colour) {
     fill_rectangle(0, 0, framebuffer_width, framebuffer_height, background_colour);
     cursor_x = 0;
     cursor_y = 0;
+    blockos_text_reset_cursor();
     serial_text("\x1b[2J\x1b[H");
 }
 
