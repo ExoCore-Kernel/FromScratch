@@ -1,6 +1,51 @@
 import * as BlocklyModule from 'blockly/core';
 import {extensionBlocks} from './block-catalog.js';
 const Blockly = 'defineBlocksWithJsonArray' in BlocklyModule ? BlocklyModule : Reflect.get(BlocklyModule, 'default');
+// The + button is an accessible, clickable Blockly image field.
+const PLUS_ICON = 'data:image/svg+xml,' + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22">'
+  + '<rect x="1" y="1" width="20" height="20" rx="5" fill="#ffffff" fill-opacity=".22"/>'
+  + '<path d="M11 5v12M5 11h12" stroke="white" stroke-width="2.4" stroke-linecap="round"/>'
+  + '</svg>',
+);
+
+function showTextPartMenu(field) {
+  const block = field.getSourceBlock();
+  if (!block || !block.isEditable() || !block.workspace.isMovable()) return;
+
+  Blockly.DropDownDiv.hideWithoutAnimation();
+  Blockly.DropDownDiv.clearContent();
+  const panel = Blockly.DropDownDiv.getContentDiv();
+  panel.setAttribute('role', 'group');
+  panel.setAttribute('aria-label', 'Add text component');
+  for (const [label, type] of [['Add value (number or variable)', 'VALUE'], ['Add string (typed text)', 'STRING']]) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = label;
+    button.style.cssText = 'display:block;width:100%;padding:10px 12px;border:0;'
+      + 'background:transparent;color:#111827;text-align:left;cursor:pointer;font:600 13px system-ui;';
+    button.addEventListener('click', () => {
+      Blockly.DropDownDiv.hideWithoutAnimation();
+      block.addTextPart(type);
+    });
+    panel.appendChild(button);
+  }
+  if (block.textParts_.length) {
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.textContent = 'Remove last part';
+    remove.style.cssText = 'display:block;width:100%;padding:10px 12px;border:0;'
+      + 'background:transparent;color:#b91c1c;text-align:left;cursor:pointer;font:600 13px system-ui;';
+    remove.addEventListener('click', () => {
+      Blockly.DropDownDiv.hideWithoutAnimation();
+      block.removeLastTextPart();
+    });
+    panel.appendChild(remove);
+  }
+  Blockly.DropDownDiv.setColour('#f8fafc', '#cbd5e1');
+  Blockly.DropDownDiv.showPositionedByField(field, () => {});
+}
+
 
 export function registerOsBlocks() {
   Blockly.defineBlocksWithJsonArray([
@@ -418,6 +463,84 @@ export function registerOsBlocks() {
       helpUrl: '',
     },
   ]);
+
+  // Replaces only the Text block's shape; existing saved TEXT fields still load.
+  Blockly.Blocks.os_text = {
+    init() {
+      this.textParts_ = [];
+      this.appendDummyInput('BASE')
+        .appendField('text')
+        .appendField(new Blockly.FieldTextInput('Hello from BlockOS!'), 'TEXT');
+      this.appendDummyInput('ADD').appendField(
+        new Blockly.FieldImage(PLUS_ICON, 20, 20, 'Add a string or value', function () {
+          showTextPartMenu(this);
+        }),
+        'PLUS',
+      );
+      this.setInputsInline(true);
+      this.setOutput(true, 'String');
+      this.setColour(45);
+      this.setTooltip('Text can include any number of typed strings, calculations and variables. Press + to add a part.');
+    },
+    appendTextPart_(type) {
+      const index = this.textParts_.length;
+      this.textParts_.push(type);
+      if (type === 'VALUE') {
+        this.appendValueInput('PART_' + index).appendField('value');
+      } else {
+        this.appendDummyInput('PART_' + index)
+          .appendField('text')
+          .appendField(new Blockly.FieldTextInput(''), 'TEXT_' + index);
+      }
+      this.moveInputBefore('PART_' + index, 'ADD');
+      if (this.rendered) this.render();
+    },
+    addTextPart(type) {
+      if (type !== 'VALUE' && type !== 'STRING') return;
+      this.changeTextParts_(() => this.appendTextPart_(type));
+    },
+    removeLastTextPart() {
+      if (!this.textParts_.length) return;
+      this.changeTextParts_(() => {
+        const index = this.textParts_.length - 1;
+        this.removeInput('PART_' + index);
+        this.textParts_.pop();
+        if (this.rendered) this.render();
+      });
+    },
+    changeTextParts_(update) {
+      const group = Blockly.Events.getGroup();
+      if (!group) Blockly.Events.setGroup(true);
+      try {
+        const before = JSON.stringify(this.saveExtraState());
+        update();
+        const after = JSON.stringify(this.saveExtraState());
+        if (before !== after && Blockly.Events.isEnabled()) {
+          const Change = Blockly.Events.get(Blockly.Events.BLOCK_CHANGE);
+          Blockly.Events.fire(new Change(this, 'mutation', null, before, after));
+        }
+      } finally {
+        Blockly.Events.setGroup(group);
+      }
+    },
+    saveExtraState() {
+      return this.textParts_.length ? {parts: [...this.textParts_]} : null;
+    },
+    loadExtraState(state) {
+      const parts = Array.isArray(state?.parts)
+        ? state.parts.filter(type => type === 'VALUE' || type === 'STRING')
+        : [];
+      let shared = 0;
+      while (shared < this.textParts_.length && shared < parts.length
+        && this.textParts_[shared] === parts[shared]) ++shared;
+      for (let i = this.textParts_.length - 1; i >= shared; --i) {
+        this.removeInput('PART_' + i);
+      }
+      this.textParts_.length = shared;
+      for (const type of parts.slice(shared)) this.appendTextPart_(type);
+      if (this.rendered) this.render();
+    },
+  };
 
   const extensionDefinitions = extensionBlocks.map((spec) => {
     const args0 = spec.args.map((argument, index) => ({
