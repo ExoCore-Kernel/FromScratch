@@ -36,6 +36,14 @@ const codeOutput = document.querySelector('#codeOutput');
 const statusText = document.querySelector('#statusText');
 const diagnosticsElement = document.querySelector('#diagnostics');
 const runOutput = document.querySelector('#runOutput');
+
+// Keep the live log at the bottom, but preserve manual scrollback while it grows.
+function setRunLog(text) {
+  const follow = runOutput.scrollHeight - runOutput.clientHeight - runOutput.scrollTop < 40;
+  const previousTop = runOutput.scrollTop;
+  runOutput.textContent = text;
+  runOutput.scrollTop = follow ? runOutput.scrollHeight : previousTop;
+}
 const runStatus = document.querySelector('#runStatus');
 const runInput = document.querySelector('#runInput');
 const buildRunButton = document.querySelector('#buildRunButton');
@@ -447,7 +455,7 @@ async function startBrowserRun() {
       ...(selectedBootImage ? {file: selectedBootImage} : {demoUrl: 'web-demo.img'}),
       screenContainer: qemuScreen,
       onStatus(message) { runStatus.textContent = message; },
-      onSerial(text) { runOutput.textContent = text.replace(/\x1b\[[0-?]*[ -/]*[@-~]/g, '') || '[No serial output yet.]'; },
+      onSerial(text) { setRunLog(text.replace(/\x1b\[[0-?]*[ -/]*[@-~]/g, '') || '[No serial output yet.]'); },
       onError(error) {
         runStatus.textContent = 'Web VM stopped with an error';
         runOutput.textContent += `\n${error.message}`;
@@ -617,7 +625,7 @@ async function buildAndRun() {
       onStatus(message) { runStatus.textContent = message; },
       onSerial(text) {
         const serial = text.replace(/\x1b\[[0-?]*[ -/]*[@-~]/g, '');
-        runOutput.textContent = buildLog + '\n--- Guest serial output ---\n' + (serial || '[No serial output yet.]');
+        setRunLog(buildLog + '\n--- Guest serial output ---\n' + (serial || '[No serial output yet.]'));
       },
       onError(error) {
         runStatus.textContent = 'Your OS stopped with an error';
