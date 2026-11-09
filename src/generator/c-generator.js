@@ -130,8 +130,9 @@ cGenerator.forBlock.os_start = function osStart(block, generator) {
 };
 
 cGenerator.forBlock.os_print_text = function osPrintText(block, generator) {
+  generator.extensionPrototypes_.add('void blockos_text_print_line(const char *text);');
   const text = valueOr(generator, block, 'TEXT', generator.ORDER_NONE, '\"\"');
-  return `screen_print_line(${text});\n`;
+  return `blockos_text_print_line(${text});\n`;
 };
 
 cGenerator.forBlock.os_print_number = function osPrintNumber(block, generator) {
