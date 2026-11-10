@@ -1,4 +1,5 @@
-import * as Blockly from 'blockly/core';
+import * as BlocklyModule from 'blockly/core';
+const Blockly = 'defineBlocksWithJsonArray' in BlocklyModule ? BlocklyModule : Reflect.get(BlocklyModule, 'default');
 import {cGenerator} from '../generator/c-generator.js';
 
 Blockly.defineBlocksWithJsonArray([

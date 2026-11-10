@@ -26,7 +26,7 @@ export const toolbox = {
     },
     {
       kind: 'category',
-      name: 'Kernel basics',
+      name: 'Linux program',
       colour: '275',
       contents: [
         {kind: 'block', type: 'os_halt'},
@@ -101,6 +101,7 @@ export const toolbox = {
       name: 'Files & dependencies',
       colour: '25',
       contents: [
+        {kind: 'block', type: 'os_linux_file_flags'},
         {kind: 'block', type: 'os_asset_count'},
         {kind: 'block', type: 'os_asset_name'},
         {kind: 'block', type: 'os_asset_size'},
@@ -112,15 +113,6 @@ export const toolbox = {
       name: 'Custom functions',
       colour: '290',
       custom: 'BLOCKOS_CUSTOM_FUNCTIONS',
-    },
-    {
-      kind: 'category',
-      name: 'Hardware basics (unsafe)',
-      colour: '10',
-      contents: [
-        {kind: 'block', type: 'os_port_read8'},
-        {kind: 'block', type: 'os_port_write8'},
-      ],
     },
     ...extensionToolboxCategories,
     {

@@ -5,10 +5,7 @@ void screen_set_pixel(int32_t x, int32_t y, uint32_t colour);
 uint32_t blockos_framebuffer_width(void);
 uint32_t blockos_framebuffer_height(void);
 void blockos_console_scroll_pixels(uint32_t pixels);
-uint8_t port_read8(uint16_t port);
-void port_write8(uint16_t port, uint8_t value);
 
-#define COM1 0x3F8u
 #define GLYPH_WIDTH 5u
 #define GLYPH_HEIGHT 7u
 
@@ -41,15 +38,9 @@ const char *blockos_i64_to_text(int64_t value) {
     return output;
 }
 
-static void serial_char(char value) {
-    while ((port_read8(COM1 + 5u) & 0x20u) == 0u) __asm__ volatile("pause");
-    port_write8(COM1, (uint8_t)value);
-}
-
-static void serial_text(const char *text) {
-    if (text == NULL) return;
-    while (*text != '\0') serial_char(*text++);
-}
+void blockos_serial_write(const char *text);
+static void serial_char(char value) { char text[2] = {value, 0}; blockos_serial_write(text); }
+static void serial_text(const char *text) { blockos_serial_write(text); }
 
 static uint8_t glyph_row(char character, uint32_t row) {
     static const uint8_t digits[10][7] = {

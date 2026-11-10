@@ -1,40 +1,14 @@
-OUTPUT_FORMAT(elf64-x86-64)
 ENTRY(_start)
-
-SECTIONS
-{
-  . = 1M;
-
-  .multiboot ALIGN(8) :
-  {
-    KEEP(*(.multiboot))
-  }
-
-  .text ALIGN(4K) :
-  {
-    *(.text .text.*)
-  }
-
-  .rodata ALIGN(4K) :
-  {
-    *(.rodata .rodata.*)
-  }
-
-  .data ALIGN(4K) :
-  {
-    *(.data .data.*)
-  }
-
-  .bss ALIGN(4K) :
-  {
-    *(COMMON)
-    *(.bss .bss.*)
-  }
-
-  /DISCARD/ :
-  {
-    *(.comment)
-    *(.note*)
-    *(.eh_frame*)
-  }
+PHDRS {
+    text PT_LOAD FLAGS(5);
+    data PT_LOAD FLAGS(6);
+}
+SECTIONS {
+    . = 0x400000 + SIZEOF_HEADERS;
+    .text : { *(.text .text.*) } :text
+    .rodata : { *(.rodata .rodata.*) } :text
+    . = ALIGN(4096);
+    .data : { *(.data .data.*) } :data
+    .bss : { *(.bss .bss.*) *(COMMON) } :data
+    /DISCARD/ : { *(.comment) *(.eh_frame*) *(.note*) }
 }

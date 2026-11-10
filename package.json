@@ -2,7 +2,7 @@
   "name": "fromscratch-studio",
   "version": "0.9.0",
   "private": true,
-  "description": "Visual OS learning studio with browser compilation and a v64 x86_64 runner.",
+  "description": "Visual Linux OS learning studio with browser compilation and a v64 x86_64 runner.",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -10,7 +10,7 @@
   "scripts": {
     "setup:v64": "node scripts/verify-v64.mjs",
     "setup:compiler": "node scripts/setup-browser-toolchain.mjs",
-    "setup:runtime": "npm run setup:v64 && npm run setup:compiler",
+    "setup:runtime": "npm run setup:v64 && npm run setup:compiler && npm run setup:linux",
     "test:os": "node scripts/test-os.mjs",
     "test:fonts": "node --test tests/bitmap-font.test.js",
     "test:text": "node --test tests/text-output.test.js",
@@ -20,7 +20,9 @@
     "prebuild": "npm run setup:runtime",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
-    "check": "node --check src/main.js && node --check src/browser-vm.js && node --check src/browser-compiler.js && node --check src/browser-qemu64.js && node --check src/qemu64-page.js && node --check src/blocks/os-blocks.js && node --check src/blocks/block-catalog.js && node --check src/generator/c-generator.js && node --check src/toolbox.js && node --check src/custom-blocks.js && node --check src/learning-content.js && node --check src/toolbox-learning.js && node --check src/learn.js && node --check public/compiler-worker.js && node --check src/bitmap-font.js && node --check src/font-picker.js && node --check scripts/build-os.mjs && node --check scripts/test-os.mjs && node --check scripts/verify-v64.mjs && node --check scripts/setup-browser-toolchain.mjs && node --check public/coi-serviceworker.js"
+    "check": "node --check src/main.js && node --check src/browser-vm.js && node --check src/browser-compiler.js && node --check src/browser-qemu64.js && node --check src/qemu64-page.js && node --check src/blocks/os-blocks.js && node --check src/blocks/block-catalog.js && node --check src/generator/c-generator.js && node --check src/toolbox.js && node --check src/custom-blocks.js && node --check src/learning-content.js && node --check src/toolbox-learning.js && node --check src/learn.js && node --check public/compiler-worker.js && node --check src/bitmap-font.js && node --check src/font-picker.js && node --check scripts/build-os.mjs && node --check scripts/test-os.mjs && node --check scripts/verify-v64.mjs && node --check scripts/setup-browser-toolchain.mjs && node --check public/coi-serviceworker.js && node --check src/linux-image.js && node --check src/blocks/linux-capabilities.js && node --check src/blocks/event-blocks.js && node --check scripts/setup-linux.mjs && node --check server.mjs && node --check scripts/test-linux-runtime.mjs",
+    "setup:linux": "node scripts/setup-linux.mjs",
+    "test:linux": "node --test tests/linux-backend.test.js && node scripts/test-linux-runtime.mjs"
   },
   "dependencies": {
     "blockly": "13.1.1"

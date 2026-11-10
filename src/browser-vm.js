@@ -1,3 +1,5 @@
+import {LINUX_CMDLINE} from './linux-image.js';
+
 let emulator = null;
 let loaderPromise = null;
 let loadAttempt = 0;
@@ -36,14 +38,14 @@ function imageOption(name, source, isDemo) {
   return {hda: image, boot_order: 0x132};
 }
 
-export async function bootBrowserVm({file = null, demoUrl = '', screenContainer, onStatus, onSerial, onError}) {
+export async function bootBrowserVm({file = null, linux = null, demoUrl = '', screenContainer, onStatus, onSerial, onError}) {
   await stopBrowserVm();
-  onStatus?.('Loading v64 x86_64…');
+  onStatus?.(linux ? 'Booting Linux in v64…' : 'Loading v64 x86_64…');
   const V86 = await ensureV64();
   prepareScreen(screenContainer);
   serialText = '';
-  const name = file?.name || demoUrl.split('/').at(-1) || 'boot.img';
-  const source = file ? await file.arrayBuffer() : assetUrl(demoUrl);
+  const name = linux ? 'FromScratch Linux' : file?.name || demoUrl.split('/').at(-1) || 'boot.img';
+  const source = linux ? null : file ? await file.arrayBuffer() : assetUrl(demoUrl);
   const vm = new V86({
     cpu_type: 'x86_64',
     machine_type: 'i440fx',
@@ -65,7 +67,7 @@ export async function bootBrowserVm({file = null, demoUrl = '', screenContainer,
     audio_device: 'none',
     disable_speaker: true,
     autostart: true,
-    ...imageOption(name, source, !file && demoUrl === 'web-demo.img'),
+    ...(linux ? {bzimage: {buffer: linux.kernel.slice().buffer}, initrd: {buffer: linux.initrd.slice().buffer}, cmdline: LINUX_CMDLINE} : imageOption(name, source, !file && demoUrl === 'web-demo.img')),
   });
   emulator = vm;
   vm.add_listener('serial0-output-byte', byte => {

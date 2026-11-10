@@ -9,3 +9,9 @@ public/qemu64/
 public/source/
 *.log
 .DS_Store
+
+public/linux/*
+!public/linux/bzImage
+!public/linux/drivers.cpio
+!public/linux/manifest.json
+public/browser-kernel/

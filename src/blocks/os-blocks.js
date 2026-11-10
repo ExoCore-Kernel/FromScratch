@@ -1,5 +1,5 @@
 import * as BlocklyModule from 'blockly/core';
-import {extensionBlocks} from './block-catalog.js';
+import {legacyExtensionBlocks as extensionBlocks} from './block-catalog.js';
 const Blockly = 'defineBlocksWithJsonArray' in BlocklyModule ? BlocklyModule : Reflect.get(BlocklyModule, 'default');
 // The + button is an accessible, clickable Blockly image field.
 const PLUS_ICON = 'data:image/svg+xml,' + encodeURIComponent(
@@ -50,11 +50,25 @@ function showTextPartMenu(field) {
 export function registerOsBlocks() {
   Blockly.defineBlocksWithJsonArray([
     {
+      type: 'os_linux_file_flags',
+      message0: 'Linux file mode %1',
+      args0: [{type: 'field_dropdown', name: 'FLAGS', options: [['read only', '0'], ['read and write', '2'], ['create or replace', '578'], ['create or append', '1089']]}],
+      output: 'Number', colour: 25,
+      tooltip: 'Linux open flags. Create or replace uses O_RDWR | O_CREAT | O_TRUNC; append uses O_WRONLY | O_CREAT | O_APPEND.',
+    },
+    {
+      type: 'os_function_address',
+      message0: 'function address %1',
+      args0: [{type: 'field_input', name: 'NAME', text: 'my_function'}],
+      output: 'Number', colour: 290,
+      tooltip: 'Address of a function defined by a define custom function block. Use as a Linux process entry point.',
+    },
+    {
       type: 'os_start',
-      message0: 'when kernel starts %1',
+      message0: 'when Linux starts %1',
       args0: [{type: 'input_statement', name: 'BODY'}],
       colour: 275,
-      tooltip: 'The entry point of the generated kernel.',
+      tooltip: 'Runs the generated program after Linux starts.',
       helpUrl: '',
     },
     {
@@ -64,7 +78,7 @@ export function registerOsBlocks() {
       previousStatement: null,
       nextStatement: null,
       colour: 165,
-      tooltip: 'Print text using the kernel screen runtime.',
+      tooltip: 'Print text using the Linux framebuffer and serial console.',
       helpUrl: '',
     },
     {
@@ -379,20 +393,20 @@ export function registerOsBlocks() {
     },
     {
       type: 'os_halt',
-      message0: 'halt CPU',
+      message0: 'stop this program',
       previousStatement: null,
       nextStatement: null,
       colour: 10,
-      tooltip: 'Stop the CPU until it is reset.',
+      tooltip: 'Exit this Linux process. The supervisor keeps Linux running.',
       helpUrl: '',
     },
     {
       type: 'os_wait_interrupt',
-      message0: 'wait for next interrupt',
+      message0: 'sleep for 1 millisecond',
       previousStatement: null,
       nextStatement: null,
       colour: 10,
-      tooltip: 'Pause the CPU until an interrupt arrives.',
+      tooltip: 'Sleep through Linux nanosleep, yielding CPU time to other processes.',
       helpUrl: '',
     },
     {
@@ -400,7 +414,7 @@ export function registerOsBlocks() {
       message0: 'uploaded file count',
       output: 'Number',
       colour: 25,
-      tooltip: 'Number of files embedded into the bootable ISO.',
+      tooltip: 'Number of files packaged in the Linux initramfs.',
       helpUrl: '',
     },
     {
@@ -428,7 +442,7 @@ export function registerOsBlocks() {
       previousStatement: null,
       nextStatement: null,
       colour: 25,
-      tooltip: 'Print an uploaded text file from the ISO.',
+      tooltip: 'Print a project file packaged in /assets in the Linux initramfs.',
       helpUrl: '',
     },
     {
@@ -548,14 +562,15 @@ export function registerOsBlocks() {
       name: `ARG${index}`,
       check: argument.type,
     }));
-    const message0 = [spec.label, ...spec.args.map((argument, index) => `${argument.name} %${index + 1}`)].join(' ');
+    const label = spec.label.replace(/kernel status/g, 'program status').replace('get runtime version', 'get Linux kernel version');
+    const message0 = [label, ...spec.args.map((argument, index) => `${argument.name} %${index + 1}`)].join(' ');
     const definition = {
       type: spec.type,
       message0,
       args0,
       inputsInline: spec.args.length <= 4,
       colour: spec.colour,
-      tooltip: `${spec.category}: ${spec.label}. This block compiles into the BlockOS x86_64 runtime capability layer.`,
+      tooltip: `${spec.category}: ${spec.label}. This block uses the FromScratch Linux runtime. Legacy hardware-only blocks cannot be built on Linux.`,
       helpUrl: '',
     };
 

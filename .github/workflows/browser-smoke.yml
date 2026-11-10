@@ -14,10 +14,14 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-      - run: sudo apt-get update && sudo apt-get install -y clang lld grub-common grub-pc-bin xorriso mtools
+      - run: sudo apt-get update && sudo apt-get install -y clang lld grub-common grub-pc-bin xorriso mtools qemu-system-x86
       - run: npm install
+      - run: npm run check
+      - run: npm run test:fonts
       - run: npm run test:text
-      - run: bash scripts/build-browser-iso-template.sh
+      - run: npm run test:linux
+      - run: npm run test:os
+      - run: npm run test:os -- --browser-iso
       - run: npm run build
       - run: npm install --no-save puppeteer-core
       - run: node scripts/test-browser-build.mjs

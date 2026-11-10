@@ -22,11 +22,10 @@ jobs:
       - run: npm install
       - run: |
           mkdir -p public/source
-          cp kernel/runtime.c kernel/default-font.h kernel/extensions_runtime.c public/source/
+          cp kernel/runtime.c kernel/default-font.h kernel/extensions_runtime.c kernel/linux.c kernel/linux.h kernel/text_style_runtime.c public/source/
       - run: bash scripts/build-web-demo.sh
       - run: bash scripts/fetch-v64.sh
       - run: bash scripts/fetch-browser-toolchain.sh
-      - run: bash scripts/build-browser-iso-template.sh
       - continue-on-error: true
         run: bash scripts/fetch-qemu64.sh
       - run: npm run check

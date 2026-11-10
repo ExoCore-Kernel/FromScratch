@@ -2,8 +2,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "default-font.h"
+#include "linux.h"
 
-#define COM1 0x3F8u
 #define FONT_SCALE font_scale
 #define GLYPH_WIDTH font_width
 #define GLYPH_HEIGHT font_height
@@ -19,31 +19,6 @@
 #define BLOCKOS_REGION_MAX_WIDTH 64u
 #define BLOCKOS_REGION_MAX_HEIGHT 64u
 #define BLOCKOS_INPUT_LINE_SIZE 256u
-
-struct multiboot_tag {
-    uint32_t type;
-    uint32_t size;
-};
-
-struct multiboot_tag_framebuffer {
-    uint32_t type;
-    uint32_t size;
-    uint64_t address;
-    uint32_t pitch;
-    uint32_t width;
-    uint32_t height;
-    uint8_t bits_per_pixel;
-    uint8_t framebuffer_type;
-    uint16_t reserved;
-};
-
-struct multiboot_tag_module {
-    uint32_t type;
-    uint32_t size;
-    uint32_t module_start;
-    uint32_t module_end;
-    char command_line[];
-};
 
 struct blockos_asset {
     const char *name;
@@ -95,35 +70,9 @@ void blockos_unimplemented(const char *name);
 void screen_clear(uint32_t colour);
 void blockos_text_reset_cursor(void);
 
-static inline void out8(uint16_t port, uint8_t value) {
-    __asm__ volatile("outb %0, %1" : : "a"(value), "Nd"(port));
-}
-
-static inline uint8_t in8(uint16_t port) {
-    uint8_t value;
-    __asm__ volatile("inb %1, %0" : "=a"(value) : "Nd"(port));
-    return value;
-}
-
-static void serial_initialize(void) {
-    out8(COM1 + 1u, 0x00u);
-    out8(COM1 + 3u, 0x80u);
-    out8(COM1 + 0u, 0x03u);
-    out8(COM1 + 1u, 0x00u);
-    out8(COM1 + 3u, 0x03u);
-    out8(COM1 + 2u, 0xC7u);
-    out8(COM1 + 4u, 0x0Bu);
-}
-
-static void serial_character(char character) {
-    while ((in8(COM1 + 5u) & 0x20u) == 0u) __asm__ volatile("pause");
-    out8(COM1, (uint8_t)character);
-}
-
-static void serial_text(const char *text) {
-    if (text == NULL) return;
-    while (*text != '\0') serial_character(*text++);
-}
+static void serial_character(char character) { LINUX3(1, 1, &character, 1); }
+static void serial_text(const char *text) { linux_write_text(text); }
+void blockos_serial_write(const char *text) { linux_write_text(text); }
 
 static uint32_t font_read32(const uint8_t *bytes) {
     return (uint32_t)bytes[0] | ((uint32_t)bytes[1] << 8u)
@@ -272,37 +221,80 @@ static void display_character(char character) {
     cursor_x += CELL_WIDTH;
 }
 
-static void parse_multiboot(uint64_t multiboot_address) {
-    if (multiboot_address == 0u) return;
-    uint8_t *cursor = (uint8_t *)(uintptr_t)(multiboot_address + 8u);
-    for (;;) {
-        struct multiboot_tag *tag = (struct multiboot_tag *)cursor;
-        if (tag->type == 0u) break;
-        if (tag->type == 8u && tag->size >= sizeof(struct multiboot_tag_framebuffer)) {
-            struct multiboot_tag_framebuffer *info = (struct multiboot_tag_framebuffer *)tag;
-            framebuffer = (volatile uint32_t *)(uintptr_t)info->address;
-            framebuffer_pitch = info->pitch;
-            framebuffer_width = info->width;
-            framebuffer_height = info->height;
-            framebuffer_bpp = info->bits_per_pixel;
-        } else if (tag->type == 3u && asset_count < MAX_ASSETS) {
-            struct multiboot_tag_module *module = (struct multiboot_tag_module *)tag;
-            assets[asset_count].name = module->command_line;
-            assets[asset_count].data = (const uint8_t *)(uintptr_t)module->module_start;
-            assets[asset_count].size = (uint64_t)module->module_end - module->module_start;
-            ++asset_count;
+// fbdev UAPI for Linux x86_64 (linux/fb.h).
+struct fb_bitfield { uint32_t offset, length, msb_right; };
+struct fb_var {
+    uint32_t xres, yres, xres_virtual, yres_virtual, xoffset, yoffset, bits_per_pixel, grayscale;
+    struct fb_bitfield red, green, blue, transparency;
+    uint32_t nonstd, activate, height, width, accel_flags, pixclock, left_margin, right_margin;
+    uint32_t upper_margin, lower_margin, hsync_len, vsync_len, sync, vmode, rotate, colorspace, reserved[4];
+};
+struct fb_fix {
+    char id[16]; uint64_t smem_start; uint32_t smem_len, type, type_aux, visual;
+    uint16_t xpanstep, ypanstep, ywrapstep; uint32_t line_length;
+    uint64_t mmio_start; uint32_t mmio_len, accel; uint16_t capabilities, reserved[2];
+};
+
+static void initialize_framebuffer(void) {
+    long fd = LINUX3(2, "/dev/fb0", 2, 0);
+    if (fd < 0) { serial_text("[Linux] no framebuffer; serial console available\n"); return; }
+    struct fb_var variable;
+    struct fb_fix fixed;
+    if (LINUX3(16, fd, 0x4600, &variable) == 0) {
+        variable.xres = variable.xres_virtual = 1024; variable.yres = variable.yres_virtual = 768;
+        variable.xoffset = variable.yoffset = 0; variable.bits_per_pixel = 32;
+        LINUX3(16, fd, 0x4601, &variable);
+    }
+    if (LINUX3(16, fd, 0x4600, &variable) == 0 && LINUX3(16, fd, 0x4602, &fixed) == 0
+        && variable.bits_per_pixel == 32 && variable.red.offset == 16 && variable.green.offset == 8 && variable.blue.offset == 0
+        && variable.xres && variable.yres && variable.xres <= 1024 && variable.yres <= 768) {
+        long mapped = linux_call(9, 0, fixed.smem_len, 3, 1, fd, 0);
+        if (mapped > 0) {
+            framebuffer = (volatile uint32_t *)(uintptr_t)mapped;
+            framebuffer_width = variable.xres; framebuffer_height = variable.yres;
+            framebuffer_pitch = fixed.line_length; framebuffer_bpp = 32;
+            long tty = LINUX3(2, "/dev/tty0", 2, 0);
+            if (tty >= 0) { LINUX3(16, tty, 0x4b3a, 1); LINUX1(3, tty); } // KD_GRAPHICS
+            serial_text("[Linux] framebuffer mapped\n");
         }
-        cursor += (tag->size + 7u) & ~7u;
+    }
+    if (!framebuffer) serial_text("[Linux] framebuffer mode unavailable; serial console available\n");
+    LINUX1(3, fd);
+}
+
+static void load_assets(void) {
+    static char manifest[8192];
+    linux_read_text("/assets/.manifest", manifest, sizeof(manifest));
+    char *name = manifest;
+    for (char *cursor = manifest; *cursor && asset_count < MAX_ASSETS; ++cursor) {
+        if (*cursor != '\n') continue;
+        *cursor = '\0';
+        if (*name) {
+            char path[140] = "/assets/";
+            size_t length = linux_strlen(name);
+            if (length <= 120) {
+                for (size_t i = 0; i <= length; ++i) path[8 + i] = name[i];
+                long fd = LINUX3(2, path, 0, 0);
+                if (fd >= 0) {
+                    long size = LINUX3(8, fd, 0, 2);
+                    long data = size > 0 ? linux_call(9, 0, size, 1, 2, fd, 0) : 0;
+                    if (size >= 0 && (size == 0 || data > 0)) {
+                        assets[asset_count++] = (struct blockos_asset){name, (const uint8_t *)(uintptr_t)data, (uint64_t)size};
+                    }
+                    LINUX1(3, fd);
+                }
+            }
+        }
+        name = cursor + 1;
     }
 }
 
-void blockos_runtime_init(uint64_t multiboot_address) {
-    serial_initialize();
-    parse_multiboot(multiboot_address);
-    cursor_x = 0;
-    cursor_y = 0;
+void blockos_runtime_init(void) {
+    initialize_framebuffer();
+    load_assets();
+    cursor_x = 0; cursor_y = 0;
     screen_clear(background_colour);
-    serial_text("[BlockOS x86_64] boot successful\n");
+    serial_text("[FromScratch Linux x86_64] boot successful\n");
 }
 
 void screen_clear(uint32_t colour) {
@@ -502,6 +494,7 @@ const char *blockos_string_join(const char *left, const char *right) {
     return output;
 }
 
+bool blockos_framebuffer_available(void) { return framebuffer != NULL; }
 uint32_t blockos_framebuffer_width(void) { return framebuffer_width; }
 uint32_t blockos_framebuffer_height(void) { return framebuffer_height; }
 uint32_t blockos_framebuffer_pitch(void) { return framebuffer_pitch; }
@@ -521,11 +514,14 @@ void blockos_print_asset_text(uint32_t index) {
     display_character('\n');
 }
 
-void cpu_halt(void) { for (;;) __asm__ volatile("cli; hlt"); }
-void cpu_wait_for_interrupt(void) { __asm__ volatile("pause"); }
+void cpu_halt(void) { LINUX1(60, 0); for (;;) linux_sleep_ms(1000); }
+void cpu_wait_for_interrupt(void) { linux_sleep_ms(1); }
 void blockos_console_putc(char value) { display_character(value); }
-bool blockos_console_input_available(void) { return (in8(COM1 + 5u) & 0x01u) != 0u; }
-uint8_t blockos_console_read_input(void) { return blockos_console_input_available() ? in8(COM1) : 0u; }
+bool blockos_console_input_available(void) {
+    struct { int fd; int16_t events, revents; } descriptor = {0, 1, 0};
+    return LINUX3(7, &descriptor, 1, 0) > 0 && (descriptor.revents & 1);
+}
+uint8_t blockos_console_read_input(void) { uint8_t value = 0; if (blockos_console_input_available()) LINUX3(0, 0, &value, 1); return value; }
 static char blockos_ascii_lower(char value) {
     if (value >= 'A' && value <= 'Z') return (char)(value - 'A' + 'a');
     return value;
@@ -609,8 +605,7 @@ void blockos_console_draw_cell(uint32_t x, uint32_t y, char value, uint8_t colou
     (void)colour;
     draw_character_at(x * CELL_WIDTH, y * CELL_HEIGHT, value, foreground_colour);
 }
-uint8_t port_read8(uint16_t port) { return in8(port); }
-void port_write8(uint16_t port, uint8_t value) { out8(port, value); }
+
 void blockos_unimplemented(const char *name) {
     if (unimplemented_reports >= 24u) return;
     ++unimplemented_reports;

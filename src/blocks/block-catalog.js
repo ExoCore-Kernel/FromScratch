@@ -1,6 +1,8 @@
+import {linuxCapabilities} from "./linux-capabilities.js";
+
 // Exactly 300 data-driven OS-development blocks: 20 categories × 15 blocks.
 // These definitions are shared by the Blockly UI, C generator, and server runtime stubs.
-export const extensionCategories = [
+const legacyCategories = [
   {
     "name": "Kernel services",
     "colour": 275,
@@ -3920,10 +3922,19 @@ export const extensionCategories = [
   }
 ];
 
-export const extensionBlocks = extensionCategories.flatMap((category) =>
-  category.blocks.map((block) => ({...block, category: category.name, colour: category.colour})),
+// Keep legacy definitions so imported projects can explain unsupported blocks.
+export const legacyExtensionBlocks = legacyCategories.flatMap(category =>
+  category.blocks.map(block => ({...block, category: category.name, colour: category.colour})),
 );
-
-if (extensionBlocks.length !== 309) {
-  throw new Error(`Expected 309 extension blocks, got ${extensionBlocks.length}`);
-}
+const linuxCategoryNames = {'Kernel services': 'Linux services', 'Kernel heap': 'Memory allocation', 'Keyboard and mouse': 'Console input'};
+export const extensionCategories = legacyCategories.map(category => ({
+  ...category,
+  name: linuxCategoryNames[category.name] ?? category.name,
+  blocks: category.blocks.filter(block => linuxCapabilities.has(block.cName)).map(block => ({
+    ...block,
+    label: block.label.replace(/kernel heap/g, 'Linux process heap').replace(/kernel status/g, 'program status').replace('get runtime version', 'get Linux kernel version'),
+  })),
+})).filter(category => category.blocks.length);
+export const extensionBlocks = extensionCategories.flatMap(category =>
+  category.blocks.map(block => ({...block, category: category.name, colour: category.colour})),
+);

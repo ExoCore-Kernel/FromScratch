@@ -2,8 +2,8 @@
   "format": "blockos-project",
   "formatVersion": 1,
   "name": "Simple Shell",
-  "description": "A one-letter command shell for BlockOS x86_64. Run it and send h, i, t, c, or q through the Run input box.",
-  "target": "x86_64",
+  "description": "A one-letter command shell for FromScratch Linux x86_64. Run it and send h, i, t, c, or q through the Run input box.",
+  "target": "x86_64-linux",
   "customBlocks": [
     {
       "id": "cb_simple_shell_prompt",
@@ -211,7 +211,7 @@
                                                                                 "type": "os_text",
                                                                                 "id": "b_009",
                                                                                 "fields": {
-                                                                                  "TEXT": "t - kernel uptime ticks"
+                                                                                  "TEXT": "t - Linux uptime milliseconds"
                                                                                 }
                                                                               }
                                                                             }
@@ -241,7 +241,7 @@
                                                                                         "type": "os_text",
                                                                                         "id": "b_013",
                                                                                         "fields": {
-                                                                                          "TEXT": "q - halt the OS"
+                                                                                          "TEXT": "q - stop the program"
                                                                                         }
                                                                                       }
                                                                                     }
@@ -309,7 +309,7 @@
                                                                         "type": "os_text",
                                                                         "id": "b_016",
                                                                         "fields": {
-                                                                          "TEXT": "BlockOS simple shell running on x86_64."
+                                                                          "TEXT": "FromScratch shell running on Linux x86_64."
                                                                         }
                                                                       }
                                                                     }
@@ -429,7 +429,7 @@
                                                                             "type": "os_text",
                                                                             "id": "b_027",
                                                                             "fields": {
-                                                                              "TEXT": "Kernel uptime ticks:"
+                                                                              "TEXT": "Linux uptime (ms):"
                                                                             }
                                                                           }
                                                                         }
@@ -610,7 +610,7 @@
                                                                                     "type": "os_text",
                                                                                     "id": "b_041",
                                                                                     "fields": {
-                                                                                      "TEXT": "Halting BlockOS."
+                                                                                      "TEXT": "Stopping the Linux program."
                                                                                     }
                                                                                   }
                                                                                 }

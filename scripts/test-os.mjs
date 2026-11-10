@@ -6,6 +6,7 @@ import Blockly from 'blockly/core';
 import {registerOsBlocks} from '../src/blocks/os-blocks.js';
 import {cGenerator} from '../src/generator/c-generator.js';
 import {parsePsf} from '../src/bitmap-font.js';
+import {patchLinuxIso} from '../src/linux-image.js';
 import {buildKernelImage} from './build-os.mjs';
 
 const build = new URL('../build/test-os/', import.meta.url);
@@ -26,12 +27,21 @@ const source = cGenerator.workspaceToCode(workspace);
 workspace.dispose();
 await writeFile(new URL('kernel.c', build), source);
 await writeFile(new URL('hello-test.blockos-project.json', build), JSON.stringify(project, null, 2) + '\n');
-const {iso} = await buildKernelImage({source, assembly, directory: fileURLToPath(build)});
+const browserIso = process.argv.includes('--browser-iso');
+const result = await buildKernelImage({source, assembly, directory: fileURLToPath(build), createIso: !browserIso});
+let iso = result.iso;
+if (browserIso) {
+  const directory = new URL('../public/linux/', import.meta.url);
+  const template = new Uint8Array(await readFile(new URL('fromscratch-template.iso', directory)));
+  const metadata = JSON.parse(await readFile(new URL('iso-template.json', directory), 'utf8'));
+  iso = fileURLToPath(new URL('fromscratch-browser.iso', build));
+  await writeFile(iso, patchLinuxIso(template, metadata, await readFile(result.initrd)));
+}
 console.log(`Built ${iso}${assembly ? ' from browser-compiled assembly' : ''}`);
 
 const serial = await new Promise((resolve, reject) => {
   const child = spawn('qemu-system-x86_64', [
-    '-accel', 'tcg', '-cpu', 'qemu64', '-m', '128M', '-cdrom', iso, '-boot', 'd',
+    '-accel', 'tcg', '-cpu', 'qemu64', '-m', '256M', '-cdrom', iso, '-boot', 'd',
     '-display', 'none', '-serial', 'stdio', '-monitor', 'none', '-no-reboot', '-nic', 'none',
   ]);
   let output = '';
@@ -54,9 +64,9 @@ const serial = await new Promise((resolve, reject) => {
   });
 });
 await writeFile(new URL('serial.log', build), serial);
-assert.match(serial, /\[BlockOS x86_64\] boot successful/);
+assert.match(serial, /\[FromScratch Linux x86_64\] boot successful/);
 assert.match(serial, /FromScratch Test OS/);
 if (fontIndex >= 0) assert.match(serial, /custom bitmap font loaded/);
 assert.match(serial, /42\s+PASS: arithmetic and output work\./);
 console.log(serial.replace(/\x1b\[[0-9;]*[A-Za-z]/g, ''));
-console.log('PASS: generated project compiled, linked, and booted in x86_64 QEMU');
+console.log('PASS: generated project compiled, linked, and ran on Linux in x86_64 QEMU');

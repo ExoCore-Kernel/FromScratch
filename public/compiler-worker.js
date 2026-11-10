@@ -8,7 +8,9 @@ function asset(name) {
   return new URL('./compiler/' + name, self.location.href).href;
 }
 function kernelAsset(name) {
-  return new URL('./browser-kernel/' + name, self.location.href).href;
+  const url = new URL('./linux/' + name, self.location.href);
+  url.search = self.location.search;
+  return url.href;
 }
 async function readBuffer(filename) {
   const response = await fetch(filename);
@@ -41,11 +43,11 @@ function getApi() {
   return apiPromise;
 }
 
-// The bootloader, kernel runtime and linker script are compiled when the site
+// The Linux process entry, user-space runtime and linker script are compiled when the site
 // is built, not for every project. Only the user's generated C changes.
 async function prepareRuntime(api) {
   runtimePromise ??= (async () => {
-    const objects = ['boot.o', 'runtime.o', 'extensions_runtime.o', 'text_style_runtime.o'];
+    const objects = ['boot.o', 'linux.o', 'runtime.o', 'extensions_runtime.o', 'text_style_runtime.o'];
     const names = [...objects, 'linker.ld'];
     const files = await Promise.all(names.map(name => readBuffer(kernelAsset(name))));
     names.forEach((name, index) => api.memfs.addFile(name, files[index]));
@@ -67,7 +69,7 @@ async function compile({id, type, source}) {
     const args = [
       'clang', '-cc1', type === 'build-elf' ? '-emit-obj' : '-S',
       ...api.clangCommonArgs,
-      '-triple=x86_64-unknown-none-elf', '-ffreestanding', '-fno-builtin',
+      '-triple=x86_64-unknown-linux-gnu', '-ffreestanding', '-fno-builtin',
       '-disable-red-zone', '-mrelocation-model', 'static', '-O2',
       '-o', 'kernel-' + id + (type === 'build-elf' ? '.o' : '.S'),
       '-x', 'c', input,

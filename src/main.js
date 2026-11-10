@@ -7,7 +7,8 @@ import {cGenerator} from './generator/c-generator.js';
 import {toolbox} from './toolbox.js';
 import {installToolboxLearning, openLearningTopic} from './toolbox-learning.js';
 import {bootBrowserVm, stopBrowserVm, sendBrowserSerial} from './browser-vm.js';
-import {compileX86_64Assembly, buildBootableIso, browserCompilerSupported} from './browser-compiler.js';
+import {compileX86_64Assembly, buildLinuxImage, createBootableIso, browserCompilerSupported} from './browser-compiler.js';
+import {validateProjectAssets} from './linux-image.js';
 import {parsePsf} from './bitmap-font.js';
 import {installFontPicker} from './font-picker.js';
 import {
@@ -72,7 +73,16 @@ const mobileButtons = [...document.querySelectorAll('[data-mobile-target]')];
 
 let selectedBootImage = null;
 let lastBuiltIso = null;
+let lastBuiltLinux = null;
+const ASSETS_STORAGE_KEY = 'fromscratch-linux-assets-v1';
+function decodeProjectFiles(files = []) {
+  validateProjectAssets(files);
+  return files.map(file => ({name: file.name, type: String(file.type || ''), bytes: Uint8Array.from(atob(file.dataBase64 || ''), char => char.charCodeAt(0))}));
+}
+function encodeProjectFiles() { return browserAssets.map(asset => ({name: asset.name, type: asset.type, dataBase64: bytesToBase64(asset.bytes)})); }
+function saveProjectFiles() { localStorage.setItem(ASSETS_STORAGE_KEY, JSON.stringify(encodeProjectFiles())); }
 let browserAssets = [];
+try { browserAssets = decodeProjectFiles(JSON.parse(localStorage.getItem(ASSETS_STORAGE_KEY) || '[]')); } catch {}
 let projectFont = null;
 function decodeProjectFont(value) {
   if (!value) return null;
@@ -171,12 +181,12 @@ function findDiagnostics() {
   const topBlocks = workspace.getTopBlocks(true);
   const startBlocks = allBlocks.filter((block) => block.type === 'os_start');
 
-  if (startBlocks.length === 0) messages.push('Add one “when kernel starts” block so the program has an entry point.');
-  if (startBlocks.length > 1) messages.push('Only one “when kernel starts” block is allowed.');
+  if (startBlocks.length === 0) messages.push('Add one “when Linux starts” block so the program has an entry point.');
+  if (startBlocks.length > 1) messages.push('Only one “when Linux starts” block is allowed.');
 
   for (const block of topBlocks) {
-    if (block.type !== 'os_start' && block.type !== 'os_function_def' && !isCustomDefinitionBlock(block)) {
-      messages.push(`The top-level “${block.type}” block must be connected inside the kernel.`);
+    if (block.type !== 'os_start' && block.type !== 'os_function_def' && !block.type.startsWith('os_when_') && !isCustomDefinitionBlock(block)) {
+      messages.push(`The top-level “${block.type}” block must be connected inside the Linux startup block.`);
     }
   }
 for (const spec of customBlockSpecs) {
@@ -210,10 +220,12 @@ function updateCode() {
   try {
     codeOutput.textContent = cGenerator.workspaceToCode(workspace);
     renderDiagnostics(findDiagnostics());
+    return true;
   } catch (error) {
     console.error(error);
     codeOutput.textContent = `// Generator error:\n// ${error instanceof Error ? error.message : String(error)}`;
-    renderDiagnostics(['The generator hit an error. Check the browser developer console.']);
+    renderDiagnostics([error instanceof Error ? error.message : String(error)]);
+    return false;
   }
 }
 
@@ -279,10 +291,11 @@ function exportProjectFile() {
     format: 'blockos-project',
     formatVersion: 1,
     name,
-    target: 'x86_64',
+    target: 'x86_64-linux',
     exportedAt: new Date().toISOString(),
     customBlocks: customBlockSpecs,
     font: encodeProjectFont(),
+    files: encodeProjectFiles(),
     workspace: Blockly.serialization.workspaces.save(workspace),
   };
 
@@ -302,7 +315,10 @@ async function applyImportedProject(parsed, displayName) {
     ? parsed.customBlocks
     : customBlockSpecs;
 
+  const importedFiles = isProjectPackage ? decodeProjectFiles(parsed.files || []) : browserAssets;
   const importedFont = decodeProjectFont(parsed.font);
+  browserAssets = importedFiles;
+  saveProjectFiles();
   localStorage.setItem(FONT_STORAGE_KEY, JSON.stringify(encodeProjectFont(importedFont)));
 
   saveCustomBlockSpecs(importedSpecs);
@@ -364,12 +380,12 @@ function downloadCode() {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = 'blockos_kernel.c';
+  link.download = 'fromscratch_linux.c';
   document.body.append(link);
   link.click();
   link.remove();
   URL.revokeObjectURL(url);
-  statusText.textContent = 'Exported blockos_kernel.c';
+  statusText.textContent = 'Exported fromscratch_linux.c';
 }
 
 function selectInspector(name) {
@@ -412,7 +428,7 @@ function renderAssets() {
     const row = document.createElement('div'); row.className = 'asset-row';
     const details = document.createElement('span'); details.textContent = `${asset.name} · ${formatBytes(asset.bytes.byteLength)}`;
     const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'button button-secondary'; remove.textContent = 'Remove';
-    remove.addEventListener('click', () => { browserAssets.splice(index, 1); renderAssets(); });
+    remove.addEventListener('click', () => { browserAssets.splice(index, 1); saveProjectFiles(); renderAssets(); });
     row.append(details, remove); assetList.append(row);
   });
 }
@@ -420,7 +436,9 @@ function renderAssets() {
 async function uploadAssets() {
   const files = [...(assetFiles.files ?? [])];
   if (!files.length) { assetStatus.textContent = 'Choose one or more files first.'; return; }
+  validateProjectAssets([...browserAssets, ...files]);
   for (const file of files) browserAssets.push({name: file.name, type: file.type, bytes: new Uint8Array(await file.arrayBuffer())});
+  saveProjectFiles();
   assetFiles.value = ''; renderAssets();
 }
 
@@ -429,27 +447,38 @@ function downloadBlob(name, blob) {
   document.body.append(link); link.click(); link.remove(); URL.revokeObjectURL(url);
 }
 
-function exportBuiltIso() {
-  if (!lastBuiltIso) return;
-  downloadBlob(lastBuiltIso.name, lastBuiltIso);
-  statusText.textContent = `Exported ${lastBuiltIso.name}`;
+async function exportBuiltIso() {
+  if (!lastBuiltLinux) return;
+  exportBuiltIsoButton.disabled = true;
+  try {
+    if (!lastBuiltIso) {
+      const bytes = await createBootableIso(lastBuiltLinux.initrd);
+      lastBuiltIso = new File([bytes], 'FromScratch-Linux-x86_64.iso', {type: 'application/x-iso9660-image'});
+    }
+    downloadBlob(lastBuiltIso.name, lastBuiltIso);
+    statusText.textContent = `Exported ${lastBuiltIso.name}`;
+  } catch (error) { statusText.textContent = error instanceof Error ? error.message : String(error); }
+  finally { exportBuiltIsoButton.disabled = false; }
 }
 
 async function exportBuildBundle() {
   exportIsoButton.disabled = true;
   try {
-    const bundle = {format:'fromscratch-build-bundle',formatVersion:1,target:'x86_64-elf',generatedAt:new Date().toISOString(),generatedC:codeOutput.textContent ?? '',project:Blockly.serialization.workspaces.save(workspace),customBlocks:customBlockSpecs,font:encodeProjectFont(),files:browserAssets.map(a=>({name:a.name,type:a.type,dataBase64:bytesToBase64(a.bytes)})),buildInstructions:'Run npm run build:os -- /path/to/this-bundle.json, then choose build/os/fromscratch-os.iso in the Studio.'};
+    if (!updateCode()) throw new Error(codeOutput.textContent);
+    const bundle = {format:'fromscratch-build-bundle',formatVersion:2,target:'x86_64-linux',generatedAt:new Date().toISOString(),generatedC:codeOutput.textContent ?? '',project:Blockly.serialization.workspaces.save(workspace),customBlocks:customBlockSpecs,font:encodeProjectFont(),files:encodeProjectFiles(),buildInstructions:'Run npm run build:os -- /path/to/this-bundle.json, then choose build/os/fromscratch-os.iso in the Studio.'};
     downloadBlob('fromscratch-build-bundle.json', new Blob([`${JSON.stringify(bundle, null, 2)}\n`], {type:'application/json'}));
     statusText.textContent = 'Exported complete build bundle';
-  } finally { exportIsoButton.disabled = false; }
+  } catch (error) { statusText.textContent = error instanceof Error ? error.message : String(error); }
+  finally { exportIsoButton.disabled = false; }
 }
 
 async function compileInBrowser() {
   compileButton.disabled = true; selectInspector('run'); runStatus.textContent = 'Loading WebAssembly Clang…'; runOutput.textContent = '';
   try {
     if (!browserCompilerSupported()) throw new Error('This browser cannot run the WebAssembly compiler.');
+    if (!updateCode()) throw new Error(codeOutput.textContent);
     const result = await compileX86_64Assembly(codeOutput.textContent ?? '', {onLog(text){runOutput.textContent += text;}});
-    downloadBlob('blockos_kernel_x86_64.S', new Blob([result.assembly], {type:'text/x-asm'}));
+    downloadBlob('fromscratch_linux_x86_64.S', new Blob([result.assembly], {type:'text/x-asm'}));
     runStatus.textContent = `Compiled x86_64 assembly · ${formatBytes(result.assembly.length)}`; statusText.textContent = 'Browser compilation succeeded';
   } catch (error) { runStatus.textContent = 'Browser compilation failed'; runOutput.textContent += `\n${error instanceof Error ? error.message : String(error)}`; }
   finally { compileButton.disabled = false; }
@@ -605,33 +634,31 @@ async function buildAndRun() {
   selectInspector('run');
   if (window.matchMedia('(max-width: 1180px)').matches) selectMobilePanel('run');
   runOutput.textContent = '';
-  runStatus.textContent = 'Compiling your OS and creating a bootable ISO locally…';
+  runStatus.textContent = 'Building your Linux startup program locally…';
 
   try {
     if (!browserCompilerSupported()) throw new Error('This browser needs Web Workers and WebAssembly to build an OS.');
-    if (browserAssets.length) {
-      throw new Error('Browser-built ISOs do not yet include attached OS files. Remove the attachments or export a build bundle for the native builder.');
-    }
     // A Blockly edit may still be waiting on the debounced code generator.
-    updateCode();
+    if (!updateCode()) throw new Error(codeOutput.textContent);
     const warnings = findDiagnostics();
     if (warnings.length) throw new Error('Fix the block warnings before building:\n' + warnings.join('\n'));
 
-    const {iso, elf} = await buildBootableIso(codeOutput.textContent ?? '', {
+    const {kernel, initrd, elf} = await buildLinuxImage(codeOutput.textContent ?? '', {
+      assets: browserAssets,
       onLog(text) {
         runOutput.textContent += text;
         runOutput.scrollTop = runOutput.scrollHeight;
       },
     });
-    const builtIso = new File([iso], 'FromScratch-BlockOS-x86_64.iso', {type: 'application/x-iso9660-image'});
-    lastBuiltIso = builtIso;
+    lastBuiltLinux = {kernel, initrd};
+    lastBuiltIso = null;
     exportBuiltIsoButton.disabled = false;
-    runOutput.textContent += '\nCompiled kernel ELF (' + formatBytes(elf.byteLength)
-      + ') and bootable GRUB ISO (' + formatBytes(iso.byteLength) + ').\n';
+    runOutput.textContent += '\nCompiled Linux program (' + formatBytes(elf.byteLength)
+      + ') and initramfs (' + formatBytes(initrd.byteLength) + ').\n';
     const buildLog = runOutput.textContent;
-    runStatus.textContent = 'ISO ready. Starting your OS in v64…';
+    runStatus.textContent = 'Starting Linux in v64…';
     await bootBrowserVm({
-      file: builtIso,
+      linux: {kernel, initrd},
       screenContainer: qemuScreen,
       onStatus(message) { runStatus.textContent = message; },
       onSerial(text) {
@@ -724,7 +751,8 @@ if (savedProject) {
   try {
     Blockly.serialization.workspaces.load(JSON.parse(savedProject), workspace);
     updateCode();
-  } catch {
+  } catch (error) {
+    console.error(error);
     loadStarterProject();
   }
 } else {

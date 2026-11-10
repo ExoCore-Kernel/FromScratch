@@ -1,3 +1,9 @@
+import {extractFunctionSource} from './c-source.js';
+import runtimeC from '../kernel/runtime.c?raw';
+import extensionsC from '../kernel/extensions_runtime.c?raw';
+import linuxC from '../kernel/linux.c?raw';
+import textStyleC from '../kernel/text_style_runtime.c?raw';
+const runtimeSources = {'kernel/runtime.c': runtimeC, 'kernel/extensions_runtime.c': extensionsC, 'kernel/linux.c': linuxC, 'kernel/text_style_runtime.c': textStyleC};
 import './learn.css';
 import {
   blockResultLabel,
@@ -79,9 +85,12 @@ async function loadSource(block, holder, button) {
   button.disabled = true;
   button.textContent = 'Loading C…';
   try {
-    const response = await fetch(`/api/learning/source?symbol=${encodeURIComponent(block.sourceSymbol)}`, {cache: 'no-store'});
-    const result = await response.json();
-    if (!result.ok) throw new Error(result.output || 'Source was not found.');
+    let result;
+    for (const [file, text] of Object.entries(runtimeSources)) {
+      const source = extractFunctionSource(text, block.sourceSymbol);
+      if (source) { result = {file, source}; break; }
+    }
+    if (!result) throw new Error('Source was not found.');
     holder.replaceChildren();
     holder.className = 'learn-source';
     holder.append(element('div', 'learn-source-meta', `${result.file} · actual source used by this BlockOS installation`));

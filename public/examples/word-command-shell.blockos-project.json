@@ -3,7 +3,7 @@
   "formatVersion": 1,
   "name": "BlockOS Word Command Shell",
   "description": "A line-based shell with full word commands sent through the Run panel input box.",
-  "target": "x86_64",
+  "target": "x86_64-linux",
   "customBlocks": [],
   "workspace": {
     "blocks": {
@@ -221,7 +221,7 @@
                                                                                 "type": "os_text",
                                                                                 "id": "ws_009",
                                                                                 "fields": {
-                                                                                  "TEXT": "uptime - show kernel uptime ticks"
+                                                                                  "TEXT": "uptime - show Linux uptime milliseconds"
                                                                                 }
                                                                               }
                                                                             }
@@ -455,7 +455,7 @@
                                                                             "type": "os_text",
                                                                             "id": "ws_025",
                                                                             "fields": {
-                                                                              "TEXT": "Kernel uptime ticks:"
+                                                                              "TEXT": "Linux uptime (ms):"
                                                                             }
                                                                           }
                                                                         }
@@ -567,7 +567,7 @@
                                                                                     "type": "os_text",
                                                                                     "id": "ws_031",
                                                                                     "fields": {
-                                                                                      "TEXT": "Halting BlockOS."
+                                                                                      "TEXT": "Stopping the Linux program."
                                                                                     }
                                                                                   }
                                                                                 }

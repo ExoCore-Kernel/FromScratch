@@ -66,7 +66,7 @@ test('text blocks interpolate calculations and variables into one styled line', 
     try {
       const root = fileURLToPath(new URL('../', import.meta.url));
       const result = spawnSync('clang', [
-        '--target=x86_64-unknown-none-elf', '-m64', '-ffreestanding',
+        '--target=x86_64-linux-gnu', '-m64', '-ffreestanding',
         '-fno-builtin', '-nostdinc', '-Ikernel/include',
         '-Wall', '-Wextra', '-Werror=implicit-function-declaration',
         '-x', 'c', '-c', '-', '-o', join(directory, 'generated.o'),
@@ -133,14 +133,14 @@ test('normal Text block adds any number of ordered string and value parts and su
     assert.match(source, /" \| sum again: "/);
     assert.match(source, /" \| name: "/);
     assert.match(source, /" \| end: "/);
-    const kernelBody = source.slice(source.indexOf('void kernel_main(void)'));
+    const kernelBody = source.slice(source.indexOf('void blockos_main(void)'));
     assert.equal((kernelBody.match(/blockos_string_join\(/g) ?? []).length, kinds.length);
 
     const directory = await mkdtemp(join(tmpdir(), 'blockos-parts-'));
     try {
       const root = fileURLToPath(new URL('../', import.meta.url));
       const result = spawnSync('clang', [
-        '--target=x86_64-unknown-none-elf', '-m64', '-ffreestanding',
+        '--target=x86_64-linux-gnu', '-m64', '-ffreestanding',
         '-fno-builtin', '-nostdinc', '-Ikernel/include',
         '-Wall', '-Wextra', '-Werror=implicit-function-declaration',
         '-x', 'c', '-c', '-', '-o', join(directory, 'generated.o'),

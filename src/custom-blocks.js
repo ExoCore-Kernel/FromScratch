@@ -1,4 +1,5 @@
-import * as Blockly from 'blockly/core';
+import * as BlocklyModule from 'blockly/core';
+const Blockly = 'defineBlocksWithJsonArray' in BlocklyModule ? BlocklyModule : Reflect.get(BlocklyModule, 'default');
 import {cGenerator} from './generator/c-generator.js';
 
 export const CUSTOM_BLOCK_STORAGE_KEY = 'blockos-custom-block-specs-v1';
@@ -246,7 +247,8 @@ export function registerCustomBlockSpecs(specs) {
 }
 
 export function customFunctionFlyout(specs) {
-  const items = [{kind: 'button', text: 'Create a custom block', callbackKey: CREATE_CUSTOM_BLOCK_CALLBACK_KEY}];
+  const items = [{kind: 'button', text: 'Create a custom block', callbackKey: CREATE_CUSTOM_BLOCK_CALLBACK_KEY},
+    {kind: 'block', type: 'os_function_def'}, {kind: 'block', type: 'os_function_call'}, {kind: 'block', type: 'os_function_address'}];
   const customTypes = new Map();
 
   for (const spec of specs) {

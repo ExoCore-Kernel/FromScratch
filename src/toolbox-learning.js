@@ -12,7 +12,7 @@ export function openLearningTopic(topic = '', blockType = '') {
   if (topic) parameters.set('topic', normalizeCategoryName(topic));
   if (blockType) parameters.set('block', blockType);
   const suffix = parameters.size ? `?${parameters.toString()}` : '';
-  window.open(`/learn.html${suffix}`, 'blockos-learning');
+  window.open(`${import.meta.env.BASE_URL}learn.html${suffix}`, 'blockos-learning');
 }
 
 function decorateToolboxRows() {

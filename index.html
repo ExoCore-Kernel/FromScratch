@@ -12,7 +12,7 @@
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">B</div>
         <div>
-          <h1>BlockOS Studio <span class="version-badge">x86_64</span></h1>
+          <h1>BlockOS Studio <span class="version-badge">Linux</span></h1>
           <p>Build small operating systems, visually.</p>
         </div>
       </div>
@@ -41,7 +41,7 @@
         </details>
         <input id="importProjectInput" type="file" accept=".blockos,.json,.blockos-project.json,application/json" hidden />
         <span class="toolbar-divider" aria-hidden="true"></span>
-        <button id="compileButton" class="button button-primary" title="Compile the kernel to x86_64 assembly">Compile</button>
+        <button id="compileButton" class="button button-primary" title="Compile the Linux program to x86_64 assembly">Compile</button>
         <button id="buildRunButton" class="button button-success" title="Compile the current blocks, create a bootable ISO and run your OS in the browser">▶ Build and Run</button>
         <input id="bootImageInput" type="file" accept=".iso,.img,.bin,.elf,.mb,.multiboot,application/octet-stream" hidden />
       </nav>
@@ -61,7 +61,7 @@
         <section id="codeView" class="inspector-view active" aria-label="Generated C">
           <div class="panel-heading">
             <div>
-              <h2>Generated x86_64 C</h2>
+              <h2>Generated Linux C</h2>
               <p id="statusText">Ready</p>
             </div>
             <div class="panel-actions">

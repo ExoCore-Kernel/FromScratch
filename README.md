@@ -1,65 +1,74 @@
 # FromScratch / BlockOS Studio
 
-FromScratch is a visual operating-system learning environment. It generates freestanding x86_64 C, compiles to assembly in the browser, and boots 32-bit and 64-bit images in the bundled v64 emulator.
+FromScratch is a visual Linux operating-system learning environment. Blocks compile into a static x86_64 Linux program, which runs inside a real Linux guest in the bundled v64 emulator.
 
-## Development
+**Building and booting happen entirely in the browser.** A static host such as GitHub Pages serves the compiler, Linux kernel, drivers and runtime objects. No backend, remote compilation service or host Linux installation is required to use the Studio.
 
-Requires Node.js 22 or newer.
+## Development and deployment
+
+Site preparation requires Node.js 22+, `clang`, `tar`, GRUB, `xorriso` and mtools:
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open `http://localhost:5173/FromScratch/`. Development and production builds verify the vendored v64 runtime and prepare the browser compiler automatically. The first compiler setup downloads approximately 60 MB; verified files are reused offline on later runs. To repair the compiler separately, run `npm run setup:compiler`.
-
-The v64 engine was copied from the local UTM-Web project. Its upstream revision, build ID, and SHA-256 checksums are recorded in `public/v64/manifest.json`. The engine retains upstream filenames such as `libv86.mjs`, but runs with `cpu_type: 'x86_64'`, a CPU worker, and the v64 graphics adapter.
-
-## Build and run an OS
-
-Click **▶ Build and Run** to compile the blocks into a freestanding x86_64 ELF, insert it into the GRUB ISO template, and boot it immediately in the built-in v64 emulator. The Clang/LLD toolchain runs in a Web Worker, so your generated C stays in the browser. The first compiler download is relatively large. **Compile** still downloads assembly; **Choose ISO/IMG** still boots an existing image.
-
-After a successful build, choose **Project → Export ISO** to download the actual bootable `.iso` image. The option stays disabled until an ISO has been built, and always exports the most recently built image (build again after changing your project). It remains available even if the emulator fails to boot that image.
-
-The site deployment must include the compiler and the bootable ISO template. `npm run dev` prepares the compiler; to generate the browser ISO runtime for a local checkout, install Clang, GRUB, xorriso and mtools, then run `bash scripts/build-browser-iso-template.sh`.
-
-Browser-built ISOs currently embed the generated code and selected bitmap font but do not package attached OS files. To include attached files as GRUB modules, use **Project → Export build bundle** and the native toolchain:
-
-1. Choose **Project → Export build bundle**.
-2. Build it with the native toolchain:
-
-   ```bash
-   npm run build:os -- "/path/to/fromscratch-build-bundle.json"
-   ```
-
-3. In the Run panel, choose **Choose ISO/IMG** and select `build/os/fromscratch-os.iso`.
-
-Native builds require `clang`, `ld.lld`, GRUB's `grub-mkrescue`, and `xorriso`. On macOS the builder prefers `i686-elf-grub-mkrescue` for BIOS-compatible media; Homebrew's `x86_64-elf-grub-mkrescue` creates UEFI-only media. Set `GRUB_MKRESCUE` to override the chosen command.
-
-A small example is available under **Project → Import, export & examples → Load test OS**. Its repeatable native build/boot check runs without opening a QEMU window:
+Open `http://localhost:5173/FromScratch/`. Setup verifies v64, downloads the pinned browser compiler (about 60 MB), and prepares the vendored Linux kernel and drivers. If those files need repair, setup downloads their checksum-verified Alpine kernel package (about 39 MB). Verified downloads are reused. Runtime C is compiled during site preparation, never by a backend during Studio use.
 
 ```bash
-npm run test:os
-npm run test:os -- --font public/fonts/default.psf
+npm run setup:linux   # repair Linux assets and rebuild runtime objects
+npm run build         # prepare everything and create dist/
 ```
 
-This writes the C source, project file, bootable ISO, and serial log to `build/test-os/`. The guest prints a greeting, checks `6 × 7 = 42`, then halts. To test assembly produced by the browser compiler, pass `--assembly "/path/to/blockos_kernel_x86_64.S"`.
+Deploy the complete `dist/` directory, including `linux/`, `compiler/`, and `v64/`. GitHub Pages CI prepares these automatically. Kernel provenance and source links are pinned in `config/linux.json`; licensing is documented in `THIRD_PARTY_NOTICES.md`.
+
+## Build and run Linux
+
+Click **▶ Build and Run**. Clang and LLD run in a Web Worker and compile the generated C into a static Linux ELF. The browser creates a `newc` CPIO initramfs containing the program, graphics drivers, and project attachments. v64 boots the bundled Linux kernel directly with that initramfs.
+
+Linux starts `/init` as PID 1. The runtime mounts `/dev`, `/proc`, `/sys`, and `/tmp`, loads the Linux Bochs graphics driver, and supervises the generated program in a child process. The **when Linux starts** block generates `blockos_main()`. Ending the program keeps the Linux supervisor alive.
+
+**Compile** downloads Linux x86_64 assembly. **Project → Export ISO** packages the last successful build into a bootable Linux ISO entirely in the browser. Its initramfs slot supports up to 16 MiB; larger projects can use the native build bundle. **Choose ISO/IMG** still boots existing images.
+
+## Linux blocks and older projects
+
+Existing block IDs and project files remain importable. Console I/O uses Linux tty read/write/poll; graphics and bitmap fonts use `/dev/fb0` with ioctl/mmap. Memory allocation uses mmap/munmap. Filesystem blocks use real guest files and file descriptors. Processes use fork, signals and wait4. Time uses clock_gettime/nanosleep. UDP sockets use Linux networking, including loopback without an external NIC.
+
+- **Linux file mode** supplies open flags: read only `0`, read/write `2`, create/replace `578`, create/append `1089`. Failed handles and byte counts return negative Linux errno represented in the 64-bit result; use a signed variable to inspect them. Debug blocks report the last errno.
+- **Function address** names a basic **define custom function** block and supplies its address to **create process**. The child has a separate Linux address space. Process handles are real PIDs; waiting returns its exit code.
+- **Sleep for 1 millisecond** yields through nanosleep. **Stop this program** exits the current process. Timer events use elapsed monotonic milliseconds and run cooperatively after the startup body finishes. A forever loop in that body prevents event dispatch.
+- Attached files are included in browser builds at `/assets/<name>`, and retained in exported projects/build bundles. Filenames support letters, numbers, dots, dashes and underscores; duplicate names are rejected. `/tmp` and all guest file changes reset on reboot.
+- Hardware-only blocks for interrupt tables, raw ports, control registers, page tables and unimplemented device models are removed from the toolbox. Imported projects containing them receive a migration error identifying the block. Linux owns these facilities; they are not simulated by the runtime.
+
+Boot-stage, status and safe-mode values remain project settings. Software window blocks provide a small framebuffer drawing toolkit. External networking needs a configured emulated NIC; the default runner provides local loopback networking.
+
+## Export a bootable ISO
+
+Browser builds boot Linux directly. An optional native builder exports the same kernel and initramfs as a GRUB ISO:
+
+```bash
+npm run build:os -- "/path/to/fromscratch-build-bundle.json"
+```
+
+Export the bundle from **Project → Export build bundle**, then select `build/os/fromscratch-os.iso` using **Choose ISO/IMG**. Native ISO creation additionally requires `ld.lld`, GRUB, `xorriso` and mtools. On macOS the builder prefers `i686-elf-grub-mkrescue` for BIOS media; `GRUB_MKRESCUE` overrides this.
 
 ## Bitmap fonts
 
-Open **Customize → Fonts & files**. The built-in Classic Console font includes proper lowercase letters and punctuation. Import PSF1/PSF2 console fonts, or PNG/BMP glyph sheets, preview the result, then choose **Use this font**. A downloadable 16×16 glyph-sheet template is provided.
-
-Image sheets use character-code order, left to right. Set columns, rows, and the first character code to match your sheet; use the dark-letter option for a light background. Transparent backgrounds are supported. Glyphs may be 1–32 pixels wide and high. Small fonts are displayed at 2×; fonts at least 12 pixels tall use 1×.
-
-Selected fonts are saved locally, included in exported project files and build bundles, and embedded directly in generated C. Rebuild the OS image to apply a font; existing images retain their own fonts. The console currently prints byte-oriented ASCII; importing a Unicode font does not add UTF-8 rendering.
+Use **Customize → Fonts & files** to import PSF1/PSF2 console fonts or PNG/BMP glyph sheets. Fonts are saved locally, exported with projects and embedded in the generated Linux program. Rebuild to apply changes. Glyphs can be 1–32 pixels wide/high; output remains byte-oriented ASCII.
 
 ## Checks
 
 ```bash
 npm run check
 npm run test:fonts
-npm run test:os
+npm run test:text
+npm run test:linux  # initramfs, migration, generator and Linux service integration
+npm run test:os     # generated example boots from a Linux GRUB ISO
 npm run build
+# Optional browser test (requires puppeteer-core and Chrome):
+node scripts/test-browser-build.mjs
 ```
 
-The optional QEMU-Wasm laboratory and legacy native server remain in the repository. The main Studio runner uses v64.
+Native integration tests require `qemu-system-x86_64`; the ISO test also requires the native ISO tools above. Set `CHROME_BIN` for a non-default Chrome location.
+
+The optional QEMU-Wasm laboratory and native server remain available. Studio builds and boots use the browser path independently of them.

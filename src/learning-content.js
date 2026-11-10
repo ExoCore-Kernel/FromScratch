@@ -2,12 +2,12 @@ import {extensionCategories} from './blocks/block-catalog.js';
 
 const coreCategories = [
   {
-    name: 'Kernel basics',
+    name: 'Linux program',
     colour: 275,
     blocks: [
-      {type: 'os_start', label: 'when kernel starts', kind: 'statement', args: [], generatedC: 'void kernel_main(void) {\n    /* connected blocks */\n}', description: 'Defines the one kernel entry point called after the boot code has prepared the x86_64 environment.'},
-      {type: 'os_halt', label: 'halt CPU', kind: 'cmd', args: [], generatedC: 'cpu_halt();', sourceSymbol: 'cpu_halt', description: 'Stops execution with the x86 HLT instruction. The machine remains halted until an interrupt or reset, depending on interrupt state.'},
-      {type: 'os_wait_interrupt', label: 'wait for interrupt', kind: 'cmd', args: [], generatedC: 'cpu_wait_for_interrupt();', sourceSymbol: 'cpu_wait_for_interrupt', description: 'Puts the processor into a low-work wait state until an interrupt arrives.'},
+      {type: 'os_start', label: 'when Linux starts', kind: 'statement', args: [], generatedC: 'void blockos_main(void) {\n    /* connected blocks */\n}', description: 'Defines the startup function called in a Linux process supervised by /init.'},
+      {type: 'os_halt', label: 'stop this program', kind: 'cmd', args: [], generatedC: 'cpu_halt();', sourceSymbol: 'cpu_halt', description: 'Exits this Linux process. The Linux supervisor keeps the guest alive.'},
+      {type: 'os_wait_interrupt', label: 'sleep for 1 millisecond', kind: 'cmd', args: [], generatedC: 'cpu_wait_for_interrupt();', sourceSymbol: 'cpu_wait_for_interrupt', description: 'Sleeps using Linux nanosleep, allowing Linux to schedule other processes.'},
     ],
   },
   {
@@ -67,8 +67,9 @@ const coreCategories = [
     name: 'Files & dependencies',
     colour: 25,
     blocks: [
-      {type: 'os_asset_count', label: 'asset count', kind: 'num', args: [], generatedC: 'blockos_asset_count()', sourceSymbol: 'blockos_asset_count', description: 'Returns the number of files GRUB loaded as Multiboot modules.'},
-      {type: 'os_asset_name', label: 'asset name', kind: 'text', args: [{name: 'index', type: 'Number'}], generatedC: 'blockos_asset_name(index)', sourceSymbol: 'blockos_asset_name', description: 'Returns the boot-module command-line name for an uploaded file.'},
+      {type: 'os_linux_file_flags', label: 'Linux file mode', kind: 'num', args: [], generatedC: '2 | 64 | 512', description: 'Select Linux open flags for reading, updating, replacing or appending a file.'},
+      {type: 'os_asset_count', label: 'asset count', kind: 'num', args: [], generatedC: 'blockos_asset_count()', sourceSymbol: 'blockos_asset_count', description: 'Returns the number of files packaged in /assets in the Linux initramfs.'},
+      {type: 'os_asset_name', label: 'asset name', kind: 'text', args: [{name: 'index', type: 'Number'}], generatedC: 'blockos_asset_name(index)', sourceSymbol: 'blockos_asset_name', description: 'Returns the filename of an attached project file.'},
       {type: 'os_asset_size', label: 'asset size', kind: 'num', args: [{name: 'index', type: 'Number'}], generatedC: 'blockos_asset_size(index)', sourceSymbol: 'blockos_asset_size', description: 'Returns an uploaded file size in bytes.'},
       {type: 'os_print_asset_text', label: 'print asset text', kind: 'cmd', args: [{name: 'index', type: 'Number'}], generatedC: 'blockos_print_asset_text(index);', sourceSymbol: 'blockos_print_asset_text', description: 'Prints an uploaded file as text. Binary files may contain unreadable bytes or embedded zeroes.'},
     ],
@@ -77,16 +78,9 @@ const coreCategories = [
     name: 'Custom functions',
     colour: 290,
     blocks: [
+      {type: 'os_function_address', label: 'function address', kind: 'num', args: [], generatedC: '(uint64_t)(uintptr_t)&my_function', description: 'Pass the address of a basic custom function to the create process block.'},
       {type: 'os_function_def', label: 'define custom function', kind: 'statement', args: [], generatedC: 'static void my_block(void) {\n    /* definition blocks */\n}', description: 'Creates a reusable generated C function. Typed custom blocks add formal parameters and typed reporter blocks.'},
       {type: 'os_function_call', label: 'run custom function', kind: 'cmd', args: [], generatedC: 'my_block();', description: 'Calls a generated custom function. Arguments are evaluated before entering the function.'},
-    ],
-  },
-  {
-    name: 'Hardware basics (unsafe)',
-    colour: 10,
-    blocks: [
-      {type: 'os_port_read8', label: 'read 8-bit I/O port', kind: 'num', args: [{name: 'port', type: 'Number'}], generatedC: 'port_read8((uint16_t)port)', sourceSymbol: 'port_read8', description: 'Runs the x86 IN instruction. Reading the wrong port can return meaningless data or interfere with hardware.'},
-      {type: 'os_port_write8', label: 'write 8-bit I/O port', kind: 'cmd', args: [{name: 'port', type: 'Number'}, {name: 'value', type: 'Number'}], generatedC: 'port_write8((uint16_t)port, (uint8_t)value);', sourceSymbol: 'port_write8', description: 'Runs the x86 OUT instruction. Incorrect writes can freeze the VM or place devices into an unexpected state.'},
     ],
   },
   {
@@ -99,34 +93,30 @@ const coreCategories = [
 ];
 
 const guideData = {
-  'Kernel basics': {
-    tooltip: 'Learn how boot code reaches kernel_main, why a kernel must idle safely, and what HLT does.',
-    level: 'Starter',
-    runtimeKind: 'Hardware-backed',
-    overview: [
-      'A bootloader does not launch an operating system in the same way an operating system launches an app. GRUB loads the kernel image, the assembly entry code establishes a known CPU state, and BlockOS eventually calls kernel_main.',
-      'The kernel entry function normally initialises memory, interrupts, devices, and higher-level services before entering an idle loop or scheduler. Returning from kernel_main is not useful because there is no parent program waiting for it.',
-    ],
-    prerequisites: ['C functions and call flow', 'The difference between boot firmware, bootloader, and kernel', 'Why a freestanding program has no normal operating-system services'],
-    concepts: ['One entry point', 'CPU halt versus shutdown', 'Interrupt-driven idle loops', 'Boot-time initialisation order'],
-    implementation: 'The start block generates kernel_main directly. The halt and wait blocks call small runtime wrappers around x86 HLT. Waiting with interrupts enabled allows the CPU to resume when a timer, keyboard, or other interrupt arrives.',
-    cExample: 'void kernel_main(void) {\n    initialise_subsystems();\n    for (;;) {\n        cpu_wait_for_interrupt();\n    }\n}',
-    safety: 'Do not disable interrupts and then wait for an interrupt unless you deliberately want the CPU to remain halted.',
-    exercise: 'Print three boot-stage messages, then enter an interrupt-waiting idle loop.',
+  'Linux program': {
+    tooltip: 'Learn how Linux starts the generated program, schedules it, and manages its exit.',
+    level: 'Starter', runtimeKind: 'Linux user space',
+    overview: ['The browser compiles blocks into a static x86_64 Linux executable and packages it as /init in an initramfs.', 'Linux starts /init as PID 1. A small supervisor mounts /dev, /proc, /sys and /tmp, then forks a process that runs blockos_main.'],
+    prerequisites: ['C functions', 'Processes and system calls'],
+    concepts: ['Linux boot', 'PID 1', 'User space', 'Sleeping and process exit'],
+    implementation: 'The start block generates blockos_main. Sleep calls nanosleep; stop calls exit. Linux owns interrupts, drivers and process isolation.',
+    cExample: 'void blockos_main(void) {\n    screen_print_line("Hello Linux");\n}',
+    safety: 'A forever loop prevents later blocks and cooperative events from running. Sleep between polls.',
+    exercise: 'Print a greeting, sleep, then stop the program while the Linux supervisor stays alive.',
   },
   'Screen basics': {
     tooltip: 'Learn framebuffer coordinates, colour values, text rendering, and the cost of changing pixels.',
     level: 'Starter',
     runtimeKind: 'Hardware-backed',
     overview: [
-      'The framebuffer is a region of memory whose bytes are displayed as pixels. BlockOS receives its address, width, height, pitch, and bits-per-pixel from the boot environment.',
+      'The framebuffer is a region of memory whose bytes are displayed as pixels. The runtime opens /dev/fb0, reads its Linux fbdev metadata with ioctl, and maps the pixels with mmap.',
       'Drawing is immediate-mode: a write changes framebuffer memory. Large fills touch many pixels, so redrawing a whole screen for a tiny cursor movement wastes a large amount of CPU time.',
     ],
     prerequisites: ['x/y coordinates', 'RGB hexadecimal colours', 'Arrays and memory addresses'],
     concepts: ['Framebuffer pitch', 'Pixel bounds and clipping', 'Bitmap-font text', 'Dirty rectangles and partial redraws'],
     implementation: 'Basic blocks call runtime.c framebuffer functions. Each pixel address is calculated from y × pitch plus x × bytes-per-pixel. Higher graphics blocks add clipping, region copies, saved regions, and back buffering.',
     cExample: 'uint32_t *pixel = (uint32_t *)(framebuffer + y * pitch + x * 4);\n*pixel = colour;',
-    safety: 'Never write beyond the framebuffer dimensions. An unchecked pixel write can corrupt unrelated kernel memory.',
+    safety: 'Never write beyond the framebuffer dimensions. An unchecked pixel write can corrupt other memory in the process.',
     exercise: 'Draw a coloured panel once, then animate a small marker by restoring only its previous rectangle.',
   },
   'Flow': {
@@ -154,7 +144,7 @@ const guideData = {
     ],
     prerequisites: ['Basic data types', 'ASCII text', 'The difference between a value and a command'],
     concepts: ['Static socket type checking', 'String lifetime', 'Line buffering', 'Explicit number-to-text conversion'],
-    implementation: 'Literal blocks compile inline. String operations and serial line input call runtime helpers with fixed-size kernel buffers.',
+    implementation: 'Literal blocks compile inline. String operations and serial line input call runtime helpers with fixed-size user-space buffers.',
     cExample: 'if (blockos_console_line_available()) {\n    const char *command = blockos_console_read_line();\n}',
     safety: 'A returned text pointer may refer to a shared runtime buffer. Copy it before storing it for a long time.',
     exercise: 'Build a command parser that compares input with help and uptime without caring about letter case.',
@@ -163,7 +153,7 @@ const guideData = {
     tooltip: 'Learn integer arithmetic, comparisons, Boolean logic, overflow, and short-circuit evaluation.',
     level: 'Starter',
     runtimeKind: 'Generated inline',
-    overview: ['Math and logic blocks become C expressions. The result is calculated when the surrounding command executes.', 'The kernel uses fixed-width integers. Values can overflow, signed and unsigned comparisons differ, and division by zero is invalid.'],
+    overview: ['Math and logic blocks become C expressions. The result is calculated when the surrounding command executes.', 'Generated programs use fixed-width integers. Values can overflow, signed and unsigned comparisons differ, and division by zero is invalid.'],
     prerequisites: ['Arithmetic order', 'True and false', 'Signed versus unsigned numbers'],
     concepts: ['Operator precedence', 'Short-circuit and/or', 'Integer overflow', 'Guarding division'],
     implementation: 'The generator adds parentheses and C operators. No floating-point runtime is currently required.',
@@ -184,16 +174,15 @@ const guideData = {
     exercise: 'Track mouse x and y in signed variables and clamp both to the framebuffer bounds.',
   },
   'Files & dependencies': {
-    tooltip: 'Learn how files are embedded into the boot ISO as Multiboot modules and accessed without a filesystem.',
-    level: 'Intermediate',
-    runtimeKind: 'Bootloader-backed',
-    overview: ['Uploaded files are copied into the ISO and listed as GRUB Multiboot modules. The bootloader places each file in memory and supplies its address, size, and name to the kernel.', 'This is not yet the same as opening a file from a disk filesystem. The data is read-only boot-time memory.'],
-    prerequisites: ['Memory addresses and byte lengths', 'Bootloader modules', 'Text versus binary data'],
-    concepts: ['ISO contents', 'Multiboot modules', 'Read-only embedded assets', 'Later filesystem migration'],
-    implementation: 'runtime.c parses Multiboot tags and records module start/end addresses. Asset blocks query that table.',
+    tooltip: 'Learn how project attachments become Linux files in /assets.',
+    level: 'Intermediate', runtimeKind: 'Linux initramfs files',
+    overview: ['Attached files are packaged into the initramfs in the browser. Linux extracts them into /assets at boot.', 'Asset blocks list and map these files. Filesystem blocks can open them by path, including binary and empty files.'],
+    prerequisites: ['File paths', 'Byte lengths'],
+    concepts: ['CPIO initramfs', 'Linux files', 'Read-only mappings', 'Binary data'],
+    implementation: 'The runtime reads /assets/.manifest to preserve attachment order, then opens and maps each file through Linux.',
     cExample: 'uint32_t count = blockos_asset_count();\nconst char *name = blockos_asset_name(0);',
-    safety: 'Do not assume an asset contains null-terminated text. Always respect its byte size when parsing binary data.',
-    exercise: 'Upload a configuration text file, print its name and size, then display its contents.',
+    safety: 'Respect asset sizes when reading binary data. Initramfs and /tmp changes are lost when the guest restarts.',
+    exercise: 'Attach a text file, print its name and size, then open /assets/your-file.txt using a filesystem block.',
   },
   'Custom functions': {
     tooltip: 'Learn reusable functions, typed parameters, custom types, generated declarations, and call-stack behaviour.',
@@ -202,22 +191,10 @@ const guideData = {
     overview: ['A custom block is a real generated C function with a definition block, call block, and typed argument reporters.', 'Arguments are passed by value. Pointer arguments copy an address, while text arguments copy a pointer rather than the whole string.'],
     prerequisites: ['Variables and types', 'Function calls', 'Parameters versus local variables'],
     concepts: ['Function declarations', 'Arguments and return control', 'Call stack', 'Custom typedefs'],
-    implementation: 'The generator emits a prototype before kernel_main and a static function body assembled from the definition workspace.',
+    implementation: 'The generator emits a prototype before blockos_main and a static function body assembled from the definition workspace.',
     cExample: 'static void draw_label(const char *text, int64_t x, int64_t y) {\n    blockos_graphics_draw_text(x, y, text, 0xFFFFFFu);\n}',
-    safety: 'Recursive custom blocks can exhaust the small kernel stack. Avoid deep or unbounded recursion.',
+    safety: 'Recursive custom blocks can exhaust the process stack. Avoid deep or unbounded recursion.',
     exercise: 'Create a typed draw button block with x, y, width, height, label, and colour arguments.',
-  },
-  'Hardware basics (unsafe)': {
-    tooltip: 'Learn x86 port-mapped I/O, device registers, polling, and why incorrect hardware access can freeze the VM.',
-    level: 'Advanced',
-    runtimeKind: 'Hardware-backed',
-    overview: ['Some x86 devices expose registers through a separate I/O-port address space. IN reads a port and OUT writes one.', 'A port number has meaning only when the chipset or device specification assigns it. There is no safety layer between the kernel and the hardware.'],
-    prerequisites: ['Hexadecimal numbers', 'Device registers', 'x86 privilege levels'],
-    concepts: ['Port-mapped I/O', 'Status and data registers', 'Polling loops', 'Hardware timing'],
-    implementation: 'runtime.c uses inline x86 assembly for inb and outb. QEMU emulates the selected legacy devices.',
-    cExample: 'uint8_t status;\n__asm__ volatile ("inb %1, %0" : "=a"(status) : "Nd"(0x64));',
-    safety: 'Use these blocks only with a verified device specification and preferably inside QEMU. Wrong writes can hang the guest.',
-    exercise: 'Read the PS/2 controller status register and document each tested status bit.',
   },
   'Notes': {
     tooltip: 'Learn how comments document assumptions, invariants, hardware references, and unfinished implementation work.',
@@ -234,26 +211,138 @@ const guideData = {
 };
 
 const extensionGuides = {
-  'Kernel services': ['Kernel-wide state, panic handling, boot metadata, safe mode, and shutdown requests.', 'Intermediate', 'Learning model', ['Boot stages', 'Panic paths', 'Global kernel state', 'Orderly shutdown'], 'The capability runtime stores kernel service state in fixed in-memory structures. Shutdown and restart requests are represented for learning; a production kernel would use ACPI, chipset reset registers, or firmware interfaces.', 'static uint64_t boot_stage;\nvoid set_boot_stage(uint64_t stage) { boot_stage = stage; }', 'Triggering a panic intentionally stops normal operation. Save diagnostic state before halting.', 'Track each subsystem through named boot stages and print the stage during a simulated panic.'],
-  'CPU': ['Processor identity, counters, interrupt state, cache operations, and control-register concepts.', 'Advanced', 'Mixed hardware/model', ['CPUID', 'Timestamp counter', 'Interrupt flag', 'Cache coherency'], 'Identity and timestamp operations can use real x86 instructions. Some cache and control operations are simplified because unrestricted use would be unsafe in a teaching kernel.', 'uint32_t eax, ebx, ecx, edx;\n__asm__ volatile ("cpuid" : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx) : "a"(0));', 'Disabling interrupts or changing control registers can immediately crash the kernel.', 'Display CPU vendor, brand, processor count, and timestamp counter on a diagnostics page.'],
-  'Interrupts': ['Interrupt descriptor tables, vectors, IRQ masking, handlers, priorities, and end-of-interrupt signalling.', 'Advanced', 'Learning model', ['IDT entries', 'Exceptions versus IRQs', 'PIC/APIC acknowledgement', 'Interrupt-safe code'], 'The current capability layer models handler registration and vector state. A complete implementation needs assembly stubs that save registers, an IDT loaded with lidt, and PIC or APIC routing.', 'struct idt_entry idt[256];\n__asm__ volatile ("lidt %0" : : "m"(idtr));', 'An incorrect handler or missing end-of-interrupt signal can cause crashes or interrupt storms.', 'Design a timer interrupt path and list exactly which registers the assembly stub must preserve.'],
-  'Physical memory': ['Page frames, allocation bitmaps, reserved regions, and physical-address ownership.', 'Advanced', 'Learning model', ['4 KiB pages', 'Memory maps', 'Free lists/bitmaps', 'Contiguous allocation'], 'The teaching runtime uses a bounded page pool. A real kernel would parse the boot memory map, reserve kernel/modules/framebuffer ranges, and maintain one bit or metadata record per physical page.', '#define PAGE_SIZE 4096\nvoid *frame = allocate_page();', 'Never free memory you do not own, and never allocate pages containing the kernel, boot data, or devices.', 'Sketch a bitmap allocator and reserve the framebuffer and kernel image ranges.'],
-  'Virtual memory': ['Page tables, mappings, permissions, address spaces, TLB invalidation, and page faults.', 'Advanced', 'Learning model', ['Virtual-to-physical translation', 'Four-level x86_64 tables', 'Page permissions', 'TLB'], 'The capability layer records mappings as a learning model. Real x86_64 virtual memory requires PML4/PDPT/PD/PT entries and CR3 management.', 'pte = physical | PAGE_PRESENT | PAGE_WRITABLE;\n__asm__ volatile ("invlpg (%0)" : : "r"(virtual_address) : "memory");', 'Incorrect mappings can expose memory, execute data, or triple-fault the CPU.', 'Map one read/write page, explain every page-table index, then unmap and invalidate it.'],
-  'Kernel heap': ['Dynamic allocation, free blocks, alignment, fragmentation, and allocator metadata.', 'Advanced', 'In-memory implementation', ['Bump allocators', 'Free lists', 'Alignment', 'Fragmentation'], 'The teaching runtime owns a fixed kernel heap and tracks allocations in bounded metadata. A production allocator would add coalescing, size classes, corruption checks, and synchronization.', 'void *memory = heap_allocate(bytes, alignment);', 'Heap corruption often appears far from the original bug. Validate sizes and ownership before freeing.', 'Allocate differently sized objects, free them in another order, and inspect fragmentation.'],
-  'Processes': ['Independent programs, address spaces, resources, lifecycle, signals, and exit status.', 'Advanced', 'Learning model', ['Process control blocks', 'Isolation', 'Parent/child lifecycle', 'Resource ownership'], 'Current process blocks update process records but do not yet load separate executables or switch address spaces. A real process needs its own page-table root and at least one runnable thread.', 'typedef struct {\n    uint64_t pid;\n    uint64_t cr3;\n    thread_t *main_thread;\n} process_t;', 'Do not describe the current model as isolation: all generated code still runs in one kernel address space.', 'Design the fields needed in a process control block and explain which are shared with its threads.'],
-  'Threads': ['Runnable execution contexts, stacks, scheduling, sleeping, yielding, priorities, affinity, joining, and races.', 'Advanced', 'Learning model—not concurrent yet', ['Thread control blocks', 'Private stacks', 'Saved registers', 'Scheduler queues', 'Race conditions'], 'Current Thread blocks maintain thread records and demonstrate lifecycle APIs, but create thread does not yet switch stacks or run the entry address. Real concurrency needs a context-switch routine, timer-driven or cooperative scheduler, runnable queues, and synchronization.', 'typedef struct {\n    uint64_t rsp;\n    uint64_t registers[8];\n    uint8_t state;\n    uint8_t *stack;\n} thread_t;\n\nvoid schedule(void) {\n    thread_t *next = pick_next_runnable();\n    context_switch(current, next);\n}', 'Two threads touching the same framebuffer, allocator, or queue can corrupt state unless access is coordinated. Never hold a blocking mutex inside an interrupt handler.', 'Build a cooperative scheduler design with two task functions. Mark exactly where each task yields and what state must be saved.'],
-  'Synchronization': ['Mutexes, semaphores, spinlocks, events, ownership, waiting, and deadlocks.', 'Advanced', 'Learning model', ['Critical sections', 'Atomic operations', 'Blocking versus spinning', 'Deadlock order'], 'The teaching runtime models synchronization object state. A real mutex must atomically acquire ownership and put waiting threads to sleep; a spinlock normally uses x86 atomic exchange or compare-and-swap.', 'while (__atomic_exchange_n(&lock, 1, __ATOMIC_ACQUIRE)) {\n    __asm__ volatile ("pause");\n}', 'Never sleep while holding a spinlock. Define one global lock order to avoid deadlocks.', 'Protect a shared log buffer and explain why a mutex is better than a spinlock for a long operation.'],
-  'Timers and clock': ['Hardware timer ticks, monotonic time, delays, deadlines, periodic callbacks, and time conversion.', 'Intermediate', 'Mixed hardware/model', ['Monotonic clocks', 'Tick frequency', 'Busy wait versus sleep', 'Timer queues'], 'Timestamp reads can use the x86 TSC. A full scheduler clock needs a calibrated periodic interrupt such as APIC timer, HPET, or PIT and a queue of sleeping threads.', 'uint64_t deadline = now_ticks() + delay;\nwhile (now_ticks() < deadline) cpu_pause();', 'Busy waits waste CPU time. Use sleeping deadlines after a real scheduler exists.', 'Measure how many timestamp-counter ticks occur during a known QEMU delay and discuss calibration limits.'],
-  'Keyboard and mouse': ['Controller status, scan codes, mouse packets, button state, movement, and input queues.', 'Intermediate', 'Hardware-backed in QEMU', ['PS/2 status/data ports', 'Scan-code decoding', 'Three-byte mouse packets', 'Event queues'], 'The desktop example polls the emulated PS/2 controller. A stronger design handles IRQ1/IRQ12, decodes packets into events, and lets applications consume a queue.', 'if (port_read8(0x64) & 1) {\n    uint8_t byte = port_read8(0x60);\n    input_queue_push(byte);\n}', 'Controller bytes can belong to either keyboard or mouse. Check status bits and packet synchronisation.', 'Convert raw mouse packets into clamped x/y coordinates and button events.'],
-  'Graphics': ['Framebuffer drawing, clipping, primitives, sprites, saved regions, dirty rectangles, and back buffers.', 'Intermediate', 'Hardware-backed framebuffer', ['Pitch-aware pixels', 'Clipping', 'Dirty rectangles', 'Double buffering'], 'Graphics blocks call real framebuffer routines. Fast cursor movement saves and restores a small region instead of redrawing the complete desktop. Back-buffer operations draw off-screen and copy only changed rectangles to the visible framebuffer.', 'save_region(0, old_x, old_y, 18, 30);\nrestore_region(0, old_x, old_y);\ndraw_cursor(new_x, new_y);', 'Validate dimensions and pointer-backed bitmap sizes. Copying overlapping regions requires direction-aware memory movement.', 'Animate a window by presenting only the union of its old and new rectangles.'],
-  'Text and windows': ['Text cells, fonts, cursor positions, window rectangles, z-order concepts, and UI composition.', 'Intermediate', 'Framebuffer-backed learning UI', ['Bitmap fonts', 'Layout', 'Window state', 'Damage regions'], 'Text drawing uses a bitmap font over framebuffer pixels. Window blocks model rectangles and properties; a complete compositor would track z-order, visibility, clipping, input focus, and damage.', 'draw_text(window.x + 8, window.y + 24, title, colour);', 'Redrawing overlapping windows without clipping or damage tracking causes flicker and wasted work.', 'Create two overlapping windows and calculate which rectangles must be repainted when the front window moves.'],
-  'Storage devices': ['Block devices, sectors, reads/writes, capacity, flushing, and virtual disk behaviour.', 'Advanced', 'Virtual learning device', ['512-byte sectors', 'Block addressing', 'Read/write queues', 'Flush semantics'], 'The teaching runtime exposes deterministic storage state rather than a complete AHCI/NVMe driver. Real hardware needs PCI discovery, DMA buffers, command queues, and interrupt completion.', 'read_sectors(device, lba, count, buffer);', 'A wrong LBA or buffer length can corrupt data or memory. Writes should be tested on disposable images.', 'Define a block-read request structure and validate its end LBA against capacity.'],
-  'Filesystems': ['Paths, directories, file handles, metadata, reads/writes, and filesystem consistency.', 'Advanced', 'In-memory learning filesystem', ['Path lookup', 'Directory entries', 'File offsets', 'On-disk consistency'], 'The runtime provides a bounded in-memory filesystem model. A disk filesystem would translate file offsets into blocks and protect metadata updates against partial writes.', 'file_t *file = fs_open("/config.txt");\nfs_read(file, buffer, length);', 'Validate paths and lengths. Never trust on-disk metadata before checking bounds and structure.', 'Design the lookup steps for /system/config.txt and state which locks each step needs.'],
-  'PCI and devices': ['PCI configuration space, vendor/device IDs, BARs, capability lists, and driver matching.', 'Advanced', 'Mixed hardware/model', ['Bus/device/function addressing', 'Configuration registers', 'Base address registers', 'Driver binding'], 'PCI discovery reads configuration space and matches IDs to drivers. The learning runtime models devices; QEMU hardware can later be enumerated through legacy configuration ports or ECAM.', 'uint32_t id = pci_read32(bus, device, function, 0x00);', 'BAR probing temporarily writes all ones and must restore the original value. Incorrect configuration writes can disable a device.', 'Enumerate one PCI bus and print vendor/device IDs without changing any registers.'],
-  'USB': ['Host controllers, devices, endpoints, descriptors, transfers, and enumeration.', 'Advanced', 'Learning model', ['Descriptors', 'Control endpoint zero', 'Transfer rings', 'Device addresses'], 'USB is driven by a host controller such as xHCI. A real stack must initialise controller rings, enumerate ports, request descriptors, assign addresses, and configure endpoints.', 'usb_control_transfer(device, GET_DESCRIPTOR, buffer, length);', 'USB data is untrusted external input. Validate every descriptor length before following it.', 'Write the enumeration sequence from port reset through SET_CONFIGURATION.'],
-  'Networking': ['Frames, packets, addresses, checksums, queues, protocols, and network-device drivers.', 'Advanced', 'Virtual learning network', ['Ethernet frames', 'ARP', 'IPv4', 'UDP/TCP', 'Receive queues'], 'The runtime provides deterministic packet operations for learning. Real networking begins with a NIC driver, DMA descriptor rings, interrupts, and strict parsing of untrusted packets.', 'if (frame_length >= sizeof(ethernet_header_t)) {\n    handle_ethernet_frame(frame, frame_length);\n}', 'Treat every packet length and field as hostile. Bounds-check before reading protocol headers.', 'Parse an Ethernet frame and reject packets shorter than the declared IPv4 header length.'],
-  'Audio': ['Sample formats, channels, buffers, playback timing, mixing, and audio-device control.', 'Advanced', 'Virtual learning audio', ['PCM samples', 'Sample rate', 'Ring buffers', 'Underruns'], 'The teaching runtime models playback state. Real output requires a PCI audio driver, DMA buffer descriptors, interrupts, and a mixer that keeps the device supplied with samples.', 'mix_samples(output, voices, frame_count);\naudio_submit(output, frame_count);', 'Incorrect sample counts or DMA addresses can read beyond buffers. Keep interrupt-time mixing bounded.', 'Generate a short square-wave buffer and calculate its period for a chosen sample rate.'],
-  'Debug and information': ['Logging, assertions, counters, error state, diagnostics, and inspecting kernel behaviour.', 'Starter', 'Mixed', ['Serial logs', 'Assertions', 'Error codes', 'Observability'], 'Debug blocks record information through screen, serial, and in-memory state. Low-level debugging is most useful when messages include time, subsystem, state, and a clear failure reason.', 'debug_log("[timer] tick received");\nassert(page_address % 4096 == 0);', 'Logging from interrupt or lock-sensitive paths must not block or recursively acquire the same lock.', 'Create a debug log custom block that prefixes each line with uptime and subsystem name.'],
+  "Linux services": [
+    "Linux shutdown, restart, hostname and boot metadata.",
+    "Intermediate",
+    "Linux service",
+    [
+      "Kernel services"
+    ],
+    "reboot, sethostname, uname, /proc/cmdline and CLOCK_MONOTONIC provide real guest services. Status, boot stage and safe mode remain project settings.",
+    "// See the generated block call below.",
+    "Validate paths, sizes and handles. Guest changes are local to this VM.",
+    "Check that hostname changes appear in the diagnostic blocks."
+  ],
+  "CPU": [
+    "Linux CPU identity, affinity and scheduling.",
+    "Intermediate",
+    "Linux service",
+    [
+      "CPU"
+    ],
+    "CPUID provides vendor and brand. sched_getaffinity counts available CPUs, getcpu reports the current CPU, and sched_yield yields execution. Privileged register and interrupt operations are unavailable.",
+    "// See the generated block call below.",
+    "Validate paths, sizes and handles. Guest changes are local to this VM.",
+    "Print the CPU brand and available processor count."
+  ],
+  "Memory allocation": [
+    "Memory allocation backed by Linux mmap and munmap.",
+    "Intermediate",
+    "Linux service",
+    [
+      "Kernel heap"
+    ],
+    "Each allocation is an anonymous zero-filled mapping. Resize allocates a new mapping and preserves its contents. Allocation sizes and ownership are tracked in the process.",
+    "// See the generated block call below.",
+    "Validate paths, sizes and handles. Guest changes are local to this VM.",
+    "Allocate memory, resize it, then free it."
+  ],
+  "Processes": [
+    "Real Linux process creation, signals, priorities and exit codes.",
+    "Intermediate",
+    "Linux service",
+    [
+      "Processes"
+    ],
+    "Create forks the process and runs the supplied function address in the child. Process handles are PIDs. wait4 collects child exit status; kill sends signals. Setting names is limited to the current process. Terminating another process sends SIGTERM; its exit status follows Linux signal semantics.",
+    "// See the generated block call below.",
+    "Validate paths, sizes and handles. Guest changes are local to this VM.",
+    "Create a child, wait for it, and inspect its exit status."
+  ],
+  "Timers and clock": [
+    "Linux monotonic time, wall time and sleeping.",
+    "Intermediate",
+    "Linux service",
+    [
+      "Timers and clock"
+    ],
+    "clock_gettime reads clocks and nanosleep waits without busy loops. One tick is one millisecond. Wall-clock updates call clock_settime. Cooperative timer events use elapsed monotonic time.",
+    "// See the generated block call below.",
+    "Validate paths, sizes and handles. Guest changes are local to this VM.",
+    "Sleep for 100 milliseconds and measure the elapsed monotonic time."
+  ],
+  "Console input": [
+    "Linux tty input from the Studio serial console.",
+    "Intermediate",
+    "Linux service",
+    [
+      "Keyboard and mouse"
+    ],
+    "poll checks for available bytes and read consumes input. The Linux tty is configured for raw input. Use command-line blocks to collect full lines. Mouse and raw scan-code models are unavailable.",
+    "// See the generated block call below.",
+    "Validate paths, sizes and handles. Guest changes are local to this VM.",
+    "Send a command from the Run panel and print the received line."
+  ],
+  "Graphics": [
+    "Software rendering on the Linux framebuffer.",
+    "Intermediate",
+    "Linux service",
+    [
+      "Graphics"
+    ],
+    "Linux loads its Bochs DRM driver and exposes /dev/fb0. ioctl queries the display; mmap exposes pixels to the process. Clipping, sprites, saved regions and back buffers operate on this mapping.",
+    "// See the generated block call below.",
+    "Validate paths, sizes and handles. Guest changes are local to this VM.",
+    "Draw a rectangle and update only the changed region."
+  ],
+  "Text and windows": [
+    "User-space text drawing and simple software windows.",
+    "Intermediate",
+    "Linux service",
+    [
+      "Text and windows"
+    ],
+    "Text and window primitives draw into the Linux framebuffer. Window records are a small drawing toolkit rather than desktop processes or a window server.",
+    "// See the generated block call below.",
+    "Validate paths, sizes and handles. Guest changes are local to this VM.",
+    "Draw a labelled panel and move it."
+  ],
+  "Filesystems": [
+    "Linux file descriptors, directories, mounts and I/O.",
+    "Intermediate",
+    "Linux service",
+    [
+      "Filesystems"
+    ],
+    "open/read/write/lseek/close operate on real guest files. Flags use Linux values: read only 0, read/write 2, create 64, truncate 512, append 1024. Handles and I/O results return negative errno on failure; view them as signed integers. getdents64 enumerates directories without . and ... /tmp and /assets are reset at boot.",
+    "// See the generated block call below.",
+    "Validate paths, sizes and handles. Guest changes are local to this VM.",
+    "Write more than 4096 bytes into /tmp, seek back, and read them."
+  ],
+  "Networking": [
+    "Linux UDP sockets and local guest networking.",
+    "Intermediate",
+    "Linux service",
+    [
+      "Networking"
+    ],
+    "socket/bind/sendto/recvfrom/close use the Linux network stack. Initialization brings loopback up. IPv4 addresses use numeric host order, for example 0x7f000001 for 127.0.0.1. Sockets are nonblocking; no pending packet returns -11 (EAGAIN). External networking requires an emulated NIC and configuration.",
+    "// See the generated block call below.",
+    "Validate paths, sizes and handles. Guest changes are local to this VM.",
+    "Send a UDP message between two ports on 127.0.0.1."
+  ],
+  "Debug and information": [
+    "Guest diagnostics, Linux errno and kernel version.",
+    "Intermediate",
+    "Linux service",
+    [
+      "Debug and information"
+    ],
+    "Runtime calls record the most recent Linux errno. Clear it explicitly before checking a new operation. uname reports the actual Linux kernel release and architecture. Assertions log failures in the generated program.",
+    "// See the generated block call below.",
+    "Validate paths, sizes and handles. Guest changes are local to this VM.",
+    "Open a missing file and inspect errno 2."
+  ]
 };
 
 for (const [name, data] of Object.entries(extensionGuides)) {
@@ -262,10 +351,10 @@ for (const [name, data] of Object.entries(extensionGuides)) {
     tooltip: `Learn ${summary.charAt(0).toLowerCase()}${summary.slice(1)}`,
     level,
     runtimeKind,
-    overview: [summary, `This guide separates the current BlockOS teaching implementation from the additional mechanisms a production kernel would require.`],
+    overview: [summary, `Generated blocks run in Linux user space. Linux manages the kernel and hardware.`],
     prerequisites: level === 'Starter'
       ? ['Values, variables, and control flow', 'Reading generated C']
-      : ['Pointers and fixed-width integers', 'Kernel execution and memory safety', 'Reading generated C'],
+      : ['Pointers and fixed-width integers', 'Linux processes and memory safety', 'Reading generated C'],
     concepts,
     implementation,
     cExample,
@@ -278,7 +367,7 @@ const extensionLearningCategories = extensionCategories.map((category) => ({
   ...category,
   blocks: category.blocks.map((block) => ({
     ...block,
-    description: `${block.kind === 'cmd' ? 'Performs' : 'Returns'} the “${block.label}” capability through the BlockOS runtime layer.`,
+    description: `${block.kind === 'cmd' ? 'Performs' : 'Returns'} the “${block.label}” capability through the FromScratch Linux runtime.`,
     generatedC: makeExtensionCall(block),
     sourceSymbol: block.cName,
   })),
@@ -297,7 +386,7 @@ function makeExtensionCall(block) {
   return call;
 }
 
-export const learningCategories = [...coreCategories.slice(0, 9), ...extensionLearningCategories, coreCategories[9]]
+export const learningCategories = [...coreCategories.filter(category => category.name !== 'Notes'), ...extensionLearningCategories, coreCategories.find(category => category.name === 'Notes')]
   .map((category) => ({...category, guide: guideData[category.name]}));
 
 export function normalizeCategoryName(value) {
@@ -324,8 +413,8 @@ export function categoryTooltip(name) {
 
 export function blockHelpUrl(type) {
   const category = categoryForBlock(type);
-  if (!category) return '/learn.html';
-  return `/learn.html?topic=${encodeURIComponent(category)}&block=${encodeURIComponent(type)}`;
+  if (!category) return `${import.meta.env?.BASE_URL ?? '/'}learn.html`;
+  return `${import.meta.env?.BASE_URL ?? '/'}learn.html?topic=${encodeURIComponent(category)}&block=${encodeURIComponent(type)}`;
 }
 
 export function blockResultLabel(block) {

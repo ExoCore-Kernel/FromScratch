@@ -1,0 +1,12 @@
+{
+  "distribution": "Alpine Linux",
+  "version": "6.12.115-0-virt",
+  "packageUrl": "https://dl-cdn.alpinelinux.org/alpine/v3.22/main/x86_64/linux-virt-6.12.115-r0.apk",
+  "packageSha256": "2c0146b71bb15b1dbfe3056d430ddcdb6f99ed937db51be0a2a7760db6a9b3fc",
+  "sourceUrl": "https://gitlab.alpinelinux.org/alpine/aports/-/tree/37040d7745c15e7bf6cd48d5bbb73005153c6688/main/linux-lts",
+  "license": "GPL-2.0-only",
+  "files": {
+    "bzImage": "8ce908a8cb28d55adcacacf8a16609fa400e07a8826f0084ae5b13b8cb91b9ab",
+    "drivers.cpio": "969fa98e4ee4ea1807d49311cce5051d40c1d47fe1dfaafbc0b4b513d4e47e55"
+  }
+}
