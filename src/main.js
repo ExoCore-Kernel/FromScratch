@@ -55,6 +55,7 @@ const assetFiles = document.querySelector('#assetFiles');
 const assetStatus = document.querySelector('#assetStatus');
 const assetList = document.querySelector('#assetList');
 const exportIsoButton = document.querySelector('#exportIsoButton');
+const exportBuiltIsoButton = document.querySelector('#exportBuiltIsoButton');
 const compileButton = document.querySelector('#compileButton');
 const bootImageInput = document.querySelector('#bootImageInput');
 const chooseBootImageButton = document.querySelector('#chooseBootImageButton');
@@ -70,6 +71,7 @@ const inspectorViews = {code: document.querySelector('#codeView'), run: document
 const mobileButtons = [...document.querySelectorAll('[data-mobile-target]')];
 
 let selectedBootImage = null;
+let lastBuiltIso = null;
 let browserAssets = [];
 let projectFont = null;
 function decodeProjectFont(value) {
@@ -427,6 +429,12 @@ function downloadBlob(name, blob) {
   document.body.append(link); link.click(); link.remove(); URL.revokeObjectURL(url);
 }
 
+function exportBuiltIso() {
+  if (!lastBuiltIso) return;
+  downloadBlob(lastBuiltIso.name, lastBuiltIso);
+  statusText.textContent = `Exported ${lastBuiltIso.name}`;
+}
+
 async function exportBuildBundle() {
   exportIsoButton.disabled = true;
   try {
@@ -615,12 +623,15 @@ async function buildAndRun() {
         runOutput.scrollTop = runOutput.scrollHeight;
       },
     });
+    const builtIso = new File([iso], 'FromScratch-BlockOS-x86_64.iso', {type: 'application/x-iso9660-image'});
+    lastBuiltIso = builtIso;
+    exportBuiltIsoButton.disabled = false;
     runOutput.textContent += '\nCompiled kernel ELF (' + formatBytes(elf.byteLength)
       + ') and bootable GRUB ISO (' + formatBytes(iso.byteLength) + ').\n';
     const buildLog = runOutput.textContent;
     runStatus.textContent = 'ISO ready. Starting your OS in v64…';
     await bootBrowserVm({
-      file: new File([iso], 'FromScratch-BlockOS-x86_64.iso', {type: 'application/x-iso9660-image'}),
+      file: builtIso,
       screenContainer: qemuScreen,
       onStatus(message) { runStatus.textContent = message; },
       onSerial(text) {
@@ -677,6 +688,7 @@ document.querySelector('#assetsButton').addEventListener('click', () => { assets
 document.querySelector('#closeAssetsButton').addEventListener('click', () => assetsDialog.close());
 document.querySelector('#uploadAssetsButton').addEventListener('click', () => uploadAssets().catch((error) => { assetStatus.textContent = error.message; }));
 exportIsoButton.addEventListener('click', exportBuildBundle);
+exportBuiltIsoButton.addEventListener('click', exportBuiltIso);
 compileButton.addEventListener('click', compileInBrowser);
 chooseBootImageButton.addEventListener('click', () => bootImageInput.click());
 bootImageInput.addEventListener('change', () => { selectedBootImage = bootImageInput.files?.[0] ?? null; if (selectedBootImage) { runStatus.textContent = `Selected ${selectedBootImage.name}`; startBrowserRun(); } });
